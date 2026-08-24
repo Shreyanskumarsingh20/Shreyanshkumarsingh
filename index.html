@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ANSH — THE RANGE</title>
+<meta name="description" content="Shreyansh Kumar Singh — seven repositories, stacked. A scroll-driven range of real, running work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   TOKENS — carried over from the main portfolio's DESIGN_SYSTEM.md, unchanged.
+   Lamborghini: canvas/voice. Ferrari: structure. Maserati: depth.
+   ========================================================================= */
+:root{
+  --black:#000000; --iron:#181818; --charcoal:#202020;
+  --blu:#0C2340; --blu-lift:#123056;
+  --gold:#FFC000; --gold-dark:#917300;
+  --rosso:#DA291C; --rosso-text:#E13527;
+  --white:#FFFFFF; --smoke:#F5F5F5;
+  --steel:#969696; --ash:#7D7D7D; --graphite:#494949;
+  --line:#262626;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --xxs:8px; --xs:16px; --sm:24px; --md:32px; --lg:48px; --xl:64px; --xxl:96px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box; border-color:var(--line);}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--black); color:var(--white);
+  font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  /* clip, not hidden: overflow:hidden on an ancestor silently disables
+     position:sticky for every descendant (a well-known CSS trap) — clip
+     prevents the same horizontal bleed without establishing that scroll
+     container. This is what was breaking THE RANGE's stacking cards. */
+  overflow-x:clip;
+}
+::selection{background:var(--gold); color:var(--black);}
+:focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
+a{color:inherit;}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;}
+.shell{width:100%; max-width:1320px; margin-inline:auto; padding-inline:clamp(20px,5vw,80px);}
+.measure{max-width:60ch;}
+.upper{text-transform:uppercase;}
+.label{font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--steel);}
+.micro{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--steel);}
+
+/* the 12° cut, atan(18/84) — reused exactly */
+.cut{clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 64px) 100%,0 100%);}
+.cut-sm{clip-path:polygon(0 0,100% 0,100% calc(100% - 7px),calc(100% - 32px) 100%,0 100%);}
+
+.hex{clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);}
+.trident{display:inline-flex; gap:4px; align-items:flex-end; height:14px;}
+.trident span{width:2px; background:var(--gold); display:block;}
+.trident span:nth-child(1),.trident span:nth-child(3){height:9px;}
+.trident span:nth-child(2){height:14px;}
+
+/* ============================================================================
+   TOP BAR
+   ========================================================================= */
+.topbar{
+  position:fixed; inset:0 0 auto 0; z-index:60; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding-inline:clamp(16px,4vw,48px);
+  background:rgba(0,0,0,.72); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-id{display:flex; align-items:center; gap:12px; font-size:13px; font-weight:600; letter-spacing:.04em;}
+.topbar-nav{display:none; gap:28px;}
+@media(min-width:840px){.topbar-nav{display:flex;}}
+.topbar-nav a{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--steel); text-decoration:none; transition:color .3s var(--ease);}
+.topbar-nav a:hover{color:var(--gold);}
+
+/* live position readout — only visible while inside the stack */
+.hud{
+  position:fixed; right:clamp(16px,4vw,48px); top:76px; z-index:55;
+  font-size:10.5px; letter-spacing:.06em; text-align:right;
+  color:var(--gold); opacity:0; transition:opacity .4s var(--ease); pointer-events:none;
+}
+.hud.on{opacity:.92;}
+.hud .bar{width:120px; height:2px; background:var(--charcoal); margin-top:6px; margin-left:auto; overflow:hidden;}
+.hud .bar i{display:block; height:100%; width:0%; background:var(--gold); transition:width .12s linear;}
+
+/* ============================================================================
+   HERO
+   ========================================================================= */
+.hero{
+  min-height:100svh; display:flex; flex-direction:column; justify-content:flex-end;
+  position:relative; background:
+    radial-gradient(80% 60% at 50% 0%, var(--blu) 0%, transparent 60%),
+    var(--black);
+  padding-top:120px; padding-bottom:0; border-bottom:1px solid var(--line);
+  overflow:hidden;
+}
+.hero-video{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; opacity:.85; pointer-events:none;
+  filter:brightness(1.25) saturate(1.15) contrast(1.02);
+}
+.hero-video-overlay{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(12,35,64,.3) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.22) 55%, var(--black) 96%);
+}
+.hero-grid{
+  position:absolute; inset:0; opacity:.35; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,192,0,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,192,0,.06) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(70% 60% at 50% 20%, black, transparent 75%);
+}
+.hero-eyebrow{display:flex; align-items:center; gap:14px; margin-bottom:28px;}
+.hero h1{
+  margin:0; font-weight:400; text-transform:uppercase; line-height:.94;
+  font-size:clamp(2.6rem,9vw,6.6rem); letter-spacing:-.008em; max-width:14ch;
+}
+.hero h1 .dim{color:var(--steel);}
+.hero p.thesis{font-size:clamp(16px,1.6vw,18px); line-height:1.78; color:#a8a8a8; margin:32px 0 0;}
+.hero-cta{display:flex; gap:16px; flex-wrap:wrap; margin:44px 0 0;}
+.btn{
+  display:inline-flex; align-items:center; gap:10px; min-height:52px; padding:0 28px;
+  font-size:13px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+  text-decoration:none; border:0; cursor:pointer;
+}
+.btn-gold{background:var(--gold); color:var(--black);}
+.btn-gold:hover{background:var(--gold-dark);}
+.btn-ghost{background:transparent; color:var(--white); border:1px solid var(--line); opacity:.8;}
+.btn-ghost:hover{opacity:1; border-color:var(--steel);}
+
+.hero-stats{position:relative; border-top:1px solid var(--line); margin-top:64px;}
+.hero-stats .row{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line);}
+@media(min-width:768px){.hero-stats .row{grid-template-columns:repeat(4,1fr);}}
+.hero-stats .cell{background:var(--black); padding:28px 24px;}
+.hero-stats .v{font-size:clamp(1.8rem,3vw,2.6rem); font-weight:500; letter-spacing:-.02em;}
+.hero-stats .k{margin-top:8px;}
+
+.scroll-cue{
+  position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  font-size:10px; letter-spacing:.14em; color:var(--steel);
+  animation:cue-bob 2.2s var(--ease) infinite;
+}
+@keyframes cue-bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
+.scroll-cue .line{width:1px; height:26px; background:linear-gradient(var(--gold),transparent);}
+
+.concept-note{border-top:1px solid var(--line); background:var(--iron);}
+.concept-note .shell{padding-block:28px; display:flex; gap:16px; align-items:flex-start;}
+.concept-note p{margin:0; font-size:13.5px; line-height:1.7; color:var(--ash);}
+.concept-note strong{color:var(--steel); font-weight:600;}
+
+/* ============================================================================
+   THE RANGE — sticky-stacking cards, built to match the proven reference
+   implementation: every card is the SAME height (sticky's per-card "dwell"
+   scroll distance comes from that height, in normal flow — no separate tall
+   spacer div), with a small constant top-offset/z-index step per card so
+   each one pins just slightly lower than the last. The dramatic overlap you
+   see is a mid-scroll transition, not the resting state.
+   ========================================================================= */
+.range-wrap{ position:relative; background:var(--black); }
+.range-intro{ padding:var(--xxl) 0 var(--xl); border-bottom:1px solid var(--line); }
+.range-intro h2{font-size:clamp(1.8rem,4vw,3rem); font-weight:400; text-transform:uppercase; margin:0 0 18px;}
+.range-intro p{color:#a8a8a8; font-size:16px; line-height:1.75; margin:0;}
+
+.stack{ position:relative; display:flex; flex-direction:column; gap:14px; }
+
+.stack-card{
+  position:relative; width:100%; max-width:1180px; margin-inline:auto;
+  padding:clamp(22px,3.4vw,44px);
+  background:
+    radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--accent,#333) 22%, transparent) 0%, transparent 55%),
+    linear-gradient(160deg, #101010 0%, #060606 100%);
+  border:1px solid #222; border-radius:20px;
+  box-shadow:0 30px 60px -24px rgba(0,0,0,.65);
+  transition:filter .35s var(--ease), transform .35s var(--ease);
+}
+.stack-card.is-behind{ filter:brightness(.5); transform:scale(.98); }
+@media(min-width:860px){
+  .stack-card{
+    position:sticky; transform-origin:top;
+    top:calc(78px + var(--k,0) * 8px);
+    z-index:calc(1 + var(--k,0));
+    height:min(72vh,540px); min-height:460px;
+  }
+}
+
+.stack-card-inner{ display:flex; flex-direction:column; gap:26px; }
+@media(min-width:860px){
+  .stack-card-inner{
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:40px;
+    height:100%; overflow:hidden;
+  }
+}
+
+.stack-left{ display:flex; flex-direction:column; min-width:0; }
+@media(min-width:860px){ .stack-left{ overflow-y:auto; } }
+.stack-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.stack-idx{font-size:12px; color:var(--accent,var(--gold)); font-weight:600;}
+.stack-dash{color:#3a3a3a; font-size:11px;}
+.stack-domain{font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--steel);}
+.stack-ref{margin-left:auto; font-size:10.5px; color:#5a5a5a;}
+.stack-title{
+  font-size:clamp(1.6rem,3.2vw,2.4rem); font-weight:400; text-transform:uppercase;
+  line-height:1.05; margin:16px 0 10px; letter-spacing:-.01em;
+}
+.stack-line{font-size:14.5px; line-height:1.6; color:#b8b8b8; margin:0 0 18px; max-width:48ch; font-style:italic;}
+.stack-badges{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+.stack-badges .badge{
+  font-size:11px; padding:7px 12px; border-radius:100px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.04); color:#d8d8d8;
+}
+.stack-badges .badge b{color:var(--accent,var(--gold)); font-weight:600;}
+.stack-stack{display:flex; flex-wrap:wrap; align-items:center; gap:0 8px; margin-bottom:20px;}
+.stack-stack-label{font-size:10px; letter-spacing:.1em; color:#555; margin-right:2px;}
+.stack-stack span:not(.stack-stack-label){font-size:11px; color:#8a8a8a;}
+.stack-stack span:not(.stack-stack-label)::after{content:"·"; margin-left:8px; color:#3a3a3a;}
+.stack-stack span:not(.stack-stack-label):last-child::after{content:"";}
+.stack-actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:auto; padding-top:6px;}
+.stack-actions .btn-gold{background:var(--accent,var(--gold)); color:#0a0a0a;}
+
+.stack-right{ min-width:0; display:flex; }
+.stack-right .card-art{ flex:1; height:100%; min-height:260px; margin:0; border-radius:14px; border:1px solid #1f1f1f; }
+
+.range-progress{
+  position:fixed; right:20px; top:50%; transform:translateY(-50%); z-index:65;
+  display:flex; flex-direction:column; gap:10px;
+  opacity:0; pointer-events:none; transition:opacity .4s var(--ease);
+}
+.range-progress.on{opacity:1;}
+.range-progress i{width:2px; height:20px; background:var(--charcoal); transition:background .3s var(--ease), height .3s var(--ease);}
+.range-progress i.on{background:var(--gold); height:32px;}
+@media(max-width:860px){ .range-progress{display:none;} }
+
+/* ---- card art: real screenshots of the real running projects. Full landing
+   pages are shown end-to-end via an internally scrollable frame — see
+   PROJECTS data for source colours/URLs. Never a stand-in stock image. ---- */
+.card-art{
+  position:relative; height:300px; margin:-32px -34px 24px;
+  overflow:hidden; background:#0a1626; border-bottom:1px solid #1c3a5e;
+}
+.card-art::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
+  background:var(--accent,var(--gold)); z-index:3;
+}
+.card-art .chrome{
+  position:absolute; top:0; left:0; right:0; height:26px; z-index:2;
+  display:flex; align-items:center; gap:6px; padding:0 12px;
+  background:#0a1420; border-bottom:1px solid rgba(255,255,255,.06);
+}
+.card-art .chrome i{width:7px; height:7px; border-radius:50%; background:#3c4d61; flex:none;}
+.card-art .chrome-label{margin-left:6px; font-size:9.5px; letter-spacing:.04em; color:#7488a0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.card-art .chrome-hint{margin-left:auto; font-size:9px; letter-spacing:.04em; color:#4c5c70; flex:none;}
+.card-art .shot{position:absolute; inset:26px 0 0 0;}
+.card-art .shot img{width:100%; height:100%; object-fit:cover; object-position:top center; display:block;}
+.card-art .inset-shot{position:absolute; right:12px; bottom:12px; width:40%; border:2px solid #04070c; box-shadow:0 10px 22px rgba(0,0,0,.55); display:block; z-index:1;}
+.card-art .tri{position:absolute; bottom:10px; left:10px; display:flex; gap:6px; z-index:1;}
+.card-art .tri img{width:44px; height:29px; object-fit:cover; border:1px solid rgba(255,255,255,.28); box-shadow:0 4px 10px rgba(0,0,0,.5);}
+
+/* full end-to-end landing pages: scroll the real screenshot inside its frame
+   instead of cropping it to the hero — nothing below the fold is hidden. */
+.card-art .shot.scrollable{
+  overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin; scrollbar-color:var(--accent,#666) rgba(255,255,255,.05);
+}
+.card-art .shot.scrollable img{height:auto; object-fit:unset;}
+.card-art .shot.scrollable::-webkit-scrollbar{width:6px;}
+.card-art .shot.scrollable::-webkit-scrollbar-track{background:rgba(255,255,255,.05);}
+.card-art .shot.scrollable::-webkit-scrollbar-thumb{background:var(--accent,#666); border-radius:3px;}
+
+/* ============================================================================
+   RESEARCH GRID
+   ========================================================================= */
+.section{padding:var(--xxl) 0; border-top:1px solid var(--line);}
+.section-head{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:var(--lg); flex-wrap:wrap;}
+.section-head h2{font-size:clamp(1.8rem,4vw,3rem); font-weight:400; text-transform:uppercase; margin:0;}
+.section-head p{color:var(--steel); font-size:14px; max-width:44ch; margin:0;}
+
+/* told as an evidence wall, not a grid: findings grouped into case files by
+   the project they came out of, each fronted by a small exhibit icon, each
+   finding a pinned index card. A different storytelling device from Method's
+   two acts — investigation rather than narrative. */
+.research-board{
+  display:flex; flex-direction:column; gap:var(--lg);
+  padding:clamp(20px,4vw,36px);
+  border:1px solid var(--line);
+  background-image:radial-gradient(rgba(255,192,0,.05) 1px, transparent 1px);
+  background-size:16px 16px;
+}
+.case{display:flex; flex-direction:column; gap:20px;}
+.case-tab{display:flex; align-items:center; gap:14px; padding-bottom:14px; border-bottom:1px solid var(--line);}
+.case-icon{
+  width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center;
+  background:var(--iron); border:1px solid var(--line);
+}
+.case-icon svg{width:24px; height:24px;}
+.case-meta{display:flex; flex-direction:column; gap:3px;}
+.case-no{font-size:10px; letter-spacing:.12em; color:var(--gold);}
+.case-project{font-size:13.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;}
+.case-count{margin-left:auto; font-size:10.5px; color:var(--steel); letter-spacing:.05em; text-transform:uppercase; white-space:nowrap;}
+
+.case-notes{display:grid; grid-template-columns:1fr; gap:18px;}
+@media(min-width:640px){.case-notes{grid-template-columns:repeat(2,1fr);}}
+.pin-note{
+  position:relative; background:var(--black); border:1px solid var(--line);
+  padding:24px 22px 20px; transform:rotate(var(--rot,0deg));
+  transition:transform .4s var(--ease), border-color .4s var(--ease);
+}
+.pin-note:hover{transform:rotate(0deg) translateY(-3px); border-color:var(--gold);}
+.pin-note .pin{
+  position:absolute; top:-6px; left:28px; width:10px; height:10px; border-radius:50%;
+  background:var(--gold); box-shadow:0 3px 5px rgba(0,0,0,.6);
+}
+.pin-note .n{font-size:11px; color:var(--gold); letter-spacing:.06em;}
+.pin-note h3{font-size:1.02rem; font-weight:600; text-transform:none; margin:10px 0 8px; line-height:1.3;}
+.pin-note p{font-size:13.5px; line-height:1.68; color:var(--ash); margin:0;}
+
+/* ============================================================================
+   METHOD — told as two illustrated acts (the discipline before the code,
+   the scrutiny after it) rather than a flat list. Each act pairs a hand-drawn
+   SVG artwork with a short storyboard of beats connected by a spine line.
+   ========================================================================= */
+.method-story{display:flex; flex-direction:column; gap:var(--xxl);}
+.method-act{display:grid; grid-template-columns:1fr; gap:32px;}
+@media(min-width:860px){
+  .method-act{grid-template-columns:240px 1fr; gap:56px; align-items:start;}
+  .method-act.flip{grid-template-columns:1fr 240px;}
+  .method-act.flip .method-art-wrap{order:2;}
+  .method-act.flip .method-beats{order:1;}
+}
+.method-art-wrap{display:flex; flex-direction:column; gap:18px;}
+.method-art{width:100%; max-width:240px; height:auto; display:block;}
+.method-chapter{font-size:11px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--gold);}
+.method-act[data-tone="audit"] .method-chapter{color:var(--rosso-text);}
+.method-act-title{font-size:1.5rem; font-weight:400; text-transform:uppercase; margin:6px 0 10px; letter-spacing:-.01em;}
+.method-act-narrative{font-size:13.5px; line-height:1.7; color:var(--ash); margin:0; max-width:34ch;}
+
+.method-beats{position:relative; display:flex; flex-direction:column;}
+.method-beats::before{content:""; position:absolute; left:15px; top:16px; bottom:16px; width:1px; background:var(--line);}
+.method-beat{position:relative; padding:0 0 34px 52px;}
+.method-beat:last-child{padding-bottom:0;}
+.method-beat .n{
+  position:absolute; left:0; top:0; width:31px; height:31px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--black); border:1px solid var(--gold); color:var(--gold);
+  font-size:11px; font-weight:600; font-family:"JetBrains Mono",monospace; z-index:1;
+}
+.method-act[data-tone="audit"] .method-beat .n{border-color:var(--rosso-text); color:var(--rosso-text);}
+.method-beat h3{font-size:1.05rem; font-weight:600; text-transform:none; margin:3px 0 8px;}
+.method-beat p{font-size:14px; line-height:1.7; color:var(--ash); margin:0;}
+.method-beat .ev{font-size:11.5px; color:var(--steel); margin-top:10px; display:block;}
+
+/* ============================================================================
+   INSTRUMENTS
+   ========================================================================= */
+#telemetry{position:relative; overflow:hidden;}
+.telemetry-video{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; opacity:.85; pointer-events:none;
+  filter:brightness(1.25) saturate(1.15) contrast(1.02);
+}
+.telemetry-video-overlay{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(12,35,64,.35) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.5) 55%, var(--black) 96%);
+}
+#telemetry .shell{position:relative;}
+#telemetry .section-head h2,
+#telemetry .instr-group .label{text-shadow:0 1px 3px rgba(0,0,0,.9), 0 2px 12px rgba(0,0,0,.7);}
+#telemetry .instr-group .label{color:#e8e8e8;}
+#telemetry .section-head p{color:#c2c2c2; text-shadow:0 1px 3px rgba(0,0,0,.85), 0 2px 10px rgba(0,0,0,.6);}
+.instr-grid{display:grid; gap:28px;}
+@media(min-width:760px){.instr-grid{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:1100px){.instr-grid{grid-template-columns:repeat(3,1fr);}}
+.instr-group .label{margin-bottom:16px;}
+.instr-tags{display:flex; flex-wrap:wrap; gap:22px 16px;}
+.tech-tile{display:flex; flex-direction:column; align-items:center; gap:10px; width:74px; text-align:center;}
+.tech-box{
+  --c:#333; position:relative; width:56px; height:56px; flex:none;
+  background:var(--c); display:flex; align-items:center; justify-content:center;
+  border-radius:18px; overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:
+    6px 6px 0 rgba(0,0,0,.65),
+    6px 6px 0 1px rgba(255,255,255,.05),
+    inset 0 1px 1px rgba(255,255,255,.55),
+    inset 0 -12px 14px rgba(0,0,0,.3);
+  transition:transform .4s var(--ease), box-shadow .4s var(--ease);
+}
+.tech-box::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(155deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.16) 28%, rgba(255,255,255,0) 52%, rgba(0,0,0,.22) 100%);
+  mix-blend-mode:overlay;
+}
+.tech-box::after{
+  content:""; position:absolute; left:9%; top:7%; width:52%; height:26%; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse at center, rgba(255,255,255,.65), rgba(255,255,255,0) 72%);
+  filter:blur(1.5px);
+}
+.tech-box svg{display:block; width:26px; height:26px; position:relative; z-index:1;}
+.tech-mono{font-family:"JetBrains Mono",ui-monospace,monospace; font-weight:700; font-size:14.5px; letter-spacing:.02em; position:relative; z-index:1;}
+.tech-name{font-size:10.5px; font-weight:600; line-height:1.35; color:#f2f2f2; letter-spacing:.02em; text-shadow:0 1px 3px rgba(0,0,0,.9), 0 2px 12px rgba(0,0,0,.7);}
+@media(hover:hover){
+  .tech-tile:hover .tech-box{
+    transform:perspective(500px) rotateY(-14deg) rotateX(8deg) translate(-4px,-4px);
+    box-shadow:
+      11px 11px 0 rgba(0,0,0,.65),
+      11px 11px 0 1px rgba(255,255,255,.05),
+      inset 0 1px 1px rgba(255,255,255,.6),
+      inset 0 -12px 14px rgba(0,0,0,.3);
+  }
+}
+
+/* ============================================================================
+   FOOTER
+   ========================================================================= */
+footer{padding:var(--xxl) 0 var(--xl); border-top:1px solid var(--line); background:var(--iron); position:relative; overflow:hidden;}
+.footer-video{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; opacity:.85; pointer-events:none;
+  filter:brightness(1.25) saturate(1.15) contrast(1.02);
+}
+.footer-video-overlay{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(12,35,64,.3) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.22) 55%, var(--iron) 96%);
+}
+footer .shell{position:relative;}
+footer h2{font-size:clamp(1.8rem,4.5vw,3.2rem); font-weight:400; text-transform:uppercase; margin:0 0 20px; max-width:16ch;}
+.foot-links{display:flex; flex-wrap:wrap; gap:16px; margin-top:32px;}
+.foot-meta{margin-top:64px; padding-top:24px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--graphite); font-size:11.5px;}
+
+/* ============================================================================
+   REVEAL — one shared IntersectionObserver
+   ========================================================================= */
+.rise{opacity:0; transform:translateY(24px); transition:opacity .8s var(--ease), transform .8s var(--ease); transition-delay:calc(var(--i,0)*60ms);}
+.rise.in{opacity:1; transform:none;}
+
+@media(prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  .rise{opacity:1; transform:none;}
+  .scroll-cue{animation:none;}
+  /* the stack becomes a plain vertical list — no sticky pinning, no dimming */
+  .stack-card{position:static !important; top:auto !important; height:auto !important; z-index:auto !important; max-width:760px; filter:none !important; transform:none !important;}
+  .stack-card-inner{height:auto !important; overflow:visible !important;}
+  .stack-left{overflow-y:visible !important;}
+  .range-progress{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-id">
+    <span class="trident"><span></span><span></span><span></span></span>
+    ANSH
+  </div>
+  <nav class="topbar-nav">
+    <a href="#range">Range</a>
+    <a href="#research">Research</a>
+    <a href="#method">Method</a>
+    <a href="#telemetry">Telemetry</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<div class="hud mono" id="hud">
+  <div id="hudLine">DEPTH — / —</div>
+  <div class="bar"><i id="hudBar"></i></div>
+</div>
+
+<!-- ============================================================ HERO -->
+<section class="hero" id="top">
+  <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_171521_25968ba2-b594-4b32-aab7-f6b69398a6fa.mp4" type="video/mp4">
+  </video>
+  <div class="hero-video-overlay" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="shell" style="position:relative;">
+    <div class="hero-eyebrow rise">
+      <span class="trident"><span></span><span></span><span></span></span>
+      <span class="label">Shreyansh Kumar Singh — Engineer</span>
+    </div>
+    <h1 class="rise" style="--i:1">Seven repositories.<br><span class="dim">One stack.</span></h1>
+    <p class="thesis measure rise" style="--i:2">I build systems that make invisible things legible — blast physics, attack surfaces, a thousand years of art, a bank's document pile — and I write the specification before I write the code. This page is a scroll-driven stack of the work itself.</p>
+    <div class="hero-cta rise" style="--i:3">
+      <a href="#range" class="btn btn-gold cut-sm"><span>See the range</span></a>
+      <a href="#research" class="btn btn-ghost">The research</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="shell" style="padding-inline:0;">
+      <div class="row">
+        <div class="cell"><div class="v mono">7</div><div class="k label">Repositories shipped</div></div>
+        <div class="cell"><div class="v mono">5</div><div class="k label">Languages in production</div></div>
+        <div class="cell"><div class="v mono">0</div><div class="k label">Dependencies in THE EVOLUTION</div></div>
+        <div class="cell"><div class="v mono">P0</div><div class="k label">Severity found in own code</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue" aria-hidden="true"><span class="line"></span>SCROLL</div>
+</section>
+
+<div class="concept-note">
+  <div class="shell">
+    <p><strong>The concept —</strong> every project below is real, screenshotted live off a running server, not mocked up. Scroll and each one pins to the top of the stack as the next rises to cover it — like flipping through a stack of case files. No parallax library: the stacking itself is <span class="mono">position: sticky</span>, one per project; the only scroll-driven code left dims a card once the next one has covered it.</p>
+  </div>
+</div>
+
+<!-- ============================================================ THE RANGE -->
+<div class="range-wrap">
+  <div class="range-intro shell">
+    <h2 class="rise">The Range</h2>
+    <p class="rise measure" style="--i:1">Every repository below is real: the reference numbers are derived from commit dates (<span class="mono">YYMM.CODE.serial</span>), not invented. Keep scrolling — each project pins to the top of the stack as the next rises over it.</p>
+  </div>
+
+  <div class="stack" id="range"><!-- injected --></div>
+  <div class="range-progress" id="progress" aria-hidden="true"></div>
+</div>
+
+<!-- ============================================================ RESEARCH -->
+<section class="section" id="research">
+  <div class="shell">
+    <div class="section-head">
+      <h2 class="rise">Research</h2>
+      <p class="rise" style="--i:1">Nine findings, five case files — every note pinned under the project it came out of, not floating on its own.</p>
+    </div>
+    <div class="research-board" id="researchGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ============================================================ METHOD -->
+<section class="section" id="method">
+  <div class="shell">
+    <div class="section-head">
+      <h2 class="rise">Method</h2>
+      <p class="rise" style="--i:1">How the work gets made — in two acts.</p>
+    </div>
+    <div class="method-story" id="methodStory"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ============================================================ TELEMETRY -->
+<section class="section" id="telemetry">
+  <video class="telemetry-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260601_110537_3a579fa0-7bbc-4d94-9d25-0e816c7840f5.mp4" type="video/mp4">
+  </video>
+  <div class="telemetry-video-overlay" aria-hidden="true"></div>
+  <div class="shell">
+    <div class="section-head">
+      <h2 class="rise">Telemetry</h2>
+      <p class="rise" style="--i:1">The instrument rack.</p>
+    </div>
+    <div class="instr-grid" id="instrGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ============================================================ CONTACT -->
+<footer id="contact">
+  <video class="footer-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4" type="video/mp4">
+  </video>
+  <div class="footer-video-overlay" aria-hidden="true"></div>
+  <div class="shell">
+    <h2 class="rise">Let's build the next<br>legible system.</h2>
+    <p class="measure rise" style="--i:1; color:var(--ash)">Email and source, below. This page — like everything referenced in it — is source-visible: <span class="mono">index.html</span>, no build step.</p>
+    <div class="foot-links rise" style="--i:2">
+      <a class="btn btn-gold cut-sm" href="mailto:shreyanshkumarsingh208@gmail.com"><span>Email</span></a>
+      <a class="btn btn-ghost" href="https://github.com/gamersinghxx-creator" target="_blank" rel="noopener">GitHub — gamersinghxx-creator</a>
+    </div>
+    <div class="foot-meta">
+      <span>THE RANGE — a scroll-driven stack of the work above</span>
+      <span class="mono">v1 · <span id="year"></span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+   DATA — every field traced to lib/projects.ts in the main portfolio.
+   ========================================================================= */
+const PROJECTS = [
+  { n:"01", name:"THE COLLECTOR'S PULSE", ref:"2606.EDT.06", domain:"EDITORIAL", dom:"var(--gold)", accent:"#F2762E",
+    line:"An AI-curated daily newsroom for trading cards, figures and luxury watches — with its own written design system.",
+    figs:[["3","Collecting worlds"],["30d","Freshness filter"],["6","Spec docs shipped"]],
+    stack:["Next.js 16","React 19","TypeScript","Tailwind v4","Gemini"], url:"https://github.com/gamersinghxx-creator/the-collectors-pulse",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">thecollectorshub — newsroom, live</span><span class="chrome-hint mono">scroll ↓ full page</span></div>
+      <div class="shot scrollable"><img src="assets/shots/collectors-real.jpg" alt="The Collector's Pulse real homepage, full length — 'Every rare find, decoded.' with live trending articles" loading="lazy"></div>
+    </div>` },
+  { n:"02", name:"NYTHERA", ref:"2607.SEC.02", domain:"SECURITY", dom:"var(--rosso-text)", accent:"#E13527",
+    line:"An autonomous penetration-testing platform that validates every finding before it reports it.",
+    figs:[["9","Validated vuln. classes"],["7","Workflow phases"],["1","Default-off internal mode"]],
+    stack:["Python","Async HTTP","LLM agent loop","Docker"], url:"https://github.com/gamersinghxx-creator/Nythera",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">nythera — open-source scanner · localhost:8000</span><span class="chrome-hint mono">scroll ↓ full page</span></div>
+      <div class="shot scrollable"><img src="assets/shots/nythera-real.jpg" alt="Nythera's real landing page, full length — live scan-report mock showing a critical exposed .env finding" loading="lazy"></div>
+    </div>` },
+  { n:"03", name:"IDBI SARTHI", ref:"2607.AI.03", domain:"APPLIED AI", dom:"var(--gold)", accent:"#00674D",
+    line:"Production RAG and document intelligence for a bank — then a written audit of its own P0 holes.",
+    figs:[["P0","Highest self-reported"],["4","Severity tiers"],["17","Library modules"]],
+    stack:["Next.js","TypeScript","Prisma","Supabase","Groq","Gemini"], url:"https://github.com/gamersinghxx-creator/idbi-sarthi",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">sarthi — AI RM Copilot · Customer 360</span><span class="chrome-hint mono">scroll ↓ full page</span></div>
+      <div class="shot scrollable"><img src="assets/shots/idbi-real.jpg" alt="IDBI SARTHI's real Customer 360 dashboard, full length, populated with a live synthetic customer record" loading="lazy"></div>
+    </div>` },
+  { n:"04", name:"ANTARANG", ref:"2607.SPT.04", domain:"SPATIAL", dom:"var(--gold)", accent:"#C9A45A",
+    line:"A walkable 3D museum where Indian art history sits as a first-class citizen on the world timeline.",
+    figs:[["2","Axes on one timeline"],["60fps","Target in-gallery"],["1","Permitted data source"]],
+    stack:["Next.js","React Three Fiber","Three.js","Drizzle","Neon"], url:"https://github.com/gamersinghxx-creator/3dIndianmusem",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">antarang — world &amp; indian art timeline</span></div>
+      <div class="shot"><img src="assets/shots/antarang-gallery.jpg" alt="ANTARANG's real dual-axis timeline UI — World Art and Indian Art, gold rings opening a walkable gallery" loading="lazy"></div>
+      <img class="inset-shot" src="assets/shots/antarang-real.jpg" alt="ANTARANG's real particle-field intro screen" loading="lazy">
+    </div>` },
+  { n:"05", name:"BOOKVERSE AI", ref:"2607.PRD.05", domain:"PRODUCT", dom:"var(--gold)", accent:"#ff2e55",
+    line:"Step inside any book — summaries, timelines, mind maps, character graphs and a grounded AI tutor.",
+    figs:[["0","API keys required"],["3","Model paths"],["∞","Cache lifetime"]],
+    stack:["Next.js 16","React","TypeScript","Tailwind","Groq","Ollama"], url:"https://github.com/gamersinghxx-creator/BookVerseAi",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">bookverse — step inside any book</span><span class="chrome-hint mono">scroll ↓ full page</span></div>
+      <div class="shot scrollable"><img src="assets/shots/bookverse-real.jpg" alt="BookVerse AI's real landing page, full length — 'Step inside any book', with its live model badge and Summon search" loading="lazy"></div>
+    </div>` },
+  { n:"06", name:"THE EVOLUTION", ref:"2607.SIM.01", domain:"SIMULATION", dom:"var(--gold)", accent:"#D09A56",
+    line:"Four physics simulators. One HTML file each. No build step, no dependencies, no network.",
+    figs:[["4","Simulators"],["5,034","Lines total"],["0","Dependencies"]],
+    stack:["Vanilla JS","Canvas 2D","Zero deps"], url:"https://github.com/gamersinghxx-creator/THE_EVOLUTION",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">aeon.html — local file · zero deps</span></div>
+      <div class="shot"><img src="assets/shots/evolution.png" alt="AEON — weapons-consequence simulator, one of the four THE EVOLUTION simulators" loading="lazy"></div>
+      <div class="tri">
+        <img src="assets/shots/evolution-cosmos.png" alt="COSMOS simulator" loading="lazy">
+        <img src="assets/shots/evolution-genesis.png" alt="GENESIS simulator" loading="lazy">
+        <img src="assets/shots/evolution-genlife.png" alt="GENLIFE simulator" loading="lazy">
+      </div>
+    </div>` },
+  { n:"07", name:"VAULTIQ", ref:"2606.PLT.07", domain:"PLATFORM", dom:"var(--gold)", accent:"#7C3AED",
+    line:"Angular 18 and ASP.NET Core 8 in Clean Architecture — the enterprise half of the range.",
+    figs:[["4","Clean Arch. layers"],["8",".NET major version"],["18","Angular major version"]],
+    stack:["C#",".NET 8","Angular 18","Signals","EF Core","SQL Server"], url:"https://github.com/gamersinghxx-creator/vaultIQ",
+    art:`<div class="card-art">
+      <div class="chrome"><i></i><i></i><i></i><span class="chrome-label mono">vaultiq — AI startup idea generator</span><span class="chrome-hint mono">scroll ↓ full page</span></div>
+      <div class="shot scrollable"><img src="assets/shots/vaultiq-real.jpg" alt="VaultIQ's real landing page, full length — 'Find your next big startup idea in seconds.'" loading="lazy"></div>
+    </div>` },
+];
+
+const RESEARCH_CASES = [
+  {
+    caseNo:"CASE 01", project:"THE EVOLUTION",
+    icon:`<svg viewBox="0 0 24 24"><path d="M3 20h18M3 20V3" stroke="var(--steel)" stroke-width="1"/><path d="M3 20 Q7 20 9 14 T15 6 Q18 3 21 3" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+    notes:[
+      { n:"R-01", title:"Cube-root scaling as the spine of a consequence model", finding:"A thousandfold increase in yield multiplies the damage radius by ten, not a thousand — one exponent covers seven orders of magnitude." },
+      { n:"R-02", title:"Lagrangian parcels instead of an ellipse", finding:"Fallout dose becomes a function of position and time-since-detonation — activity falls ~100× in the first two days (Way–Wigner t^-1.2)." },
+    ],
+  },
+  {
+    caseNo:"CASE 02", project:"NYTHERA",
+    icon:`<svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="7" fill="none" stroke="var(--rosso-text)" stroke-width="1.6"/><path d="M6 12l2 2 4-5" stroke="var(--rosso-text)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><rect x="17" y="5" width="5" height="13" rx="2.5" fill="none" stroke="var(--steel)" stroke-width="1.3"/><circle cx="19.5" cy="8.5" r="1.4" fill="var(--steel)"/></svg>`,
+    notes:[
+      { n:"R-03", title:"A finding is not a finding until it is confirmed", finding:"Every active check needs physical evidence — a DB error signature, a reflected payload, real command output — or it's discarded, not downgraded." },
+      { n:"R-04", title:"The dangerous capability is the one you default to off", finding:"Internal-network scanning is a separate, explicitly authorized switch, host-locked with include/exclude rules and a rate limiter in front." },
+    ],
+  },
+  {
+    caseNo:"CASE 03", project:"IDBI SARTHI",
+    icon:`<svg viewBox="0 0 24 24"><g fill="none" stroke="var(--gold)" stroke-width="1.4"><rect x="2" y="4" width="7" height="7"/><rect x="15" y="4" width="7" height="7"/><rect x="2" y="15" width="7" height="7"/><rect x="15" y="15" width="7" height="7"/></g><path d="M9 7.5h6M12 11v2M5.5 11v4M18.5 11v4" stroke="var(--steel)" stroke-width="1"/></svg>`,
+    notes:[
+      { n:"R-05", title:"Splitting RAG into four modules that can each be wrong alone", finding:"Embeddings, vectors, retrieval and generation are separate modules — each stage independently inspectable and replaceable." },
+      { n:"R-06", title:"Auditing your own code as the attacker", finding:"P0 self-reported: no auth on any endpoint, sequential enumerable IDs — scrapeable with a for-loop. Published, not quietly patched." },
+    ],
+  },
+  {
+    caseNo:"CASE 04", project:"ANTARANG",
+    icon:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="var(--gold)" stroke-width="1" opacity=".5"/><circle cx="12" cy="12" r="3" fill="var(--gold)"/><path d="M2 12h4M18 12h4" stroke="var(--gold)" stroke-width="1" opacity=".7"/></svg>`,
+    notes:[
+      { n:"R-07", title:"A single permitted source, and what to do about copyright", finding:"Verified Wikipedia/Wikimedia data only; in-copyright modern artists become biography nodes rather than invented reproductions." },
+      { n:"R-08", title:"Jitter is a bigger problem than framerate", finding:"A focus raycast throttled to ~10×/s fixed perceived smoothness more than any framerate tuning did." },
+    ],
+  },
+  {
+    caseNo:"CASE 05", project:"THE COLLECTOR'S PULSE",
+    icon:`<svg viewBox="0 0 24 24"><rect x="1.5" y="9" width="6" height="6" fill="#2E8BFF"/><rect x="9" y="9" width="6" height="6" fill="#C24BF5"/><rect x="16.5" y="9" width="6" height="6" fill="#E8C96A"/></svg>`,
+    notes:[
+      { n:"R-09", title:"Writing the design system before the interface", finding:"Three marques, three non-overlapping jobs — averaging references produces mud; assigning each a distinct role produces a system." },
+    ],
+  },
+];
+
+const METHOD_ACTS = [
+  {
+    tone:"spec", chapter:"Act I — before the code exists",
+    title:"The discipline",
+    narrative:"The shape of the thing gets written down first — what it is, what it looks like, where every number came from — so it can be picked up cold by anyone, including a future me.",
+    art:`<svg class="method-art" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two stacked specification documents, sealed off with a checkmark and a measurement annotation">
+      <g opacity=".22" stroke="var(--gold)" stroke-width=".5">
+        <path d="M0 36h240M0 72h240M0 108h240M0 144h240"/>
+        <path d="M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180"/>
+      </g>
+      <rect x="32" y="22" width="132" height="148" fill="var(--blu)" stroke="var(--line2)"/>
+      <rect x="18" y="8" width="132" height="148" fill="var(--blu-lift)" stroke="var(--gold)" stroke-opacity=".45"/>
+      <rect x="32" y="24" width="72" height="7" fill="var(--gold)"/>
+      <rect x="32" y="44" width="102" height="3" fill="#9aaabf"/>
+      <rect x="32" y="56" width="102" height="3" fill="#9aaabf"/>
+      <rect x="32" y="68" width="86" height="3" fill="#9aaabf"/>
+      <rect x="32" y="90" width="102" height="3" fill="#9aaabf"/>
+      <rect x="32" y="102" width="102" height="3" fill="#9aaabf"/>
+      <rect x="32" y="114" width="64" height="3" fill="#9aaabf"/>
+      <polygon points="152,9 169,18 169,35 152,44 135,35 135,18" fill="var(--black)" stroke="var(--gold)" stroke-width="1.5"/>
+      <path d="M144 27l6 6 11-12" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18 164h60M18 158v12M78 158v12" stroke="var(--gold)" stroke-width="1"/>
+      <text x="20" y="177" fill="var(--gold)" font-size="9" font-family="JetBrains Mono, ui-monospace, monospace" letter-spacing="1">SPEC FIRST</text>
+    </svg>`,
+    beats:[
+      { n:"01", title:"Write the bible before the code", body:"Almost every repository ships a PROJECT_BIBLE.md and HANDOFF.md alongside the source, written to be picked up cold.", ev:"PROJECT_BIBLE · HANDOFF · AGENTS · CLAUDE — across 5 repositories" },
+      { n:"02", title:"Design as a token system, in writing", body:"The visual language gets its own document with named surfaces and roles before a component exists. Reference the token, never hardcode a hex.", ev:"DESIGN_SYSTEM.md — every colour tokenised" },
+      { n:"03", title:"Every number traces to a source", body:"Blast, thermal and fallout curves cite a published model. ANTARANG uses only verified Wikimedia data.", ev:"Model tables in README.md" },
+    ],
+  },
+  {
+    tone:"audit", chapter:"Act II — after it ships",
+    title:"The scrutiny",
+    narrative:"Then it gets turned on itself — attacked like an outsider, run without its safety nets, and judged on whether the tool actually fit the job or just felt familiar.",
+    art:`<svg class="method-art" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A hexagonal system diagram with a flagged critical node under a magnifying glass">
+      <polygon points="60,20 140,20 180,90 140,160 60,160 20,90" fill="var(--iron)" stroke="var(--line2)"/>
+      <g stroke="var(--gold)" stroke-width="1" opacity=".5">
+        <path d="M100 90L60 20M100 90L180 90M100 90L60 160"/>
+      </g>
+      <circle cx="100" cy="90" r="4" fill="var(--gold)"/>
+      <circle cx="60" cy="20" r="3.5" fill="var(--gold)"/>
+      <circle cx="60" cy="160" r="3.5" fill="var(--gold)"/>
+      <circle cx="180" cy="90" r="3.5" fill="var(--rosso-text)"/>
+      <rect x="150" y="10" width="34" height="16" fill="var(--black)" stroke="var(--rosso-text)" stroke-width="1.2"/>
+      <text x="167" y="21" fill="var(--rosso-text)" font-size="8" font-family="JetBrains Mono, ui-monospace, monospace" text-anchor="middle" letter-spacing=".5">P0</text>
+      <circle cx="196" cy="86" r="30" fill="var(--black)" fill-opacity=".55" stroke="var(--rosso-text)" stroke-width="2.6"/>
+      <path d="M180 86h32M196 70v32" stroke="var(--rosso-text)" stroke-width="1" opacity=".6"/>
+      <path d="M217 107l19 19" stroke="var(--rosso-text)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M20 166h60M20 160v12M80 160v12" stroke="var(--rosso-text)" stroke-width="1"/>
+      <text x="26" y="179" fill="var(--rosso-text)" font-size="9" font-family="JetBrains Mono, ui-monospace, monospace" letter-spacing="1">PROVE IT</text>
+    </svg>`,
+    beats:[
+      { n:"04", title:"Audit your own work like an adversary", body:"IDBI SARTHI ships a full static self-review, graded P0 to P3, most damaging finding written first.", ev:"QA_AUDIT.md" },
+      { n:"05", title:"Degrade honestly", body:"BookVerse runs fully without an API key and says so with a badge. Nythera's internal mode is off by default.", ev:"Preview-mode fallback · internal mode default-off" },
+      { n:"06", title:"Choose the tool for the problem", body:"Vanilla canvas physics. Python security tooling. R3F galleries. Next.js RAG. ASP.NET Clean Architecture. The range is deliberate.", ev:"7 repositories · TS · JS · Python · C# · WebGL" },
+    ],
+  },
+];
+
+/* box color + glyph per technology — "mono" is a lettermark (many real logos
+   already are exactly this: a coloured square + white/black letters), "svg"
+   is a hand-drawn pictogram. Colour families echo the domain colours used in
+   PROJECTS above: gold for applied-AI/graphics, rosso for security. */
+const TECH_META = {
+  "TypeScript": { c:"#3178C6", mono:"TS" },
+  "JavaScript": { c:"#F0DB4F", mono:"JS", dark:true },
+  "Python": { c:"#30475E", svg:'<path d="M12 3c-1.5 0-2.7.3-3.6.8-.8.5-1.2 1.1-1.2 2v1.7h4.8v.6H5.4C4 8.1 3 9.4 3 11.4v2.6c0 2 1.1 3.3 3 3.3h1.4v-2.1c0-1.9 1.6-3.4 3.6-3.4h3.6c1.6 0 2.9-1.3 2.9-2.9V5.8c0-1.5-1.3-2.6-2.9-2.8-.9-.2-1.8-.3-2.6-.3z" fill="#3776AB"/><path d="M12 21c1.5 0 2.7-.3 3.6-.8.8-.5 1.2-1.1 1.2-2v-1.7h-4.8v-.6h6.6c1.4 0 2.4-1.3 2.4-3.3v-2.6c0-2-1.1-3.3-3-3.3h-1.4v2.1c0 1.9-1.6 3.4-3.6 3.4H9.4c-1.6 0-2.9 1.3-2.9 2.9v3.1c0 1.5 1.3 2.6 2.9 2.8.9.2 1.8.3 2.6.3z" fill="#FFD43B"/>' },
+  "C#": { c:"#684D9C", mono:"C#" },
+  "SQL": { c:"#00618A", svg:'<g fill="none" stroke="#fff" stroke-width="1.5"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>' },
+  "HTML/CSS": { c:"#E34F26", svg:'<path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>' },
+
+  "Next.js (App Router)": { c:"#FFFFFF", mono:"N", dark:true },
+  "React 19": { c:"#20232A", svg:'<g fill="none" stroke="#61DAFB" stroke-width="1.3"><circle cx="12" cy="12" r="2" fill="#61DAFB" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/></g>' },
+  "Angular 18 + Signals": { c:"#DD0031", mono:"ng" },
+  "Tailwind": { c:"#0F172A", svg:'<path d="M6 12c1-3 3-4.5 6-4.5s4 1.5 6 4.5c-1-1-2.2-1.5-3.6-1.2C13 11.6 12 13 10 13.2 7.8 13.5 6.6 12.7 6 12z" fill="#38BDF8"/><path d="M2 16.5c1-3 3-4.5 6-4.5s4 1.5 6 4.5c-1-1-2.2-1.5-3.6-1.2-1.4.3-2.4 1.7-4.4 1.9-2.2.3-3.4-.5-4-1.7z" fill="#38BDF8"/>' },
+  "Framer Motion": { c:"#0055FF", mono:"FM" },
+  "Radix / shadcn": { c:"#242424", svg:'<rect x="4" y="4" width="10" height="10" rx="1" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="10" y="10" width="10" height="10" rx="1" fill="#fff"/>' },
+
+  "RAG pipelines": { c:"#C9960A", svg:'<g fill="none" stroke="#111" stroke-width="1.6"><circle cx="5" cy="12" r="2.1" fill="#111"/><circle cx="19" cy="12" r="2.1" fill="#111"/><path d="M7.1 12h9.8" stroke-dasharray="2.2 2.2"/><rect x="9.5" y="8" width="5" height="8" rx="1" fill="#111" stroke="none"/></g>' },
+  "Embeddings + vector retrieval": { c:"#E0A100", svg:'<g fill="#111" stroke="#111" stroke-width="1.2"><circle cx="6" cy="7" r="1.5"/><circle cx="18" cy="7" r="1.5"/><circle cx="6" cy="17" r="1.5"/><circle cx="18" cy="17" r="1.5"/><circle cx="12" cy="12" r="1.7"/><path d="M7.2 8.2 10.8 11M17 8.2 13.4 11M7.2 15.8 10.8 13M17 15.8 13.4 13" fill="none"/></g>' },
+  "LLM agent loops": { c:"#FFC000", svg:'<g fill="none" stroke="#111" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.6-5.7L20 8M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.6 5.7L4 16M4 20v-4h4"/></g>' },
+  "Groq": { c:"#F55036", mono:"Gq" },
+  "Gemini": { c:"#171730", svg:'<path d="M12 3c.6 3.8 2.2 5.4 6 6-3.8.6-5.4 2.2-6 6-.6-3.8-2.2-5.4-6-6 3.8-.6 5.4-2.2 6-6z" fill="#9AB6FF"/>' },
+  "Ollama": { c:"#181818", svg:'<g fill="none" stroke="#fff" stroke-width="1.4"><circle cx="12" cy="13" r="6"/><path d="M8 8 7 3M16 8l1-5" stroke-linecap="round"/><circle cx="9.5" cy="12.5" r="1" fill="#fff" stroke="none"/><circle cx="14.5" cy="12.5" r="1" fill="#fff" stroke="none"/></g>' },
+  "OCR (Tesseract)": { c:"#4C6EF5", svg:'<g fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></g>' },
+
+  "React Three Fiber": { c:"#111827", svg:'<g fill="none" stroke="#61DAFB" stroke-width="1.3"><path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3z"/><path d="M12 3v9M12 12 4 7.5M12 12l8-4.5M12 12v9"/></g>' },
+  "Three.js": { c:"#0d1117", svg:'<g fill="none" stroke="#fff" stroke-width="1.3"><path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3z"/><path d="M12 3v9M12 12 4 7.5M12 12l8-4.5M12 12v9"/></g>' },
+  "Canvas 2D": { c:"#FF6F3C", svg:'<g fill="none" stroke="#111" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18" stroke-width="1"/></g>' },
+  "Bloom · ACES postprocessing": { c:"#FFC000", svg:'<g stroke="#111" stroke-width="1.4"><circle cx="12" cy="12" r="4" fill="#111" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2" stroke-linecap="round"/></g>' },
+  "N-body + particle systems": { c:"#E0A100", svg:'<g fill="#111" stroke="#111"><circle cx="12" cy="12" r="1.5" stroke="none"/><ellipse cx="12" cy="12" rx="9" ry="4" fill="none" stroke-width="1.2"/><circle cx="20.5" cy="12" r="1.1" stroke="none"/><ellipse cx="12" cy="12" rx="4" ry="9" fill="none" stroke-width="1.2" transform="rotate(30 12 12)"/><circle cx="15.2" cy="4.4" r="1" stroke="none"/></g>' },
+
+  "ASP.NET Core 8": { c:"#512BD4", svg:'<path d="M7 9a3 3 0 1 0 0 6c1.8 0 2.6-1 3.5-2l3-3c.9-1 1.7-2 3.5-2a3 3 0 1 1 0 6c-1.8 0-2.6-1-3.5-2l-3-3c-.9-1-1.7-2-3.5-2z" fill="none" stroke="#fff" stroke-width="1.5"/>' },
+  "Clean Architecture": { c:"#1f2937", svg:'<g fill="none" stroke="#fff"><circle cx="12" cy="12" r="3" stroke-width="1.3"/><circle cx="12" cy="12" r="6.5" stroke-width="1.1" opacity=".7"/><circle cx="12" cy="12" r="10" stroke-width="1" opacity=".4"/></g>' },
+  "Prisma": { c:"#0C344B", svg:'<path d="M12 2 21 20H3L12 2z" fill="none" stroke="#5AC8FA" stroke-width="1.5" stroke-linejoin="round"/>' },
+  "Drizzle": { c:"#0F172A", svg:'<path d="M12 3c3.5 4.2 6 7.6 6 10.5A6 6 0 0 1 6 13.5C6 10.6 8.5 7.2 12 3z" fill="#22C55E"/>' },
+  "Supabase": { c:"#0f2e24", svg:'<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="#3ECF8E"/>' },
+  "Neon": { c:"#07211c", svg:'<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="none" stroke="#00E5A0" stroke-width="1.4" stroke-linejoin="round"/>' },
+  "EF Core": { c:"#2d2d5f", mono:"EF" },
+  "SQL Server": { c:"#A91D22", svg:'<g fill="none" stroke="#fff" stroke-width="1.5"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g>' },
+
+  "OWASP Top 10": { c:"#8a1c15", svg:'<g fill="none" stroke="#fff"><path d="M12 3 5 6v5c0 5 3 8.5 7 10 4-1.5 7-5 7-10V6l-7-3z" stroke-width="1.4" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>' },
+  "CWE mapping": { c:"#7a1712", svg:'<g fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="13" r="5" stroke-width="1.3"/><path d="M12 8V5M9 6 7.5 4M15 6l1.5-2M5 13H3M21 13h-2M6 17l-2 1.5M18 17l2 1.5"/></g>' },
+  "PTES workflow": { c:"#6b1410", svg:'<g fill="#fff" stroke="#fff"><circle cx="4" cy="12" r="1.8" stroke="none"/><circle cx="12" cy="6" r="1.8" stroke="none"/><circle cx="12" cy="18" r="1.8" stroke="none"/><circle cx="20" cy="12" r="1.8" stroke="none"/><path d="M5.6 11 10.4 7M5.6 13 10.4 17M13.6 7 18.4 11M13.6 17 18.4 13" stroke-width="1.2"/></g>' },
+  "Validated exploitation": { c:"#9c2318", svg:'<g fill="none" stroke="#fff"><circle cx="12" cy="12" r="9" stroke-width="1.4"/><path d="M8 12l3 3 5-6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></g>' },
+  "Auth hardening": { c:"#5c1512", svg:'<g fill="none" stroke="#fff" stroke-width="1.4"><rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></g>' },
+  "Rate limiting": { c:"#4d100e", svg:'<g fill="none" stroke="#fff"><path d="M4 16a8 8 0 1 1 16 0" stroke-width="1.4"/><path d="M12 16 16 10" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="16" r="1.3" fill="#fff" stroke="none"/></g>' },
+};
+
+const INSTRUMENTS = [
+  { g:"Languages", items:["TypeScript","JavaScript","Python","C#","SQL","HTML/CSS"] },
+  { g:"Web", items:["Next.js (App Router)","React 19","Angular 18 + Signals","Tailwind","Framer Motion","Radix / shadcn"] },
+  { g:"Applied AI", items:["RAG pipelines","Embeddings + vector retrieval","LLM agent loops","Groq","Gemini","Ollama","OCR (Tesseract)"] },
+  { g:"Graphics + simulation", items:["React Three Fiber","Three.js","Canvas 2D","Bloom · ACES postprocessing","N-body + particle systems"] },
+  { g:"Backend + data", items:["ASP.NET Core 8","Clean Architecture","Prisma","Drizzle","Supabase","Neon","EF Core","SQL Server"] },
+  { g:"Security", items:["OWASP Top 10","CWE mapping","PTES workflow","Validated exploitation","Auth hardening","Rate limiting"] },
+];
+
+/* ============================================================================
+   RENDER
+   ========================================================================= */
+/* real cross-link: only projects that actually have a case file in Research
+   get a second button — never fabricate a link that goes nowhere. */
+const caseHrefByProject = Object.fromEntries(RESEARCH_CASES.map((c, i) => [c.project, `#case-${i + 1}`]));
+
+const stackEl = document.getElementById("range");
+PROJECTS.forEach((p, i) => {
+  const caseHref = caseHrefByProject[p.name];
+  const card = document.createElement("article");
+  card.className = "stack-card";
+  card.style.setProperty("--accent", p.accent);
+  card.style.setProperty("--k", i);
+  card.innerHTML = `
+    <div class="stack-card-inner">
+      <div class="stack-left">
+        <div class="stack-head">
+          <span class="stack-idx mono">${p.n}</span>
+          <span class="stack-dash" aria-hidden="true">――</span>
+          <span class="stack-domain">${p.domain}</span>
+          <span class="stack-ref mono">${p.ref}</span>
+        </div>
+        <h3 class="stack-title">${p.name}</h3>
+        <p class="stack-line">${p.line}</p>
+        <div class="stack-badges">
+          ${p.figs.map(f => `<span class="badge"><b>${f[0]}</b> ${f[1]}</span>`).join("")}
+        </div>
+        <div class="stack-stack">
+          <span class="stack-stack-label mono">STACK</span>
+          ${p.stack.map(s => `<span>${s}</span>`).join("")}
+        </div>
+        <div class="stack-actions">
+          <a class="btn btn-gold cut-sm" href="${p.url}" target="_blank" rel="noopener"><span>View repository →</span></a>
+          ${caseHref ? `<a class="btn btn-ghost" href="${caseHref}">Research case →</a>` : ""}
+        </div>
+      </div>
+      <div class="stack-right">${p.art}</div>
+    </div>
+  `;
+  stackEl.appendChild(card);
+});
+const stackCardEls = [...stackEl.children];
+
+const progressEl = document.getElementById("progress");
+PROJECTS.forEach((_, i) => {
+  const dot = document.createElement("i");
+  dot.dataset.index = i;
+  progressEl.appendChild(dot);
+});
+const dotEls = [...progressEl.children];
+
+document.getElementById("researchGrid").innerHTML = RESEARCH_CASES.map((c, i) => `
+  <div class="case rise" id="case-${i + 1}" style="--i:${i}">
+    <div class="case-tab">
+      <span class="case-icon">${c.icon}</span>
+      <div class="case-meta">
+        <span class="case-no mono">${c.caseNo}</span>
+        <span class="case-project">${c.project}</span>
+      </div>
+      <span class="case-count mono">${c.notes.length} finding${c.notes.length > 1 ? "s" : ""}</span>
+    </div>
+    <div class="case-notes">
+      ${c.notes.map((r, j) => `
+        <div class="pin-note" style="--rot:${j % 2 === 0 ? "-1deg" : "0.8deg"}">
+          <span class="pin"></span>
+          <div class="n mono">${r.n}</div>
+          <h3>${r.title}</h3>
+          <p>${r.finding}</p>
+        </div>
+      `).join("")}
+    </div>
+  </div>
+`).join("");
+
+document.getElementById("methodStory").innerHTML = METHOD_ACTS.map((act, i) => `
+  <div class="method-act rise${i === 1 ? " flip" : ""}" data-tone="${act.tone}" style="--i:${i}">
+    <div class="method-art-wrap">
+      ${act.art}
+      <div>
+        <div class="method-chapter mono">${act.chapter}</div>
+        <h3 class="method-act-title">${act.title}</h3>
+        <p class="method-act-narrative">${act.narrative}</p>
+      </div>
+    </div>
+    <div class="method-beats">
+      ${act.beats.map(b => `
+        <div class="method-beat">
+          <div class="n mono">${b.n}</div>
+          <h3>${b.title}</h3>
+          <p>${b.body}</p>
+          <span class="ev mono">${b.ev}</span>
+        </div>
+      `).join("")}
+    </div>
+  </div>
+`).join("");
+
+document.getElementById("instrGrid").innerHTML = INSTRUMENTS.map((g, i) => `
+  <div class="instr-group rise" style="--i:${i}">
+    <div class="label">${g.g}</div>
+    <div class="instr-tags">${g.items.map(name => {
+      const meta = TECH_META[name] || { c:"#333", mono:name.slice(0,2).toUpperCase() };
+      const glyph = meta.mono
+        ? `<span class="tech-mono" style="color:${meta.dark ? "#111" : "#fff"}">${meta.mono}</span>`
+        : `<svg viewBox="0 0 24 24">${meta.svg}</svg>`;
+      return `
+        <div class="tech-tile">
+          <div class="tech-box" style="--c:${meta.c}">${glyph}</div>
+          <span class="tech-name">${name}</span>
+        </div>`;
+    }).join("")}</div>
+  </div>
+`).join("");
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* ============================================================================
+   REVEAL — shared IntersectionObserver
+   ========================================================================= */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("in"); });
+}, { threshold: 0.16 });
+document.querySelectorAll(".rise").forEach(el => io.observe(el));
+
+/* ============================================================================
+   THE RANGE — the stacking itself is pure CSS (position:sticky per card, an
+   8px top-offset/z-index step — see .stack-card above). This block finds
+   which card is currently on top (for the HUD + side dots) and dims the
+   ones it has covered, via .is-behind — the one bit of per-frame styling
+   the concept-note copy above now accounts for.
+   ========================================================================= */
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduceMotion) document.querySelectorAll(".hero-video, .footer-video, .telemetry-video").forEach(v => v.pause());
+const rangeSection = document.getElementById("range");
+const hud = document.getElementById("hud");
+const hudLine = document.getElementById("hudLine");
+const hudBar = document.getElementById("hudBar");
+const N = PROJECTS.length;
+const STACK_OFFSET = 78, STACK_STEP = 8; // must match .stack-card's top: formula in CSS
+
+function layout() {
+  const rect = rangeSection.getBoundingClientRect();
+  const total = rect.height - window.innerHeight;
+  const inRange = rect.top < window.innerHeight * 0.5 && rect.bottom > 0;
+  const wide = window.innerWidth >= 860;
+  hud.classList.toggle("on", inRange && !reduceMotion && wide);
+  progressEl.classList.toggle("on", inRange && !reduceMotion && wide);
+
+  if (reduceMotion || !wide || total <= 0) {
+    stackCardEls.forEach(card => card.classList.remove("is-behind"));
+    return;
+  }
+
+  // the active card is the last one whose sticky top-offset has been reached
+  let active = 0;
+  stackCardEls.forEach((card, i) => {
+    if (card.getBoundingClientRect().top <= STACK_OFFSET + i * STACK_STEP + 1) active = i;
+  });
+  dotEls.forEach((d, i) => d.classList.toggle("on", i === active));
+  stackCardEls.forEach((card, i) => card.classList.toggle("is-behind", i < active));
+
+  const progress = Math.min(Math.max(-rect.top, 0), total) / total;
+  const p = PROJECTS[active];
+  hudLine.textContent = `PROJECT ${p.n}/0${N} — ${p.name} · ${p.domain}`;
+  hudBar.style.width = `${Math.round(progress * 100)}%`;
+}
+
+let ticking = false;
+function onScroll() {
+  if (!ticking) {
+    requestAnimationFrame(() => { layout(); ticking = false; });
+    ticking = true;
+  }
+}
+window.addEventListener("scroll", onScroll, { passive: true });
+window.addEventListener("resize", onScroll);
+layout();
+</script>
+</body>
+</html>
