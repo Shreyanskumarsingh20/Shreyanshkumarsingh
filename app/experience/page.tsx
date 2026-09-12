@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     "Shreyansh Kumar Singh — four years as a full-stack developer at RamanByte: .NET / SQL Server APIs bound into Angular front-ends, shipped to production for real institutions.",
   openGraph: {
     type: "profile",
-    title: "Experience — ANSH",
+    title: "Experience — Shreyansh Kumar Singh",
     description:
       "Four years at RamanByte — full-stack .NET + Angular, shipped to production. Case study: PIBM's A Journal of Management.",
   },

@@ -15,7 +15,7 @@ export default function HomeTopBar() {
           <span></span>
           <span></span>
         </span>
-        ANSH
+        Shreyansh Kumar Singh
       </div>
       <div className="topbar-right">
         <nav className="topbar-nav">

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Shreyansh Kumar Singh — a direct way to start a real conversation, not a form that goes nowhere.",
   openGraph: {
     type: "website",
-    title: "Let's Talk — ANSH",
+    title: "Let's Talk — Shreyansh Kumar Singh",
     description:
       "Shreyansh Kumar Singh — a direct way to start a real conversation, not a form that goes nowhere.",
   },

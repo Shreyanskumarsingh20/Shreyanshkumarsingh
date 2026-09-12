@@ -19,19 +19,19 @@ import ContactModal from "@/components/ui/ContactModal";
 import Toast from "@/components/ui/Toast";
 
 export const metadata: Metadata = {
-  title: "ANSH — THE RANGE",
+  title: "Shreyansh Kumar Singh — THE RANGE",
   description:
     "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
   openGraph: {
     type: "website",
-    title: "ANSH — THE RANGE",
+    title: "Shreyansh Kumar Singh — THE RANGE",
     description:
       "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
     images: ["/shots/collectors-real.jpg"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ANSH — THE RANGE",
+    title: "Shreyansh Kumar Singh — THE RANGE",
     description:
       "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
     images: ["/shots/collectors-real.jpg"],

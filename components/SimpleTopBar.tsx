@@ -22,7 +22,7 @@ export default function SimpleTopBar({
           <span></span>
           <span></span>
         </span>
-        ANSH
+        Shreyansh Kumar Singh
       </Link>
       <Link className="topbar-back" href={backHref}>
         {backLabel}

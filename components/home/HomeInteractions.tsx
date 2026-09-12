@@ -176,7 +176,7 @@ export default function HomeInteractions() {
     // ==========================================================================
     // CONSOLE EASTER EGG
     // ==========================================================================
-    console.log("%cANSH — THE RANGE", "color:#FFC000;font-size:20px;font-weight:700;font-family:monospace;");
+    console.log("%cShreyansh Kumar Singh — THE RANGE", "color:#FFC000;font-size:20px;font-weight:700;font-family:monospace;");
     console.log(
       "%cNine repositories. One stack. If you're reading this, you already know how to find things that aren't obvious.",
       "color:#90e0ef;font-size:12px;font-family:monospace;"

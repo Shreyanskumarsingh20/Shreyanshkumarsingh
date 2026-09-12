@@ -2,7 +2,7 @@
   "name": "the-range",
   "version": "1.0.0",
   "private": true,
-  "description": "ANSH — THE RANGE: a scroll-driven portfolio, Next.js App Router + TypeScript + Tailwind.",
+  "description": "Shreyansh Kumar Singh — THE RANGE: a scroll-driven portfolio, Next.js App Router + TypeScript + Tailwind.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

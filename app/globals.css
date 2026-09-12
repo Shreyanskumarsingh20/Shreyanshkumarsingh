@@ -118,7 +118,8 @@ img{max-width:100%;}
 }
 .topbar--exp{width:min(calc(100% - 32px), 1180px);}
 .topbar--talk{width:min(calc(100% - 32px), 900px);}
-.topbar-id{display:flex; align-items:center; gap:12px; font-size:13px; font-weight:600; letter-spacing:.04em; text-decoration:none;}
+.topbar-id{display:flex; align-items:center; gap:12px; font-size:13px; font-weight:600; letter-spacing:.04em; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+@media(max-width:480px){ .topbar-id{ font-size:11px; gap:8px; } }
 .topbar-right{display:flex; align-items:center; gap:20px;}
 .topbar-nav{display:none; gap:20px;}
 @media(min-width:980px){.topbar-nav{display:flex;}}

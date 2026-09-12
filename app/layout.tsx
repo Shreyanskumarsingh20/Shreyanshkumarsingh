@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   // deployed"). Swap this for the real production domain at deploy time.
   metadataBase: new URL("https://ansh-the-range.example.com"),
   title: {
-    default: "ANSH — THE RANGE",
-    template: "%s — ANSH",
+    default: "Shreyansh Kumar Singh — THE RANGE",
+    template: "%s — Shreyansh Kumar Singh",
   },
   description:
     "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
