@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>GENLIFE · a world that evolves itself</title>
+<style>
+  :root{
+    --bg:#04050a; --panel:rgba(16,18,26,0.62); --border:rgba(255,255,255,0.10);
+    --text:#eef1f7; --muted:#8b90a3; --accent:#6aa8ff; --radius:18px;
+    --shadow:0 12px 44px rgba(0,0,0,0.55);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:radial-gradient(1400px 900px at 20% -10%,#101d38 0,transparent 55%),
+               radial-gradient(1200px 800px at 115% 120%,#26103a 0,transparent 52%),var(--bg);
+    color:var(--text);overflow:hidden;height:100dvh;display:flex;flex-direction:column;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px;gap:18px;flex:0 0 auto;}
+  .brand{display:flex;align-items:baseline;gap:14px;min-width:0;}
+  .brand h1{margin:0;font-size:21px;font-weight:800;letter-spacing:3px;
+    background:linear-gradient(90deg,#8fb6ff,#c9a6ff 55%,#ff9bcf);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .epoch{display:flex;flex-direction:column;line-height:1.15;min-width:0;}
+  .epoch b{font-size:13px;font-weight:700;letter-spacing:.4px;color:#dfe6ff;}
+  .epoch small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw;}
+  .hud{display:flex;gap:16px;align-items:center;font-variant-numeric:tabular-nums;}
+  .hud .s{display:flex;flex-direction:column;align-items:flex-end;line-height:1.05;}
+  .hud .s b{font-size:14px;font-weight:700;}
+  .hud .s i{font-size:9px;color:var(--muted);font-style:normal;letter-spacing:.6px;text-transform:uppercase;}
+
+  .main{flex:1 1 auto;display:flex;gap:12px;padding:0 12px 10px;min-height:0;}
+  .stage{position:relative;flex:1 1 auto;border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--border);box-shadow:var(--shadow),inset 0 0 80px rgba(0,0,0,.6);background:#010206;min-width:0;}
+  #world{display:block;width:100%;height:100%;cursor:crosshair;}
+  .vig{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 150px rgba(0,0,0,.7);border-radius:var(--radius);}
+  .flash{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .12s;border-radius:var(--radius);}
+  #mini{position:absolute;right:12px;top:12px;width:176px;height:104px;border:1px solid var(--border);border-radius:10px;
+    background:rgba(0,0,0,0.4);cursor:pointer;z-index:4;box-shadow:0 6px 20px rgba(0,0,0,.4);display:none;}
+  #legend{position:absolute;left:12px;top:12px;z-index:4;background:rgba(10,12,20,0.55);border:1px solid var(--border);
+    border-radius:11px;padding:8px 12px;font-size:11.5px;color:var(--muted);backdrop-filter:blur(10px);line-height:1.6;max-width:330px;display:none;}
+  #legend b{display:block;color:#dfe6ff;font-size:11px;letter-spacing:.5px;margin-bottom:2px;text-transform:uppercase;}
+  #legend .k{white-space:nowrap;}
+
+  .side{flex:0 0 306px;display:flex;flex-direction:column;gap:12px;min-height:0;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);
+    padding:12px 13px;}
+  .card h3{margin:0 0 8px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;}
+  .side .grow{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;}
+  #chart,#tree{width:100%;display:block;border-radius:10px;background:rgba(0,0,0,.25);}
+  .legend{display:flex;gap:12px;margin-top:7px;font-size:10.5px;color:var(--muted);}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dotc{width:8px;height:8px;border-radius:50%;}
+  .spec{display:flex;flex-direction:column;gap:5px;overflow-y:auto;scrollbar-width:thin;}
+  .spec::-webkit-scrollbar{width:5px;} .spec::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:9px;}
+  .srow{display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:9px;background:rgba(255,255,255,.035);cursor:pointer;transition:background .12s;}
+  .srow:hover{background:rgba(255,255,255,.10);}
+  .srow .sw{width:13px;height:13px;border-radius:5px;flex:0 0 auto;box-shadow:inset 0 0 5px rgba(0,0,0,.4);}
+  .srow .nm{flex:1 1 auto;min-width:0;}
+  .srow .nm b{font-size:12px;font-weight:700;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .srow .nm small{font-size:10px;color:var(--muted);}
+  .srow .ct{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;}
+
+  .dock{flex:0 0 auto;margin:0 12px 12px;display:flex;gap:9px;flex-wrap:wrap;align-items:center;
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+    backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);padding:11px 13px;}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:11px;cursor:pointer;user-select:none;
+    background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text);font-size:12.5px;font-weight:650;letter-spacing:.2px;transition:.13s;}
+  .btn:hover{background:rgba(255,255,255,.14);} .btn:active{transform:scale(.95);}
+  .btn.primary{background:linear-gradient(180deg,#5b8dff,#3f6ff0);border-color:transparent;}
+  .btn.ev{font-size:12px;padding:8px 11px;}
+  .group{display:flex;align-items:center;gap:8px;} .group span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;background:rgba(255,255,255,.18);width:96px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.5);cursor:pointer;}
+  .spacer{flex:1 1 auto;}
+
+  /* intro overlay */
+  #intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;z-index:5;pointer-events:none;transition:opacity 1s;}
+  #intro h2{margin:0;font-size:min(7vw,54px);font-weight:800;letter-spacing:6px;
+    background:linear-gradient(90deg,#a9c6ff,#d9b6ff,#ffb0d6);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 40px rgba(150,170,255,.3);}
+  #intro p{margin:0;color:#aab0c6;font-size:14px;letter-spacing:1px;max-width:520px;}
+  #intro .go{pointer-events:auto;}
+
+  /* inspector */
+  #insp{position:absolute;left:14px;bottom:14px;width:280px;z-index:6;display:none;}
+  #insp .close{position:absolute;top:8px;right:10px;color:var(--muted);cursor:pointer;font-size:16px;}
+  .bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11px;}
+  .bar label{width:64px;color:var(--muted);flex:0 0 auto;}
+  .bar .track{flex:1 1 auto;height:6px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;}
+  .bar .fill{height:100%;border-radius:6px;}
+  .bar b{width:34px;text-align:right;font-variant-numeric:tabular-nums;}
+  #brainc{width:100%;height:86px;display:block;margin-top:8px;border-radius:9px;background:rgba(0,0,0,.28);}
+  @media (max-width:920px){ .side{display:none;} }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>GENLIFE</h1>
+      <div class="epoch"><b id="epochName">Cosmic Dawn</b><small id="narr">In the beginning there was only dust and gravity…</small></div>
+    </div>
+    <div class="hud">
+      <div class="s"><b id="hPop">0</b><i>life</i></div>
+      <div class="s"><b id="hSpec">0</b><i>species</i></div>
+      <div class="s"><b id="hGen">0</b><i>max gen</i></div>
+      <div class="s"><b id="hTime">0</b><i>eon</i></div>
+      <div class="s"><b id="hDiv">0.00</b><i>diversity</i></div>
+      <div class="s"><b id="hFps">60</b><i>fps</i></div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <canvas id="world"></canvas>
+      <div class="vig"></div>
+      <div class="flash" id="flash"></div>
+      <canvas id="mini" width="176" height="104"></canvas>
+      <div id="legend">
+        <b>What you're seeing</b>
+        <span class="k"><span style="color:#79e0b0">●</span> grazer &nbsp; <span style="color:#ff7a6a">▶</span> hunter &nbsp; <span style="color:#c08bff">◌</span> infected</span><br>
+        <span class="k">green haze = food &nbsp; bright glow = feeding &nbsp; colour = species</span><br>
+        <span class="k" style="color:#6f7488">drag to pan · scroll to zoom · click a creature to inspect</span>
+      </div>
+      <div id="intro">
+        <h2>GENLIFE</h2>
+        <p id="introP">A universe assembling itself from nothing — watch gravity gather the first matter.</p>
+        <div class="btn primary go" id="skipIntro">Ignite the world →</div>
+      </div>
+      <div class="card" id="insp">
+        <span class="close" id="inspClose">×</span>
+        <h3 id="inspName">Organism</h3>
+        <div id="inspBars"></div>
+        <canvas id="brainc" width="256" height="86"></canvas>
+        <div style="font-size:10.5px;color:var(--muted);margin-top:6px" id="inspMeta"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3>Population <span id="chLbl"></span></h3>
+        <canvas id="chart" width="280" height="96"></canvas>
+        <div class="legend">
+          <span><i class="dotc" style="background:#57d98a"></i>herbivores</span>
+          <span><i class="dotc" style="background:#ff6b6b"></i>carnivores</span>
+          <span><i class="dotc" style="background:#4a7bd0"></i>flora</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Evolving Traits</h3>
+        <canvas id="traits" width="280" height="64"></canvas>
+        <div class="legend">
+          <span><i class="dotc" style="background:#f7c948"></i>size</span>
+          <span><i class="dotc" style="background:#6aa8ff"></i>speed</span>
+          <span><i class="dotc" style="background:#ff8f5a"></i>diet</span>
+          <span><i class="dotc" style="background:#b07bff"></i>immunity</span>
+        </div>
+      </div>
+      <div class="card grow">
+        <h3>Species <span id="specCount">0</span></h3>
+        <div class="spec" id="specList" style="flex:1 1 auto"></div>
+      </div>
+      <div class="card">
+        <h3>Tree of Life</h3>
+        <canvas id="tree" width="280" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <div class="btn primary" id="play"><span id="playLbl">Pause</span></div>
+    <div class="group"><span>Speed</span><input id="speed" type="range" min="1" max="8" value="3"><b id="spVal" style="font-size:12px;width:22px">3×</b></div>
+    <div class="spacer"></div>
+    <div class="btn ev" id="evMeteor">☄ Meteor</div>
+    <div class="btn ev" id="evIce">❄ Ice Age</div>
+    <div class="btn ev" id="evBloom">🌱 Bloom</div>
+    <div class="btn ev" id="evRad">☢ Radiation</div>
+    <div class="btn ev" id="evPred">🦈 Predators</div>
+    <div class="btn ev" id="evPlague">☣ Plague</div>
+    <div class="btn ev" id="evSeed">✦ Seed Life</div>
+    <div class="btn ev" id="save">⤓ Save</div>
+    <div class="btn ev" id="load">⤒ Load</div>
+    <input type="file" id="loadFile" accept="application/json" style="display:none"/>
+    <div class="btn ev" id="tSound">♪ Sound: Off</div>
+    <div class="btn ev" id="tSex">⚥ Sexual: On</div>
+    <div class="btn ev" id="tFollow">◎ Follow: Off</div>
+    <div class="btn ev" id="tView">👁 View: Normal</div>
+    <div class="btn" id="restart">↻ New Universe</div>
+  </div>
+
+<script>
+(function(){
+"use strict";
+// ============================================================ RNG / helpers
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let SEED=(Math.random()*1e9)|0;
+let rand=mulberry32(SEED);
+function randn(){let u=0,v=0;while(!u)u=rand();while(!v)v=rand();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const TAU=Math.PI*2;
+
+// ============================================================ constants (proven by headless tuning)
+const WORLD_W=1280, WORLD_H=760, TILE=20;
+const GW=Math.floor(WORLD_W/TILE), GH=Math.floor(WORLD_H/TILE);
+const CAP=440;
+const P={foodRegrow:0.0075,foodMax:1.0,plantEnergy:20,eatRate:0.5,metabBase:0.16,metabSize:0.11,
+  metabMove:0.9,birthCost:55,repFactor:1.9,biteEnergy:60,preyDamage:1.7,carnEff:0.88,maxAge:4200};
+const SENS=10, MEM=2, IN=SENS+MEM, HID=6, OUT=3, SPECIATION=0.13; // senses incl. crowding+alignment; MEM = recurrent memory
+
+// ============================================================ state
+let creatures=[], speciesList=[], fert, food, biome, tick, nextId, maxGen, hostMul, mutMul, eventTimers;
+let epoch='COSMOS'; // COSMOS -> GENESIS -> LIFE
+let paused=false, speed=3, selected=null, nextEventTick=0, predatorsSeeded=false;
+// camera + interaction
+let cam={x:WORLD_W/2,y:WORLD_H/2,zoom:1}, follow=false, dragging=false, dragMoved=0, lastPX=0,lastPY=0;
+// systems toggles
+let sexual=true, audioOn=false, bornAcc=0, diedAcc=0, bornHue=180, diedHue=0, motes=[], viewMode=0;
+
+// ============================================================ genome + brain
+function newBrain(){const ih=new Float32Array(IN*HID),ho=new Float32Array(HID*OUT);
+  for(let i=0;i<ih.length;i++)ih[i]=randn()*0.8;for(let i=0;i<ho.length;i++)ho[i]=randn()*0.8;return{ih,ho};}
+function mutateBrain(b,rate){const ih=b.ih.slice(),ho=b.ho.slice();
+  for(let i=0;i<ih.length;i++)if(rand()<0.15)ih[i]+=randn()*rate;
+  for(let i=0;i<ho.length;i++)if(rand()<0.15)ho[i]+=randn()*rate;return{ih,ho};}
+function brainForward(b,inp,hOut){for(let j=0;j<HID;j++){let s=0;for(let i=0;i<IN;i++)s+=b.ih[j*IN+i]*inp[i];hOut[j]=Math.tanh(s);}
+  const o=[0,0,0];for(let k=0;k<OUT;k++){let s=0;for(let j=0;j<HID;j++)s+=b.ho[k*HID+j]*hOut[j];o[k]=Math.tanh(s);}return o;}
+function newGenome(diet){return{size:0.9+rand()*0.5,maxSpeed:1.4+rand()*1.0,sense:70+rand()*50,
+  diet:diet!==undefined?diet:rand()*0.25,hue:rand()*360,eff:0.85+rand()*0.15,mut:0.25+rand()*0.2,immune:rand()*0.12,brain:newBrain()};}
+function mutateGenome(g){const m=g.mut*mutMul;return{
+  size:clamp(g.size+randn()*0.06*m*2,0.5,3.0),maxSpeed:clamp(g.maxSpeed+randn()*0.12*m*2,0.5,4.0),
+  sense:clamp(g.sense+randn()*6*m*2,30,200),diet:clamp(g.diet+randn()*0.05*m*2,0,1),
+  hue:(g.hue+randn()*12*m*2+360)%360,eff:clamp(g.eff+randn()*0.02*m*2,0.5,1.0),
+  mut:clamp(g.mut+randn()*0.02,0.05,0.8),immune:clamp(g.immune+randn()*0.03*m*2,0,1),brain:mutateBrain(g.brain,0.25*m*2)};}
+function crossBrain(a,b){const ih=new Float32Array(IN*HID),ho=new Float32Array(HID*OUT);
+  for(let i=0;i<ih.length;i++)ih[i]=rand()<0.5?a.ih[i]:b.ih[i];
+  for(let i=0;i<ho.length;i++)ho[i]=rand()<0.5?a.ho[i]:b.ho[i];return{ih,ho};}
+function crossGenome(a,b){ // recombination of two parents, then mutate
+  const pick=(x,y)=>rand()<0.5?x:y, avg=(x,y)=>(x+y)*0.5;
+  const g={size:pick(a.size,b.size),maxSpeed:pick(a.maxSpeed,b.maxSpeed),sense:pick(a.sense,b.sense),
+    diet:avg(a.diet,b.diet),hue:avg(a.hue,b.hue),eff:pick(a.eff,b.eff),mut:avg(a.mut,b.mut),immune:avg(a.immune,b.immune),brain:crossBrain(a.brain,b.brain)};
+  return mutateGenome(g);}
+function genomeVec(g){return[g.size/3,g.maxSpeed/4,g.sense/200,g.diet,g.eff];}
+function gdist(a,b){let s=0;for(let i=0;i<a.length;i++){const d=a[i]-b[i];s+=d*d;}return Math.sqrt(s);}
+
+// species naming
+const SYL=['a','e','i','o','u','ka','mo','ith','ra','xu','ly','ve','no','sha','tu','en','or','pa','zi','mu','lo','ae','dra','sy','on','ur'];
+function speciesName(){let n='';const parts=2+(rand()*2|0);for(let i=0;i<parts;i++)n+=SYL[rand()*SYL.length|0];
+  return n.charAt(0).toUpperCase()+n.slice(1);}
+function foundSpecies(g,parent){const s={id:speciesList.length,name:speciesName(),hue:g.hue,parent:parent?parent.id:-1,
+  born:tick,centroid:genomeVec(g),pop:0,peak:0,extinct:false,avgSize:g.size,avgDiet:g.diet};speciesList.push(s);return s;}
+
+// ============================================================ world
+function initWorld(){
+  fert=new Float32Array(GW*GH); food=new Float32Array(GW*GH); biome=new Uint8Array(GW*GH);
+  const s=SEED*0.001;
+  for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){
+    const b=Math.sin(x*0.09+s)*Math.cos(y*0.08-s)+0.6*Math.sin((x+y)*0.05+s*2)+0.4*Math.sin(x*0.04-y*0.06);
+    let bi,base;
+    if(b<-0.7){bi=0;base=0.16;}      // barren rock
+    else if(b<0.15){bi=3;base=0.30;} // desert
+    else if(b<0.95){bi=1;base=0.60;} // plains
+    else{bi=2;base=0.95;}            // fertile marsh
+    biome[y*GW+x]=bi;
+    const wob=0.15*Math.sin(x*0.5)*Math.cos(y*0.4)+0.12*rand();
+    fert[y*GW+x]=clamp(base+wob,0.1,1); food[y*GW+x]=rand()*base*0.7;
+  }
+}
+function initMotes(){motes=[];for(let i=0;i<72;i++)motes.push({x:rand()*WORLD_W,y:rand()*WORLD_H,vx:(rand()-0.5)*0.18,vy:(rand()-0.5)*0.12,p:rand()*TAU});}
+function spawn(x,y,g,energy,sp){return{id:nextId++,x,y,heading:rand()*TAU,vx:0,vy:0,energy,age:0,g,species:sp,gen:0,eat:0,hurt:0,mem:[0,0],infected:0};}
+function seedLife(n,diet){
+  const base=foundSpecies(newGenome(diet));base.name=diet>0.5?base.name+' '+'(predator)':base.name;
+  for(let i=0;i<n;i++){const g=newGenome(diet);g.hue=(base.hue+randn()*42+360)%360;
+    if(diet>0.5){g.size=1.5+rand()*0.4;g.maxSpeed=2.2+rand()*0.6;g.sense=110+rand()*40;}
+    base.hue=g.hue;
+    const c=spawn(rand()*WORLD_W,rand()*WORLD_H,g,P.birthCost*g.size*1.5,base);creatures.push(c);}
+}
+
+// spatial hash
+const CELL=64, HGW=Math.ceil(WORLD_W/CELL), HGH=Math.ceil(WORLD_H/CELL);
+let hash=new Array(HGW*HGH);
+const densGrid=new Float32Array(GW*GH);
+function buildHash(){for(let i=0;i<hash.length;i++)hash[i]=null;
+  for(const c of creatures){const cx=clamp(c.x/CELL|0,0,HGW-1),cy=clamp(c.y/CELL|0,0,HGH-1),k=cy*HGW+cx;
+    (hash[k]||(hash[k]=[])).push(c);}}
+function forNeighbors(c,fn){const cx=c.x/CELL|0,cy=c.y/CELL|0;
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=HGW||ny>=HGH)continue;
+    const b=hash[ny*HGW+nx];if(!b)continue;for(const o of b)if(o!==c)fn(o);}}
+
+// ============================================================ simulation step
+const _h=new Float32Array(HID);
+function stepSim(){
+  tick++;
+  // decay event modifiers back to baseline
+  hostMul += (1-hostMul)*0.01; mutMul += (1-mutMul)*0.01;
+  const dayLight=0.65+0.35*Math.sin(tick*0.0016);
+  const season=0.7+0.35*Math.sin(tick*0.0004); // slow seasonal cycle
+  const regrow=P.foodRegrow*hostMul*dayLight*season;
+  for(let i=0;i<food.length;i++){const f=food[i]+regrow*fert[i];food[i]=f<P.foodMax?f:P.foodMax;}
+  buildHash();
+  for(const s of speciesList)s.pop=0;
+  const births=[];
+  for(let ci=0;ci<creatures.length;ci++){
+    const c=creatures[ci]; if(c.energy<=0)continue;
+    if(c.eat>0)c.eat--; if(c.hurt>0)c.hurt--;
+    const tx=clamp(c.x/TILE|0,0,GW-1), ty=clamp(c.y/TILE|0,0,GH-1);
+    // sense best food in window
+    let bfx=0,bfy=0,bfd=1e9,bff=0;
+    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const nx=tx+dx,ny=ty+dy;if(nx<0||ny<0||nx>=GW||ny>=GH)continue;
+      const f=food[ny*GW+nx];if(f>0.15){const wx=(nx+0.5)*TILE,wy=(ny+0.5)*TILE,d=(wx-c.x)**2+(wy-c.y)**2,sc=f/(1+d*0.001);
+        if(sc>bff){bff=sc;bfx=wx-c.x;bfy=wy-c.y;bfd=Math.sqrt(d);}}}
+    // nearest creature + nearest compatible mate + flocking accumulators
+    let best=null,bd=1e9,mate=null,md=1e9,ncount=0,shx=0,shy=0;
+    forNeighbors(c,o=>{const d=(o.x-c.x)**2+(o.y-c.y)**2;
+      if(d<c.g.sense*c.g.sense){ncount++;shx+=Math.cos(o.heading);shy+=Math.sin(o.heading);if(d<bd){bd=d;best=o;}}
+      if(sexual&&d<420&&d<md&&o.energy>P.birthCost*o.g.size&&gdist(genomeVec(o.g),genomeVec(c.g))<SPECIATION*1.2){md=d;mate=o;}
+      if(c.infected&&!o.infected&&d<620&&rand()<0.05*(1-o.g.immune))o.infected=1;}); // contagion
+    const crowd=Math.tanh(ncount*0.25);
+    let align=0; if(ncount>0)align=Math.cos(c.heading-Math.atan2(shy,shx));
+    let ndx=0,ndy=0,rel=0;
+    if(best){const d=Math.sqrt(bd)||1;ndx=(best.x-c.x)/d;ndy=(best.y-c.y)/d;rel=Math.tanh((c.g.size-best.g.size)*2);}
+    const fd=bfd<1e8?bfd:999;
+    const inp=[Math.tanh(bfx*0.02),Math.tanh(bfy*0.02),1/(1+fd*0.02),ndx,ndy,rel,Math.tanh(c.energy*0.01-1),1,crowd,align,c.mem[0],c.mem[1]];
+    const o=brainForward(c.g.brain,inp,_h);
+    c.mem[0]=_h[0];c.mem[1]=_h[1]; // recurrent: hidden state carries into next tick
+    c.heading+=o[0]*0.3;
+    const thrust=(o[1]+1)*0.5, spd=thrust*c.g.maxSpeed;
+    c.vx=Math.cos(c.heading)*spd; c.vy=Math.sin(c.heading)*spd;
+    c.x+=c.vx; c.y+=c.vy;
+    if(c.x<0)c.x+=WORLD_W;else if(c.x>=WORLD_W)c.x-=WORLD_W;
+    if(c.y<0)c.y+=WORLD_H;else if(c.y>=WORLD_H)c.y-=WORLD_H;
+    c.energy-=P.metabBase+P.metabSize*c.g.size*c.g.size+P.metabMove*spd*spd*0.01;
+    if(c.infected){c.energy-=0.55*(1-c.g.immune*0.85); if(rand()<0.004+0.012*c.g.immune)c.infected=0;} // disease drain + recovery (immunity selected for)
+    // graze
+    const herb=1-c.g.diet;
+    if(herb>0.15){const fi=ty*GW+tx,av=food[fi];if(av>0.05){const take=av<P.eatRate?av:P.eatRate;food[fi]-=take;c.energy+=take*P.plantEnergy*herb*c.g.eff;c.eat=4;}}
+    // hunt
+    if(c.g.diet>0.35&&best&&bd<((c.g.size+best.g.size)*6)**2&&o[2]>0.2&&c.g.size>best.g.size*1.05){
+      const gain=best.energy<P.biteEnergy?best.energy:P.biteEnergy;best.energy-=gain*P.preyDamage;best.hurt=6;
+      c.energy+=gain*P.carnEff*c.g.diet;c.eat=6;}
+    c.age++;
+    if(c.energy<=0||c.age>P.maxAge){
+      const dcx=clamp(c.x/TILE|0,0,GW-1),dcy=clamp(c.y/TILE|0,0,GH-1);
+      food[dcy*GW+dcx]=Math.min(P.foodMax*1.5,food[dcy*GW+dcx]+c.g.size*0.35); // corpse fertilises soil
+      diedAcc++; diedHue=c.g.hue; c.energy=-1; continue;
+    }
+    // reproduce (sexual crossover when a compatible mate is near, else asexual)
+    if(c.energy>P.birthCost*c.g.size*P.repFactor && creatures.length+births.length<CAP){
+      const childE=P.birthCost*c.g.size; c.energy-=childE;
+      let cg, pgen=c.gen;
+      if(sexual && mate && mate.energy>0){ mate.energy-=childE*0.5; c.energy+=childE*0.5;
+        cg=crossGenome(c.g,mate.g); if(mate.gen>pgen)pgen=mate.gen; }
+      else cg=mutateGenome(c.g);
+      let sp=c.species;
+      if(gdist(genomeVec(cg),c.species.centroid)>SPECIATION){cg.hue=(cg.hue+55+rand()*140)%360;sp=foundSpecies(cg,c.species);} // new species gets a distinct colour
+      else{const v=genomeVec(cg);for(let k=0;k<5;k++)sp.centroid[k]=sp.centroid[k]*0.98+v[k]*0.02;}
+      const ch=spawn(c.x+randn()*6,c.y+randn()*6,cg,childE,sp);ch.gen=pgen+1;if(ch.gen>maxGen)maxGen=ch.gen;
+      births.push(ch); bornAcc++; bornHue=cg.hue;
+    }
+  }
+  if(selected&&selected.energy<=0)selected=null;
+  creatures=creatures.filter(c=>c.energy>0);
+  for(const b of births)creatures.push(b);
+  // species bookkeeping
+  let hAvgS=0,hAvgD=0;const accS={},accD={},cnt={};
+  for(const c of creatures){c.species.pop++;accS[c.species.id]=(accS[c.species.id]||0)+c.g.size;accD[c.species.id]=(accD[c.species.id]||0)+c.g.diet;cnt[c.species.id]=(cnt[c.species.id]||0)+1;}
+  for(const s of speciesList){s.peak=Math.max(s.peak,s.pop);if(cnt[s.id]){s.avgSize=accS[s.id]/cnt[s.id];s.avgDiet=accD[s.id]/cnt[s.id];}
+    if(s.pop===0&&!s.extinct&&tick>s.born+40)s.extinct=true;}
+  // abiogenesis safety net
+  let herbAlive=0;for(const c of creatures)if(c.g.diet<0.45)herbAlive++;
+  if(herbAlive<8 && creatures.length<CAP-30){ setNarr('Life persists — a fresh lineage arises from the primordial chemistry.'); seedLife(24,0.0); }
+  // auto events
+  if(epoch==='LIFE'){
+    if(!predatorsSeeded && tick>1400){predatorsSeeded=true;fireEvent('predators');}
+    if(tick>nextEventTick){nextEventTick=tick+1400+(rand()*1100|0);fireEvent(randomEvent());}
+  }
+}
+
+// ============================================================ events
+function randomEvent(){const r=rand();return r<0.24?'meteor':r<0.44?'ice':r<0.62?'bloom':r<0.76?'radiation':r<0.9?'plague':'predators';}
+function flash(col){const f=document.getElementById('flash');f.style.background=col;f.style.opacity='0.55';setTimeout(()=>f.style.opacity='0',140);}
+function fireEvent(kind){
+  sfxEvent(kind);
+  if(kind==='meteor'){creatures=creatures.filter(()=>rand()>0.62);hostMul=0.6;flash('#ff7a3c');setNarr('☄ A meteor strikes — mass extinction. The survivors inherit the world.');}
+  else if(kind==='ice'){hostMul=0.35;flash('#8fd0ff');setNarr('❄ An ice age descends. Flora withers; only the efficient endure.');}
+  else if(kind==='bloom'){hostMul=2.3;flash('#57d98a');setNarr('🌱 A great bloom — abundance floods the world and populations surge.');}
+  else if(kind==='radiation'){mutMul=3.2;flash('#c48bff');setNarr('☢ A radiation storm warps the genome — evolution accelerates wildly.');}
+  else if(kind==='predators'){seedLife(22,0.75);flash('#ff5a5a');setNarr('🦈 Predators emerge. The age of innocence is over — the food web ignites.');}
+  else if(kind==='plague'){let k=0;for(const c of creatures)if(rand()<0.14){c.infected=1;k++;}flash('#9a5aff');setNarr('☣ A plague sweeps the world. Only lineages that evolve immunity will endure.');}
+  updatePanels(true);
+}
+
+// ============================================================ canvas setup
+const worldC=document.getElementById('world'), wctx=worldC.getContext('2d');
+worldC.width=WORLD_W; worldC.height=WORLD_H;
+const chartC=document.getElementById('chart'), cctx=chartC.getContext('2d');
+const treeC=document.getElementById('tree'), tctx=treeC.getContext('2d');
+const traitsC=document.getElementById('traits'), ttctx=traitsC.getContext('2d');
+const miniC=document.getElementById('mini'), mctx=miniC.getContext('2d');
+const legendEl=document.getElementById('legend');
+function drawMini(){const w=miniC.width,h=miniC.height,sx=w/WORLD_W,sy=h/WORLD_H;
+  mctx.clearRect(0,0,w,h);mctx.fillStyle='rgba(10,14,22,0.55)';mctx.fillRect(0,0,w,h);
+  for(const c of creatures){mctx.fillStyle=hsl(c.g.hue,70,58,0.9);mctx.fillRect(c.x*sx,c.y*sy,1.6,1.6);}
+  const z=cam.zoom;mctx.strokeStyle='rgba(255,255,255,0.85)';mctx.lineWidth=1;
+  mctx.strokeRect((cam.x-WORLD_W/z/2)*sx,(cam.y-WORLD_H/z/2)*sy,WORLD_W/z*sx,WORLD_H/z*sy);}
+miniC.addEventListener('pointerdown',e=>{const r=miniC.getBoundingClientRect();
+  cam.x=clamp((e.clientX-r.left)/r.width*WORLD_W,0,WORLD_W);cam.y=clamp((e.clientY-r.top)/r.height*WORLD_H,0,WORLD_H);
+  follow=false;e.stopPropagation();});
+const brainC=document.getElementById('brainc'), bctx=brainC.getContext('2d');
+function fitSide(){const w=chartC.parentElement.clientWidth-26;chartC.width=w;chartC.height=96;treeC.width=w;treeC.height=120;traitsC.width=w;traitsC.height=64;}
+
+// ============================================================ cosmos intro
+let cosmos=[], cosmosT=0, stars=[];
+function initCosmos(){
+  cosmos=[];const cx=WORLD_W/2,cy=WORLD_H/2;
+  for(let i=0;i<520;i++){const a=rand()*TAU,r=180+rand()*440;
+    cosmos.push({x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r*0.62,a,r,
+      va:(0.004+rand()*0.01)*(rand()<0.5?1:1),hue:200+rand()*140,sz:0.6+rand()*1.8});}
+  stars=[];for(let i=0;i<160;i++)stars.push({x:rand()*WORLD_W,y:rand()*WORLD_H,s:rand()*1.4+0.2,tw:rand()*TAU});
+}
+function drawCosmos(dt){
+  cosmosT+=dt;
+  wctx.fillStyle='#01020a';wctx.fillRect(0,0,WORLD_W,WORLD_H);
+  for(const s of stars){s.tw+=0.05;const a=0.4+0.4*Math.sin(s.tw);wctx.fillStyle='rgba(255,255,255,'+a+')';wctx.fillRect(s.x,s.y,s.s,s.s);}
+  const cx=WORLD_W/2,cy=WORLD_H/2;
+  const pull=Math.min(1,cosmosT/6.5);
+  wctx.globalCompositeOperation='lighter';
+  for(const p of cosmos){
+    p.a+=p.va*(1+pull*3); p.r+=(- p.r*0.004*pull*4)+ (10*(1-pull))*0 ; p.r*=(1-0.006*pull*3);
+    p.x=cx+Math.cos(p.a)*p.r; p.y=cy+Math.sin(p.a)*p.r*0.62;
+    const b=0.5+0.5*pull;
+    wctx.fillStyle='hsla('+p.hue+',90%,'+(60+pull*20)+'%,'+(0.5*b)+')';
+    wctx.beginPath();wctx.arc(p.x,p.y,p.sz*(1+pull),0,TAU);wctx.fill();
+  }
+  // growing core
+  const coreR=6+pull*pull*160;
+  const g=wctx.createRadialGradient(cx,cy,0,cx,cy,coreR);
+  g.addColorStop(0,'rgba(255,255,255,'+(0.7*pull)+')');
+  g.addColorStop(0.4,'hsla(45,100%,70%,'+(0.5*pull)+')');
+  g.addColorStop(1,'rgba(120,80,255,0)');
+  wctx.fillStyle=g;wctx.beginPath();wctx.arc(cx,cy,coreR,0,TAU);wctx.fill();
+  wctx.globalCompositeOperation='source-over';
+  if(cosmosT>7.2){ beginGenesis(); }
+}
+
+// ============================================================ world render
+function hsl(h,s,l,a){return'hsla('+((h%360+360)%360)+','+s+'%,'+l+'%,'+(a===undefined?1:a)+')';}
+let flora=[]; // sampled tile draw cache handled inline
+function drawWorld(){
+  wctx.setTransform(1,0,0,1,0,0);
+  wctx.fillStyle='#020409';wctx.fillRect(0,0,WORLD_W,WORLD_H);
+  const dayLight=0.65+0.35*Math.sin(tick*0.0016);
+  if(follow&&selected){cam.x+=(selected.x-cam.x)*0.09;cam.y+=(selected.y-cam.y)*0.09;}
+  const z=cam.zoom;
+  wctx.setTransform(z,0,0,z, WORLD_W/2-cam.x*z, WORLD_H/2-cam.y*z);
+  // biome base — dark & desaturated so life pops against it
+  const BIOME=[[13,16,23],[15,26,25],[13,32,35],[27,28,23]]; // rock, plains, marsh, desert
+  for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const c=BIOME[biome[y*GW+x]];
+    wctx.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';wctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
+  // food as soft additive fertility glow (no more grid mud)
+  if(viewMode===0){wctx.globalCompositeOperation='lighter';
+    for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const f=food[y*GW+x];if(f<=0.06)continue;
+      wctx.fillStyle='rgba(30,150,90,'+(f*0.28)+')';
+      wctx.beginPath();wctx.arc(x*TILE+TILE*0.5,y*TILE+TILE*0.5,TILE*0.95,0,TAU);wctx.fill();}
+    wctx.globalCompositeOperation='source-over';}
+  // scientific overlays
+  if(viewMode){
+    if(viewMode===2){densGrid.fill(0);for(const c of creatures)densGrid[clamp(c.y/TILE|0,0,GH-1)*GW+clamp(c.x/TILE|0,0,GW-1)]++;}
+    for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const i=y*GW+x;
+      if(viewMode===1){const v=fert[i];wctx.fillStyle='rgba('+(v*70)+','+(v*200)+','+(140-v*90)+',0.55)';wctx.fillRect(x*TILE,y*TILE,TILE,TILE);}
+      else{const v=Math.min(1,densGrid[i]/4);if(v<=0)continue;wctx.fillStyle='rgba('+(80+v*175)+','+(30*v)+','+(140-v*110)+',0.6)';wctx.fillRect(x*TILE,y*TILE,TILE,TILE);}}}
+  // creatures — shape encodes role, colour encodes species, eyes show facing
+  const zf=cam.zoom;
+  for(const c of creatures){
+    const r=4+c.g.size*3.8;
+    const isCarn=c.g.diet>0.5, isOmni=!isCarn&&c.g.diet>0.34;
+    const body=hsl(c.g.hue,68,c.hurt>0?74:58);
+    // feeding / hunting glow
+    if(c.eat>0){wctx.globalCompositeOperation='lighter';
+      wctx.fillStyle=hsl(isCarn?8:140,90,60,0.20);wctx.beginPath();wctx.arc(c.x,c.y,r*2.1,0,TAU);wctx.fill();
+      wctx.globalCompositeOperation='source-over';}
+    wctx.save();wctx.translate(c.x,c.y);wctx.rotate(c.heading);
+    if(isCarn){ // predator: arrowhead
+      wctx.fillStyle=body;wctx.beginPath();
+      wctx.moveTo(r*1.35,0);wctx.lineTo(-r*0.85,r*0.9);wctx.lineTo(-r*0.4,0);wctx.lineTo(-r*0.85,-r*0.9);wctx.closePath();wctx.fill();
+      wctx.lineWidth=1.5;wctx.strokeStyle=hsl(6,88,62,0.95);wctx.stroke();
+    } else { // grazer: rounded body
+      wctx.fillStyle=body;wctx.beginPath();wctx.arc(0,0,r,0,TAU);wctx.fill();
+      wctx.lineWidth=1.4;wctx.strokeStyle=isOmni?hsl(45,88,62,0.9):hsl(155,68,72,0.85);wctx.stroke();
+    }
+    // eyes near the front → shows which way it's looking
+    const er=Math.max(0.9,r*0.17);
+    wctx.fillStyle='rgba(255,255,255,0.96)';
+    wctx.beginPath();wctx.arc(r*0.5,r*0.34,er,0,TAU);wctx.arc(r*0.5,-r*0.34,er,0,TAU);wctx.fill();
+    wctx.fillStyle='rgba(10,12,20,0.9)';
+    wctx.beginPath();wctx.arc(r*0.62,r*0.34,er*0.5,0,TAU);wctx.arc(r*0.62,-r*0.34,er*0.5,0,TAU);wctx.fill();
+    wctx.restore();
+    if(c.infected){wctx.strokeStyle='rgba(190,110,255,0.95)';wctx.lineWidth=1.8;
+      wctx.beginPath();wctx.arc(c.x,c.y,r+3,0,TAU);wctx.stroke();}
+  }
+  if(selected){wctx.strokeStyle='rgba(255,255,255,0.9)';wctx.lineWidth=1.5;
+    wctx.beginPath();wctx.arc(selected.x,selected.y,3+selected.g.size*3.4+4,0,TAU);wctx.stroke();
+    wctx.strokeStyle='rgba(255,255,255,0.18)';wctx.beginPath();wctx.arc(selected.x,selected.y,selected.g.sense,0,TAU);wctx.stroke();}
+  // ambient spores (world space)
+  for(const m of motes){m.x+=m.vx+Math.sin(m.p+tick*0.008)*0.12;m.y+=m.vy;m.p+=0.008;
+    if(m.x<0)m.x+=WORLD_W;else if(m.x>=WORLD_W)m.x-=WORLD_W;if(m.y<0)m.y+=WORLD_H;else if(m.y>=WORLD_H)m.y-=WORLD_H;
+    wctx.fillStyle='rgba(200,220,255,0.09)';wctx.fillRect(m.x,m.y,1.5,1.5);}
+  wctx.setTransform(1,0,0,1,0,0);
+  // day/night tint
+  const nt=(1-dayLight);wctx.fillStyle='rgba(10,16,40,'+(nt*0.34)+')';wctx.fillRect(0,0,WORLD_W,WORLD_H);
+}
+
+// ============================================================ charts
+const hist={herb:[],carn:[],food:[]}, HMAX=180;
+const traitHist={size:[],speed:[],diet:[],immune:[]}, TMAX=180;
+function pushHist(){let h=0,ca=0,fm=0,ss=0,sp=0,dd=0,im=0;const nn=creatures.length||1;
+  for(const c of creatures){if(c.g.diet>0.45)ca++;else h++;ss+=c.g.size;sp+=c.g.maxSpeed;dd+=c.g.diet;im+=c.g.immune;}
+  for(let i=0;i<food.length;i++)fm+=food[i];
+  hist.herb.push(h);hist.carn.push(ca);hist.food.push(fm);
+  if(hist.herb.length>HMAX){hist.herb.shift();hist.carn.shift();hist.food.shift();}
+  traitHist.size.push(ss/nn);traitHist.speed.push(sp/nn);traitHist.diet.push(dd/nn);traitHist.immune.push(im/nn);
+  if(traitHist.size.length>TMAX){traitHist.size.shift();traitHist.speed.shift();traitHist.diet.shift();traitHist.immune.shift();}}
+function drawTraits(){const w=traitsC.width,h=traitsC.height;ttctx.clearRect(0,0,w,h);const n=traitHist.size.length;if(n<2)return;
+  const line=(arr,mx,col)=>{ttctx.beginPath();for(let i=0;i<n;i++){const x=i/(TMAX-1)*w,y=h-clamp(arr[i]/mx,0,1)*(h-4)-2;i?ttctx.lineTo(x,y):ttctx.moveTo(x,y);}ttctx.strokeStyle=col;ttctx.lineWidth=1.6;ttctx.stroke();};
+  line(traitHist.size,3,'#f7c948');line(traitHist.speed,4,'#6aa8ff');line(traitHist.diet,1,'#ff8f5a');line(traitHist.immune,1,'#b07bff');}
+function drawChart(){
+  const w=chartC.width,h=chartC.height;cctx.clearRect(0,0,w,h);
+  const n=hist.herb.length;if(n<2)return;
+  const maxPop=Math.max(20,...hist.herb,...hist.carn);
+  const maxFood=Math.max(1,...hist.food);
+  const line=(arr,col,mx)=>{cctx.beginPath();for(let i=0;i<n;i++){const x=i/(HMAX-1)*w,y=h-arr[i]/mx*(h-6)-3;i?cctx.lineTo(x,y):cctx.moveTo(x,y);}cctx.strokeStyle=col;cctx.lineWidth=1.6;cctx.stroke();};
+  cctx.globalAlpha=0.5;line(hist.food,'#4a7bd0',maxFood);cctx.globalAlpha=1;
+  line(hist.herb,'#57d98a',maxPop);line(hist.carn,'#ff6b6b',maxPop);
+}
+
+// ============================================================ tree of life
+function drawTree(){
+  const w=treeC.width,h=treeC.height;tctx.clearRect(0,0,w,h);
+  if(speciesList.length<2)return;
+  const t0=0,t1=Math.max(tick,60);
+  const shown=speciesList.slice(-70);
+  const yslot={};let idxByY=0;
+  // assign y by order of appearance
+  const order=shown.slice().sort((a,b)=>a.born-b.born);
+  order.forEach((s,i)=>{yslot[s.id]=6+ (i/(order.length-1||1))*(h-12);});
+  const X=s=>8+ (s.born-t0)/(t1-t0)*(w-14);
+  tctx.lineWidth=1;
+  for(const s of shown){
+    const y=yslot[s.id], x=X(s);
+    if(s.parent>=0 && yslot[s.parent]!==undefined){const py=yslot[s.parent],px=X(speciesList[s.parent]);
+      tctx.strokeStyle=hsl(s.hue,60,55,0.5);tctx.beginPath();tctx.moveTo(px,py);tctx.lineTo(x,y);tctx.stroke();}
+  }
+  for(const s of shown){const y=yslot[s.id],x=X(s);
+    tctx.fillStyle=hsl(s.hue,70,s.extinct?32:60,s.extinct?0.5:1);
+    const r=2+Math.min(4,Math.sqrt(s.peak)*0.4);tctx.beginPath();tctx.arc(x,y,r,0,TAU);tctx.fill();}
+}
+
+// ============================================================ species panel
+function updatePanels(force){
+  document.getElementById('hPop').textContent=creatures.length;
+  const alive=speciesList.filter(s=>s.pop>0);
+  document.getElementById('hSpec').textContent=alive.length;
+  document.getElementById('specCount').textContent=alive.length+' living · '+speciesList.length+' ever';
+  document.getElementById('hGen').textContent=maxGen;
+  document.getElementById('hTime').textContent=(tick/1000).toFixed(1);
+  // sampled genetic diversity (avg pairwise genome distance)
+  let dv=0,dn=0;const K=Math.min(50,creatures.length);
+  for(let i=0;i<K;i++){const a=creatures[(rand()*creatures.length)|0],b=creatures[(rand()*creatures.length)|0];
+    if(a&&b&&a!==b){dv+=gdist(genomeVec(a.g),genomeVec(b.g));dn++;}}
+  const diversity=dn?dv/dn:0;
+  document.getElementById('hDiv').textContent=diversity.toFixed(3);
+  if(diversity<0.03&&creatures.length>40&&tick%600<8)setNarr('⚠ Genetic diversity is collapsing — the biosphere grows dangerously uniform.');
+  const top=alive.sort((a,b)=>b.pop-a.pop).slice(0,9);
+  const el=document.getElementById('specList');
+  el.innerHTML=top.map(s=>{
+    const diet=s.avgDiet>0.55?'carnivore':s.avgDiet>0.35?'omnivore':'herbivore';
+    return `<div class="srow" data-sp="${s.id}"><div class="sw" style="background:${hsl(s.hue,70,55)}"></div>
+      <div class="nm"><b>${s.name}</b><small>${diet} · size ${s.avgSize.toFixed(1)} · age ${(((tick-s.born)/1000)).toFixed(1)}</small></div>
+      <div class="ct">${s.pop}</div></div>`;}).join('');
+}
+
+// ============================================================ narrator / epoch
+document.getElementById('specList').addEventListener('pointerdown',e=>{const row=e.target.closest&&e.target.closest('.srow');if(!row)return;
+  const sid=+row.dataset.sp,m=creatures.find(c=>c.species.id===sid);
+  if(m){selected=m;cam.x=m.x;cam.y=m.y;cam.zoom=Math.max(cam.zoom,2.4);follow=true;showInsp();}});
+function setNarr(t){document.getElementById('narr').textContent=t;}
+function setEpoch(name){document.getElementById('epochName').textContent=name;}
+function beginGenesis(){
+  epoch='GENESIS';setEpoch('Genesis');setNarr('The dust settles into a living world — oceans of fertile ground, warmed by a young sun.');
+  document.getElementById('intro').style.opacity='0';setTimeout(()=>document.getElementById('intro').style.display='none',1000);
+  initWorld();initMotes();
+  setTimeout(()=>{epoch='LIFE';setEpoch('First Life');setNarr('Abiogenesis — the first self-replicating cells stir. Evolution begins.');
+    seedLife(46,0.0);nextEventTick=tick+1600;},1800);
+}
+
+// ============================================================ inspector
+function pickAt(mx,my){let best=null,bd=1e9;for(const c of creatures){const d=(c.x-mx)**2+(c.y-my)**2;if(d<bd){bd=d;best=c;}}
+  return bd< (30*30)?best:null;}
+function screenToWorld(clientX,clientY){const r=worldC.getBoundingClientRect();
+  const cx=(clientX-r.left)/r.width*WORLD_W, cy=(clientY-r.top)/r.height*WORLD_H, z=cam.zoom;
+  return{x:(cx-(WORLD_W/2-cam.x*z))/z, y:(cy-(WORLD_H/2-cam.y*z))/z};}
+worldC.addEventListener('pointerdown',e=>{dragging=true;dragMoved=0;lastPX=e.clientX;lastPY=e.clientY;});
+worldC.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastPX,dy=e.clientY-lastPY;
+  dragMoved+=Math.abs(dx)+Math.abs(dy);const r=worldC.getBoundingClientRect();
+  cam.x=clamp(cam.x-dx/r.width*WORLD_W/cam.zoom,0,WORLD_W);cam.y=clamp(cam.y-dy/r.height*WORLD_H/cam.zoom,0,WORLD_H);
+  follow=false;lastPX=e.clientX;lastPY=e.clientY;});
+worldC.addEventListener('pointerup',e=>{dragging=false;
+  if(dragMoved<5&&epoch==='LIFE'){const w=screenToWorld(e.clientX,e.clientY);const c=pickAt(w.x,w.y);
+    selected=c;if(c)showInsp();else document.getElementById('insp').style.display='none';}});
+worldC.addEventListener('wheel',e=>{e.preventDefault();const w=screenToWorld(e.clientX,e.clientY);
+  cam.zoom=clamp(cam.zoom*(e.deltaY<0?1.12:0.89),1,8);
+  cam.x=clamp(cam.x+(w.x-cam.x)*0.18,0,WORLD_W);cam.y=clamp(cam.y+(w.y-cam.y)*0.18,0,WORLD_H);},{passive:false});
+// ---- generative audio ----
+let actx=null,lastNote=0;
+function initAudio(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){audioOn=false;}}}
+function beep(freq,dur,type,gv){if(!actx)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
+  o.type=type||'sine';o.frequency.value=freq;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gv||0.05,t+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+dur);}
+function hueToFreq(h){const sc=[0,2,4,7,9,12,14,16];return 196*Math.pow(2,sc[(h/45|0)%sc.length]/12);}
+function sfxTick(){if(audioOn&&actx){const now=performance.now();
+    if(bornAcc>0&&now-lastNote>70){beep(hueToFreq(bornHue)*2,0.16,'triangle',0.045);lastNote=now;}
+    else if(diedAcc>0&&now-lastNote>95){beep(hueToFreq(diedHue)*0.5,0.24,'sine',0.05);lastNote=now;}}
+  bornAcc=0;diedAcc=0;}
+function sfxEvent(kind){if(!audioOn||!actx)return;const base={meteor:70,ice:165,bloom:330,radiation:110,predators:88}[kind]||220;
+  [0,4,7].forEach((s,i)=>setTimeout(()=>beep(base*Math.pow(2,s/12),0.6,'sawtooth',0.05),i*70));}
+document.getElementById('inspClose').onclick=()=>{document.getElementById('insp').style.display='none';selected=null;};
+function bar(label,val,max,col){const p=clamp(val/max*100,2,100);
+  return`<div class="bar"><label>${label}</label><div class="track"><div class="fill" style="width:${p}%;background:${col}"></div></div><b>${val.toFixed(val<10?1:0)}</b></div>`;}
+function showInsp(){const c=selected;if(!c)return;const g=c.g;
+  document.getElementById('insp').style.display='block';
+  const diet=g.diet>0.55?'Carnivore':g.diet>0.35?'Omnivore':'Herbivore';
+  document.getElementById('inspName').textContent=c.species.name+' — '+diet;
+  document.getElementById('inspBars').innerHTML=
+    bar('size',g.size,3,hsl(g.hue,70,55))+bar('speed',g.maxSpeed,4,'#6aa8ff')+
+    bar('sense',g.sense,200,'#c48bff')+bar('diet',g.diet,1,g.diet>0.5?'#ff6b6b':'#57d98a')+
+    bar('efficiency',g.eff*100,100,'#f7c948')+bar('mutation',g.mut*100,80,'#ff9bcf')+
+    bar('immunity',g.immune*100,100,'#b07bff')+
+    bar('energy',c.energy,P.birthCost*g.size*P.repFactor,'#57d98a');
+  document.getElementById('inspMeta').textContent='generation '+c.gen+' · age '+((c.age/1000).toFixed(2))+' eon · lineage from species #'+(c.species.parent<0?'genesis':c.species.parent)+(c.infected?' · ☣ INFECTED':'');
+  drawBrain(c);
+}
+function drawBrain(c){const w=brainC.width,h=brainC.height;bctx.clearRect(0,0,w,h);
+  const b=c.g.brain;const cols=[IN,HID,OUT];const xs=[w*0.12,w*0.5,w*0.88];
+  const pos=cols.map((n,ci)=>{const a=[];for(let i=0;i<n;i++)a.push({x:xs[ci],y:8+(i/(n-1||1))*(h-16)});return a;});
+  // edges ih
+  for(let j=0;j<HID;j++)for(let i=0;i<IN;i++){const wgt=b.ih[j*IN+i];bctx.strokeStyle=wgt>0?'rgba(120,180,255,':'rgba(255,140,120,';bctx.lineWidth=Math.min(2,Math.abs(wgt));
+    bctx.strokeStyle+=Math.min(0.6,Math.abs(wgt)*0.4)+')';bctx.beginPath();bctx.moveTo(pos[0][i].x,pos[0][i].y);bctx.lineTo(pos[1][j].x,pos[1][j].y);bctx.stroke();}
+  for(let k=0;k<OUT;k++)for(let j=0;j<HID;j++){const wgt=b.ho[k*HID+j];bctx.strokeStyle=(wgt>0?'rgba(120,180,255,':'rgba(255,140,120,')+Math.min(0.6,Math.abs(wgt)*0.4)+')';bctx.lineWidth=Math.min(2,Math.abs(wgt));
+    bctx.beginPath();bctx.moveTo(pos[1][j].x,pos[1][j].y);bctx.lineTo(pos[2][k].x,pos[2][k].y);bctx.stroke();}
+  for(const layer of pos)for(const p of layer){bctx.fillStyle='#dfe6ff';bctx.beginPath();bctx.arc(p.x,p.y,2.6,0,TAU);bctx.fill();}
+}
+
+// ============================================================ controls
+const playBtn=document.getElementById('play');
+playBtn.onclick=()=>{paused=!paused;document.getElementById('playLbl').textContent=paused?'Play':'Pause';};
+document.getElementById('speed').oninput=e=>{speed=+e.target.value;document.getElementById('spVal').textContent=speed+'×';};
+document.getElementById('evMeteor').onclick=()=>fireEvent('meteor');
+document.getElementById('evIce').onclick=()=>fireEvent('ice');
+document.getElementById('evBloom').onclick=()=>fireEvent('bloom');
+document.getElementById('evRad').onclick=()=>fireEvent('radiation');
+document.getElementById('evPred').onclick=()=>fireEvent('predators');
+document.getElementById('evSeed').onclick=()=>{seedLife(30,rand()<0.7?0.0:0.7);};
+document.getElementById('tSound').onclick=e=>{audioOn=!audioOn;if(audioOn)initAudio();e.target.textContent='♪ Sound: '+(audioOn?'On':'Off');};
+document.getElementById('tSex').onclick=e=>{sexual=!sexual;e.target.textContent='⚥ Sexual: '+(sexual?'On':'Off');};
+document.getElementById('tFollow').onclick=e=>{follow=!follow;e.target.textContent='◎ Follow: '+(follow?'On':'Off');};
+const VIEWS=['Normal','Fertility','Density'];
+document.getElementById('tView').onclick=e=>{viewMode=(viewMode+1)%3;e.target.textContent='👁 View: '+VIEWS[viewMode];};
+document.getElementById('evPlague').onclick=()=>fireEvent('plague');
+// ---- save / load an entire universe ----
+function serialize(){return JSON.stringify({v:1,seed:SEED,tick,maxGen,hostMul,mutMul,predatorsSeeded,nextEventTick,
+  biome:Array.from(biome),fert:Array.from(fert),food:Array.from(food),
+  species:speciesList.map(s=>({name:s.name,hue:s.hue,parent:s.parent,born:s.born,centroid:s.centroid,peak:s.peak,extinct:s.extinct,avgSize:s.avgSize,avgDiet:s.avgDiet})),
+  creatures:creatures.map(c=>({x:c.x,y:c.y,heading:c.heading,energy:c.energy,age:c.age,gen:c.gen,infected:c.infected,mem:c.mem,sp:c.species.id,
+    g:{size:c.g.size,maxSpeed:c.g.maxSpeed,sense:c.g.sense,diet:c.g.diet,hue:c.g.hue,eff:c.g.eff,mut:c.g.mut,immune:c.g.immune,ih:Array.from(c.g.brain.ih),ho:Array.from(c.g.brain.ho)}}))});}
+function download(name,text){const b=new Blob([text],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+document.getElementById('save').onclick=()=>{try{download('aeon-'+SEED+'-t'+tick+'.json',serialize());setNarr('Universe saved — a snapshot frozen in time.');}catch(e){setNarr('Save failed: '+e.message);}};
+document.getElementById('load').onclick=()=>document.getElementById('loadFile').click();
+document.getElementById('loadFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{deserialize(JSON.parse(rd.result));}catch(err){setNarr('Load failed: '+err.message);}};rd.readAsText(f);e.target.value='';};
+function deserialize(d){
+  SEED=d.seed;rand=mulberry32(SEED);tick=d.tick;maxGen=d.maxGen;hostMul=d.hostMul;mutMul=d.mutMul;
+  predatorsSeeded=d.predatorsSeeded;nextEventTick=d.nextEventTick;
+  biome=Uint8Array.from(d.biome);fert=Float32Array.from(d.fert);food=Float32Array.from(d.food);initMotes();
+  speciesList=d.species.map((s,i)=>({id:i,name:s.name,hue:s.hue,parent:s.parent,born:s.born,centroid:s.centroid,pop:0,peak:s.peak,extinct:s.extinct,avgSize:s.avgSize,avgDiet:s.avgDiet}));
+  nextId=1;
+  creatures=d.creatures.map(c=>{const g={size:c.g.size,maxSpeed:c.g.maxSpeed,sense:c.g.sense,diet:c.g.diet,hue:c.g.hue,eff:c.g.eff,mut:c.g.mut,immune:c.g.immune,brain:{ih:Float32Array.from(c.g.ih),ho:Float32Array.from(c.g.ho)}};
+    return{id:nextId++,x:c.x,y:c.y,heading:c.heading,vx:0,vy:0,energy:c.energy,age:c.age,g,species:speciesList[c.sp]||speciesList[0],gen:c.gen,eat:0,hurt:0,mem:c.mem||[0,0],infected:c.infected||0};});
+  hist.herb.length=0;hist.carn.length=0;hist.food.length=0;traitHist.size.length=0;traitHist.speed.length=0;traitHist.diet.length=0;traitHist.immune.length=0;
+  epoch='LIFE';setEpoch('Restored');setNarr('Universe restored from snapshot — evolution resumes.');
+  document.getElementById('intro').style.display='none';selected=null;document.getElementById('insp').style.display='none';
+  cam={x:WORLD_W/2,y:WORLD_H/2,zoom:1};follow=false;}
+document.getElementById('skipIntro').onclick=beginGenesis;
+document.getElementById('restart').onclick=()=>reset();
+window.addEventListener('keydown',e=>{if(e.key===' '){e.preventDefault();playBtn.click();}
+  if(e.key==='v'||e.key==='V')document.getElementById('tView').click();
+  if(e.key==='f'||e.key==='F')document.getElementById('tFollow').click();});
+window.addEventListener('resize',()=>{setTimeout(fitSide,50);});
+
+// ============================================================ reset / boot
+function reset(){
+  SEED=(Math.random()*1e9)|0; rand=mulberry32(SEED);
+  creatures=[];speciesList=[];tick=0;nextId=1;maxGen=0;hostMul=1;mutMul=1;selected=null;
+  predatorsSeeded=false;epoch='COSMOS';
+  cam={x:WORLD_W/2,y:WORLD_H/2,zoom:1};follow=false;bornAcc=0;diedAcc=0;
+  hist.herb.length=0;hist.carn.length=0;hist.food.length=0;
+  traitHist.size.length=0;traitHist.speed.length=0;traitHist.diet.length=0;traitHist.immune.length=0;
+  document.getElementById('insp').style.display='none';miniC.style.display='none';legendEl.style.display='none';
+  const intro=document.getElementById('intro');intro.style.display='flex';intro.style.opacity='1';
+  document.getElementById('introP').textContent='A universe assembling itself from nothing — watch gravity gather the first matter.';
+  setEpoch('Cosmic Dawn');setNarr('In the beginning there was only dust and gravity…');
+  cosmosT=0;initCosmos();fitSide();
+}
+
+// ============================================================ main loop
+let last=performance.now(),fpsAcc=0,fpsN=0,frame=0;
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(epoch==='COSMOS'){ drawCosmos(dt); }
+  else{
+    if(!paused){for(let s=0;s<speed;s++)stepSim();}
+    sfxTick();
+    drawWorld();
+    frame++;
+    if(miniC.style.display!=='block'){miniC.style.display='block';legendEl.style.display='block';}
+    if(frame%2===0)drawMini();
+    if(frame%3===0){pushHist();drawChart();drawTraits();}
+    if(frame%6===0){updatePanels();}
+    if(frame%14===0){drawTree();}
+    if(selected&&frame%4===0)showInsp();
+  }
+  fpsAcc+=dt;fpsN++;if(fpsAcc>=0.5){document.getElementById('hFps').textContent=Math.round(fpsN/fpsAcc);fpsAcc=0;fpsN=0;}
+  requestAnimationFrame(loop);
+}
+reset();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

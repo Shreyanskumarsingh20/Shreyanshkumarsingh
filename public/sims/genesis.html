@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>GENESIS · a pocket universe</title>
+<style>
+  :root{
+    --bg:#05060a;
+    --panel:rgba(20,22,30,0.55);
+    --panel-border:rgba(255,255,255,0.09);
+    --text:#eef1f7;
+    --muted:#8b90a0;
+    --accent:#6aa8ff;
+    --shadow:0 10px 40px rgba(0,0,0,0.55);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:
+      radial-gradient(1200px 800px at 15% -10%, #12203b 0%, transparent 55%),
+      radial-gradient(1000px 700px at 110% 120%, #241033 0%, transparent 50%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,system-ui,sans-serif;
+    overflow:hidden;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 22px 10px;
+    flex:0 0 auto;
+    gap:16px;
+  }
+  .brand{display:flex;align-items:baseline;gap:12px;}
+  .brand h1{
+    font-size:20px;font-weight:700;letter-spacing:2px;margin:0;
+    background:linear-gradient(90deg,#8fb6ff,#c9a6ff 60%,#ff9bcf);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .brand span{font-size:12px;color:var(--muted);letter-spacing:1px;font-weight:500;}
+  .hud{display:flex;gap:18px;align-items:center;font-variant-numeric:tabular-nums;}
+  .hud .stat{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;}
+  .hud .stat b{font-size:14px;font-weight:600;}
+  .hud .stat i{font-size:10px;color:var(--muted);font-style:normal;letter-spacing:.5px;text-transform:uppercase;}
+
+  .stage{
+    position:relative;flex:1 1 auto;margin:0 14px 12px;
+    border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--panel-border);
+    box-shadow:var(--shadow), inset 0 0 60px rgba(0,0,0,0.6);
+    background:#020306;
+    touch-action:none;
+  }
+  canvas{
+    display:block;width:100%;height:100%;
+    image-rendering:pixelated;image-rendering:crisp-edges;
+    cursor:crosshair;
+  }
+  .vignette{position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 120px rgba(0,0,0,0.75);border-radius:var(--radius);}
+  .hint{
+    position:absolute;left:50%;top:14px;transform:translateX(-50%);
+    font-size:12px;color:var(--muted);background:rgba(0,0,0,0.35);
+    padding:6px 14px;border-radius:999px;border:1px solid var(--panel-border);
+    pointer-events:none;transition:opacity .6s;backdrop-filter:blur(8px);
+  }
+
+  .dock{
+    flex:0 0 auto;margin:0 14px 16px;
+    background:var(--panel);border:1px solid var(--panel-border);
+    border-radius:var(--radius);box-shadow:var(--shadow);
+    backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+    padding:14px 16px;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .palette{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+  .palette::-webkit-scrollbar{display:none;}
+  .swatch{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:8px 6px 6px;border-radius:14px;cursor:pointer;min-width:62px;
+    border:1px solid transparent;transition:transform .12s, border-color .15s, background .15s;
+    user-select:none;
+  }
+  .swatch:hover{background:rgba(255,255,255,0.05);}
+  .swatch:active{transform:scale(.94);}
+  .swatch.active{border-color:rgba(255,255,255,0.55);background:rgba(255,255,255,0.08);
+    box-shadow:0 0 0 1px rgba(255,255,255,0.08), 0 8px 24px rgba(0,0,0,0.4);}
+  .dot{width:26px;height:26px;border-radius:9px;box-shadow:inset 0 0 8px rgba(0,0,0,0.4),0 2px 6px rgba(0,0,0,0.4);}
+  .swatch label{font-size:11px;color:var(--text);letter-spacing:.3px;pointer-events:none;}
+
+  .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .group{display:flex;align-items:center;gap:9px;}
+  .group span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+    background:rgba(255,255,255,0.18);outline:none;width:110px;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:#fff;cursor:pointer;}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 15px;border-radius:12px;cursor:pointer;user-select:none;
+    background:rgba(255,255,255,0.07);border:1px solid var(--panel-border);
+    color:var(--text);font-size:13px;font-weight:600;letter-spacing:.2px;
+    transition:background .15s, transform .1s;
+  }
+  .btn:hover{background:rgba(255,255,255,0.13);}
+  .btn:active{transform:scale(.96);}
+  .btn.primary{background:linear-gradient(180deg,#5b8dff,#3f6ff0);border-color:transparent;}
+  .btn.primary:hover{background:linear-gradient(180deg,#6c9bff,#4d7bf5);}
+  .spacer{flex:1 1 auto;}
+  .ico{width:15px;height:15px;display:inline-block;}
+  @media (max-width:640px){
+    .hud .stat:nth-child(2){display:none;}
+    .controls{gap:10px;}
+    input[type=range]{width:84px;}
+    .brand span{display:none;}
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>GENESIS</h1>
+      <span>a pocket universe · paint the elements, watch them react</span>
+    </div>
+    <div class="hud">
+      <div class="stat"><b id="fps">60</b><i>fps</i></div>
+      <div class="stat"><b id="count">0</b><i>particles</i></div>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="c"></canvas>
+    <div class="vignette"></div>
+    <div class="hint" id="hint">Click & drag to create · try dropping Water on Lava</div>
+  </div>
+
+  <div class="dock">
+    <div class="palette" id="palette"></div>
+    <div class="controls">
+      <div class="group"><span>Brush</span><input id="brush" type="range" min="1" max="26" value="7"></div>
+      <div class="group"><span>Speed</span><input id="speed" type="range" min="1" max="4" value="2"></div>
+      <div class="spacer"></div>
+      <div class="btn" id="pause"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span id="pauseLabel">Pause</span></div>
+      <div class="btn" id="quake" title="Shake the world">Quake</div>
+      <div class="btn primary" id="clear"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>Clear</div>
+    </div>
+  </div>
+
+<script>
+(function(){
+"use strict";
+
+// ---------- Element definitions ----------
+// id, name, base color [r,g,b], category
+const EMPTY=0, WALL=1, SAND=2, WATER=3, OIL=4, ACID=5, LAVA=6,
+      STONE=7, PLANT=8, WOOD=9, FIRE=10, EMBER=11, SMOKE=12,
+      STEAM=13, ICE=14, GAS=15, SPARK=16;
+
+const EL = {
+  [EMPTY]:{n:'Erase', c:[6,7,12],  cat:'tool'},
+  [WALL] :{n:'Wall',  c:[126,130,140], cat:'solid'},
+  [SAND] :{n:'Sand',  c:[222,190,120], cat:'powder'},
+  [WATER]:{n:'Water', c:[54,120,224],  cat:'liquid'},
+  [OIL]  :{n:'Oil',   c:[92,72,58],    cat:'liquid'},
+  [ACID] :{n:'Acid',  c:[150,232,64],  cat:'liquid'},
+  [LAVA] :{n:'Lava',  c:[240,96,32],   cat:'liquid'},
+  [STONE]:{n:'Stone', c:[112,106,100], cat:'solid'},
+  [PLANT]:{n:'Plant', c:[70,182,86],   cat:'solid'},
+  [WOOD] :{n:'Wood',  c:[128,86,48],   cat:'solid'},
+  [FIRE] :{n:'Fire',  c:[255,128,36],  cat:'gas'},
+  [EMBER]:{n:'Ember', c:[255,176,64],  cat:'powder'},
+  [SMOKE]:{n:'Smoke', c:[74,74,86],    cat:'gas'},
+  [STEAM]:{n:'Steam', c:[196,206,220], cat:'gas'},
+  [ICE]  :{n:'Ice',   c:[168,220,244], cat:'solid'},
+  [GAS]  :{n:'Fuel',  c:[176,206,120], cat:'gas'},
+  [SPARK]:{n:'Spark', c:[255,244,180], cat:'powder'},
+};
+// Palette order shown to the user
+const PALETTE = [EMPTY,WALL,SAND,WATER,OIL,GAS,ACID,LAVA,STONE,ICE,PLANT,WOOD,FIRE];
+
+// ---------- Grid setup ----------
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d', {alpha:false});
+const stage = document.getElementById('stage');
+
+let W, H, N, grid, shade, life, moved, img, buf32;
+const CELL = 4; // pixels per cell (logical)
+
+function resize(){
+  const r = stage.getBoundingClientRect();
+  W = Math.max(80, Math.floor(r.width / CELL));
+  H = Math.max(60, Math.floor(r.height / CELL));
+  N = W*H;
+  canvas.width = W; canvas.height = H;
+  const ng = new Uint8Array(N);
+  const ns = new Uint8Array(N);
+  const nl = new Uint8Array(N);
+  if(grid){ // preserve old content on resize
+    const ow=oldW, oh=oldH;
+    for(let y=0;y<Math.min(oh,H);y++)for(let x=0;x<Math.min(ow,W);x++){
+      ng[y*W+x]=grid[y*ow+x]; ns[y*W+x]=shade[y*ow+x]; nl[y*W+x]=life[y*ow+x];
+    }
+  }
+  grid=ng; shade=ns; life=nl;
+  moved=new Uint8Array(N);
+  img=ctx.createImageData(W,H);
+  buf32=new Uint32Array(img.data.buffer);
+  oldW=W; oldH=H;
+}
+let oldW=0, oldH=0;
+window.addEventListener('resize', ()=>{ setTimeout(resize,60); });
+
+// ---------- Helpers ----------
+const rand = Math.random;
+function idx(x,y){return y*W+x;}
+function inb(x,y){return x>=0&&x<W&&y>=0&&y<H;}
+
+function setCell(i,type){
+  grid[i]=type;
+  // texture: small brightness variance, plus life for reactive elements
+  shade[i]= 100 + ((rand()*40)|0);
+  if(type===FIRE) life[i]=40+((rand()*30)|0);
+  else if(type===EMBER) life[i]=90+((rand()*60)|0);
+  else if(type===SMOKE||type===STEAM) life[i]=120+((rand()*90)|0);
+  else if(type===SPARK) life[i]=6+((rand()*6)|0);
+  else if(type===LAVA) life[i]=0;
+  else life[i]=0;
+}
+function swap(a,b){
+  const t=grid[a];grid[a]=grid[b];grid[b]=t;
+  const s=shade[a];shade[a]=shade[b];shade[b]=s;
+  const l=life[a];life[a]=life[b];life[b]=l;
+  moved[a]=1;moved[b]=1;
+}
+
+// density for buoyancy: higher sinks
+const DENS = {[EMPTY]:1,[SMOKE]:-3,[STEAM]:-3,[FIRE]:-4,[GAS]:-2,
+  [OIL]:2,[WATER]:3,[ACID]:3,[LAVA]:6,[SPARK]:4,[SAND]:9,[EMBER]:9};
+function dens(t){ return DENS[t]!==undefined?DENS[t]:99; } // solids = 99 (immovable by flow)
+
+function isLiquid(t){return t===WATER||t===OIL||t===ACID||t===LAVA;}
+function isGas(t){return t===SMOKE||t===STEAM||t===FIRE||t===GAS;}
+
+// ---------- Simulation rules ----------
+function powder(i,x,y){ // SAND, EMBER
+  const t=grid[i];
+  const d=idx(x,y+1);
+  if(y+1<H){
+    const below=grid[d];
+    if(below===EMPTY||dens(below)<dens(t)&&isLiquid(below)){ swap(i,d); return; }
+  }
+  // diagonal
+  const dir = rand()<0.5?-1:1;
+  for(const dx of [dir,-dir]){
+    const nx=x+dx, ny=y+1;
+    if(inb(nx,ny)){
+      const j=idx(nx,ny), b=grid[j];
+      if(b===EMPTY||(isLiquid(b)&&dens(b)<dens(t))){ swap(i,j); return; }
+    }
+  }
+}
+
+function liquid(i,x,y){ // WATER, OIL, ACID, LAVA
+  const t=grid[i];
+  // fall
+  if(y+1<H){
+    const j=idx(x,y+1), b=grid[j];
+    if(b===EMPTY){ swap(i,j); return; }
+    if(isLiquid(b)&&dens(b)<dens(t)){ swap(i,j); return; }
+    if(isGas(b)){ swap(i,j); return; }
+  }
+  // diagonal down
+  const dir=rand()<0.5?-1:1;
+  for(const dx of [dir,-dir]){
+    const nx=x+dx,ny=y+1;
+    if(inb(nx,ny)){const j=idx(nx,ny),b=grid[j];
+      if(b===EMPTY||(isLiquid(b)&&dens(b)<dens(t))){swap(i,j);return;}}
+  }
+  // spread sideways (lava is more viscous)
+  const reach = t===LAVA ? 1 : (2+((rand()*3)|0));
+  for(const dx of [dir,-dir]){
+    for(let s=1;s<=reach;s++){
+      const nx=x+dx*s;
+      if(!inb(nx,y))break;
+      const j=idx(nx,y),b=grid[j];
+      if(b===EMPTY){ swap(i,j); return; }
+      else if(b!==t) break;
+    }
+  }
+}
+
+function gas(i,x,y){ // SMOKE, STEAM, FIRE, GAS
+  const t=grid[i];
+  // decay
+  if(life[i]>0){ life[i]--; }
+  if(t===FIRE && life[i]<=0){ grid[i]= rand()<0.5?SMOKE:EMPTY; if(grid[i]===SMOKE){life[i]=60;} moved[i]=1; return; }
+  if(t===SMOKE && life[i]<=0){ grid[i]=EMPTY; moved[i]=1; return; }
+  if(t===STEAM && (life[i]<=0 || (y<2&&rand()<0.02))){ grid[i]= rand()<0.35?WATER:EMPTY; moved[i]=1; return; }
+  // rise
+  if(y-1>=0){
+    const j=idx(x,y-1),b=grid[j];
+    if(b===EMPTY){ swap(i,j); return; }
+    if(isLiquid(b)&&t!==GAS){ swap(i,j); return; }
+  }
+  const dir=rand()<0.5?-1:1;
+  for(const dx of [dir,-dir]){
+    const nx=x+dx,ny=y-(rand()<0.7?1:0);
+    if(inb(nx,ny)){const j=idx(nx,ny);
+      if(grid[j]===EMPTY){swap(i,j);return;}}
+  }
+}
+
+// neighbor iteration for reactions
+const NB=[[1,0],[-1,0],[0,1],[0,-1]];
+const NB8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]];
+
+function react(i,x,y){
+  const t=grid[i];
+  switch(t){
+    case LAVA:{
+      for(const[dx,dy]of NB8){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny),n=grid[j];
+        if(n===WATER){ grid[j]=STEAM;life[j]=120; grid[i]=STONE; moved[i]=1; return true; }
+        if(n===ICE){ grid[j]=WATER; grid[i]=STONE; moved[i]=1; return true; }
+        if(n===PLANT||n===WOOD||n===OIL||n===GAS){ grid[j]=FIRE; life[j]=40; }
+      }
+      if(rand()<0.004){ grid[i]=STONE; moved[i]=1; return true; } // cooling
+      return false;
+    }
+    case FIRE:{
+      for(const[dx,dy]of NB8){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny),n=grid[j];
+        if(n===PLANT||n===WOOD){ if(rand()<0.25){grid[j]=FIRE;life[j]=36+((rand()*24)|0);} }
+        else if(n===OIL||n===GAS){ grid[j]=FIRE; life[j]=30; }
+        else if(n===WATER){ if(rand()<0.5){grid[i]= rand()<0.5?STEAM:EMPTY; if(grid[i]===STEAM)life[i]=100; moved[i]=1; return true;} }
+        else if(n===ICE){ if(rand()<0.1)grid[j]=WATER; }
+      }
+      return false;
+    }
+    case EMBER:{
+      for(const[dx,dy]of NB8){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny),n=grid[j];
+        if(n===PLANT||n===WOOD||n===OIL||n===GAS){ if(rand()<0.2){grid[j]=FIRE;life[j]=34;} }
+        if(n===WATER){ grid[i]=EMPTY; moved[i]=1; return true; }
+      }
+      if(life[i]>0)life[i]--;
+      if(life[i]<=0){ grid[i]= rand()<0.3?SMOKE:EMPTY; if(grid[i]===SMOKE)life[i]=50; moved[i]=1; return true; }
+      return false;
+    }
+    case PLANT:{
+      // grow into adjacent water
+      if(rand()<0.08){
+        for(const[dx,dy]of NB){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny);
+          if(grid[j]===WATER){ setCell(j,PLANT); break; }}
+      }
+      return false;
+    }
+    case ACID:{
+      for(const[dx,dy]of NB8){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny),n=grid[j];
+        if(n===SAND||n===STONE||n===WALL||n===PLANT||n===WOOD||n===ICE||n===EMBER){
+          if(rand()<0.20){ grid[j]=EMPTY; moved[j]=1; if(rand()<0.35){grid[i]=EMPTY;moved[i]=1;return true;} }
+        }
+      }
+      return false;
+    }
+    case ICE:{
+      for(const[dx,dy]of NB8){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny),n=grid[j];
+        if(n===FIRE||n===LAVA||n===EMBER){ grid[i]=WATER; moved[i]=1; return true; }
+        if(n===WATER&&rand()<0.006){ grid[j]=ICE; }
+      }
+      return false;
+    }
+    case SPARK:{
+      for(const[dx,dy]of NB8){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny),n=grid[j];
+        if(n===GAS||n===OIL){ grid[j]=FIRE; life[j]=34; }
+      }
+      if(life[i]>0)life[i]--; if(life[i]<=0){grid[i]=EMPTY;moved[i]=1;return true;}
+      return false;
+    }
+    case GAS:{ // flammable fuel gas, drifts, explodes near fire (handled by fire/spark)
+      for(const[dx,dy]of NB){const nx=x+dx,ny=y+dy;if(!inb(nx,ny))continue;const j=idx(nx,ny);
+        if(grid[j]===FIRE||grid[j]===LAVA){ grid[i]=FIRE; life[i]=26; return true; }}
+      return false;
+    }
+  }
+  return false;
+}
+
+// ---------- Main step ----------
+let quakeFrames=0;
+function step(){
+  moved.fill(0);
+  const l2r = rand()<0.5;
+  for(let y=H-1;y>=0;y--){
+    for(let k=0;k<W;k++){
+      const x = l2r?k:(W-1-k);
+      const i=idx(x,y);
+      const t=grid[i];
+      if(t===EMPTY||moved[i])continue;
+      // reactions first (may consume the cell)
+      if(react(i,x,y)) continue;
+      if(moved[i])continue;
+      const cat=EL[t].cat;
+      if(quakeFrames>0 && (cat==='powder'||cat==='solid') && t!==WALL){
+        // shake loose solids/powders
+        if(rand()<0.25){ const nx=x+(rand()<0.5?-1:1); if(inb(nx,y)&&grid[idx(nx,y)]===EMPTY){swap(i,idx(nx,y));continue;} }
+      }
+      if(cat==='powder') powder(i,x,y);
+      else if(cat==='liquid') liquid(i,x,y);
+      else if(cat==='gas') gas(i,x,y);
+      // solids stay put (except plant/wood can fall? keep static for structure)
+    }
+  }
+  if(quakeFrames>0)quakeFrames--;
+}
+
+// ---------- Render ----------
+function colorFor(t,i){
+  const base=EL[t].c;
+  let s=shade[i]; // ~100-140
+  let r=base[0],g=base[1],b=base[2];
+  if(t===FIRE){ const f=life[i]/70; r=255; g=120+((1-f)*120)|0; b=30+((f)*40)|0; }
+  else if(t===LAVA){ const flick=(rand()*30)|0; r=240; g=80+flick; b=24; }
+  else if(t===EMBER){ r=255; g=150+((life[i]/2)|0); b=40; }
+  else{
+    const m=(s-120)/120; // -0.16..0.16
+    r=clamp(r+r*m*0.8); g=clamp(g+g*m*0.8); b=clamp(b+b*m*0.8);
+  }
+  // pack ABGR (little endian) => 0xAABBGGRR
+  return (255<<24)|(b<<16)|(g<<8)|r;
+}
+function clamp(v){return v<0?0:v>255?255:v|0;}
+
+const BG = (255<<24)|(12<<16)|(7<<8)|5; // dark background ABGR
+function draw(){
+  for(let i=0;i<N;i++){
+    const t=grid[i];
+    buf32[i] = t===EMPTY ? BG : colorFor(t,i);
+  }
+  ctx.putImageData(img,0,0);
+}
+
+// ---------- Input ----------
+let current=SAND, brush=7, painting=false, lastX=0,lastY=0;
+function paintAt(px,py){
+  const rect=canvas.getBoundingClientRect();
+  const x=Math.floor((px-rect.left)/rect.width*W);
+  const y=Math.floor((py-rect.top)/rect.height*H);
+  stamp(x,y);
+}
+function stamp(cx,cy){
+  const rB=brush;
+  for(let dy=-rB;dy<=rB;dy++)for(let dx=-rB;dx<=rB;dx++){
+    if(dx*dx+dy*dy>rB*rB)continue;
+    const x=cx+dx,y=cy+dy;
+    if(!inb(x,y))continue;
+    const i=idx(x,y);
+    if(current===EMPTY){ grid[i]=EMPTY; life[i]=0; continue; }
+    // don't overwrite solids with liquids unless erasing; allow fill on empty or same-density flow
+    if(grid[i]===EMPTY || rand()<0.6){
+      // sparse fill for gases/powders so it looks natural
+      if((current===FIRE||current===GAS||current===SMOKE||current===STEAM) && rand()<0.5) continue;
+      setCell(i,current);
+    }
+  }
+}
+function lineStamp(x0,y0,x1,y1){
+  const dx=Math.abs(x1-x0), dy=Math.abs(y1-y0);
+  const sx=x0<x1?1:-1, sy=y0<y1?1:-1;
+  let err=dx-dy, x=x0,y=y0;
+  const rect=canvas.getBoundingClientRect();
+  const gx=v=>Math.floor((v-rect.left)/rect.width*W);
+  const gy=v=>Math.floor((v-rect.top)/rect.height*H);
+  // convert screen coords -> grid once
+  let cx=gx(x0), cy=gy(y0), tx=gx(x1), ty=gy(y1);
+  let e=Math.abs(tx-cx)-Math.abs(ty-cy);
+  const ax=Math.abs(tx-cx),ay=Math.abs(ty-cy);
+  const stx=cx<tx?1:-1, sty=cy<ty?1:-1;
+  let ee=ax-ay;
+  while(true){
+    stamp(cx,cy);
+    if(cx===tx&&cy===ty)break;
+    const e2=2*ee;
+    if(e2>-ay){ee-=ay;cx+=stx;}
+    if(e2<ax){ee+=ax;cy+=sty;}
+  }
+}
+function pointerDown(e){ painting=true; hideHint(); lastX=e.clientX;lastY=e.clientY; paintAt(e.clientX,e.clientY); }
+function pointerMove(e){ if(!painting)return; lineStamp(lastX,lastY,e.clientX,e.clientY); lastX=e.clientX;lastY=e.clientY; }
+function pointerUp(){ painting=false; }
+canvas.addEventListener('pointerdown',pointerDown);
+window.addEventListener('pointermove',pointerMove);
+window.addEventListener('pointerup',pointerUp);
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+
+let hintTimer;
+function hideHint(){ const h=document.getElementById('hint'); h.style.opacity='0'; }
+
+// ---------- UI build ----------
+const paletteEl=document.getElementById('palette');
+function rgb(c){return `rgb(${c[0]},${c[1]},${c[2]})`;}
+PALETTE.forEach(id=>{
+  const el=EL[id];
+  const d=document.createElement('div');
+  d.className='swatch'+(id===current?' active':'');
+  d.dataset.id=id;
+  const dot=document.createElement('div');dot.className='dot';
+  if(id===EMPTY){ dot.style.background='repeating-linear-gradient(45deg,#333,#333 4px,#111 4px,#111 8px)'; }
+  else if(id===LAVA){ dot.style.background='linear-gradient(180deg,#ffb03a,#f0501e)'; }
+  else if(id===WATER){ dot.style.background='linear-gradient(180deg,#6ab0ff,#2f66d8)'; }
+  else if(id===FIRE){ dot.style.background='linear-gradient(180deg,#ffd24a,#ff6a1e)'; }
+  else dot.style.background=rgb(el.c);
+  const lab=document.createElement('label');lab.textContent=el.n;
+  d.appendChild(dot);d.appendChild(lab);
+  d.addEventListener('click',()=>{
+    current=id;
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+    d.classList.add('active');
+  });
+  paletteEl.appendChild(d);
+});
+
+document.getElementById('brush').addEventListener('input',e=>brush=+e.target.value);
+let speed=2;
+document.getElementById('speed').addEventListener('input',e=>speed=+e.target.value);
+let paused=false;
+const pauseBtn=document.getElementById('pause');
+pauseBtn.addEventListener('click',()=>{
+  paused=!paused;
+  document.getElementById('pauseLabel').textContent=paused?'Play':'Pause';
+});
+document.getElementById('clear').addEventListener('click',()=>{ grid.fill(0);life.fill(0);shade.fill(0); });
+document.getElementById('quake').addEventListener('click',()=>{ quakeFrames=40; });
+
+// keyboard shortcuts
+window.addEventListener('keydown',e=>{
+  if(e.key===' '){e.preventDefault();pauseBtn.click();}
+  if(e.key==='c'||e.key==='C')document.getElementById('clear').click();
+  const n=parseInt(e.key,10);
+  if(!isNaN(n)&&n>=1&&n<=PALETTE.length){ document.querySelectorAll('.swatch')[n-1].click(); }
+});
+
+// ---------- Loop ----------
+resize();
+// seed a little starter scene so it isn't empty
+(function seed(){
+  const g=Math.floor(H*0.72);
+  for(let x=0;x<W;x++)for(let y=g;y<H;y++){ if(rand()<0.9)setCell(idx(x,y),SAND); }
+  for(let x=Math.floor(W*0.1);x<Math.floor(W*0.4);x++)for(let y=Math.floor(H*0.2);y<Math.floor(H*0.3);y++)setCell(idx(x,y),WATER);
+})();
+
+let last=performance.now(), fpsAcc=0, fpsFrames=0;
+function loop(now){
+  const dt=now-last; last=now;
+  if(!paused){ for(let s=0;s<speed;s++) step(); }
+  draw();
+  // hud
+  fpsAcc+=dt;fpsFrames++;
+  if(fpsAcc>=500){
+    document.getElementById('fps').textContent=Math.round(1000/(fpsAcc/fpsFrames));
+    fpsAcc=0;fpsFrames=0;
+    let cnt=0;for(let i=0;i<N;i++)if(grid[i]!==EMPTY)cnt++;
+    document.getElementById('count').textContent=cnt.toLocaleString();
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>

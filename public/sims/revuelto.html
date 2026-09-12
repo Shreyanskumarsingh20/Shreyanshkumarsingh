@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REVUELTO — scroll to assemble</title>
+<style>
+  :root{ --ink:#111; }
+  *{box-sizing:border-box;}
+  html,body{ margin:0; background:#f4f4f2; overflow-x:hidden; }
+  body{ font-family:"Helvetica Neue",Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  #stage{ position:fixed; inset:0; background:#f4f4f2; }
+  canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  #spacer{ height:650vh; }
+  #hud{ position:fixed; inset:0; pointer-events:none; z-index:2; }
+  #word{
+    position:absolute; left:22px; top:18px; font-weight:800; font-size:15px; letter-spacing:.02em;
+    color:var(--ink); opacity:.82; text-transform:uppercase;
+  }
+  #pct{
+    position:absolute; right:22px; top:20px; font-family:"Courier New",monospace; font-size:11px;
+    letter-spacing:.04em; color:var(--ink); opacity:.5;
+  }
+  #hint{
+    position:absolute; left:50%; bottom:22px; transform:translateX(-50%);
+    font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink); opacity:.5; transition:opacity .5s ease; white-space:nowrap;
+  }
+  #hint.hide{ opacity:0; }
+  #hint .arrow{ display:block; text-align:center; margin-top:6px; opacity:.7; animation:bob 1.8s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(5px);} }
+  #done{
+    position:absolute; left:50%; bottom:22px; transform:translateX(-50%); text-align:center;
+    opacity:0; transition:opacity .5s ease; pointer-events:none;
+  }
+  #done.show{ opacity:1; }
+  #done b{ display:block; font-size:13px; letter-spacing:.02em; color:var(--ink); }
+  #done span{ display:block; margin-top:3px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); opacity:.55; }
+  #loading{
+    position:fixed; inset:0; z-index:5; background:#f4f4f2; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px; transition:opacity .5s ease;
+  }
+  #loading.hide{ opacity:0; pointer-events:none; }
+  #loading .bar{ width:140px; height:2px; background:rgba(0,0,0,.12); overflow:hidden; }
+  #loading .bar i{ display:block; height:100%; width:0%; background:var(--ink); }
+  #loading span{ font-family:"Courier New",monospace; font-size:10px; letter-spacing:.1em; color:var(--ink); opacity:.5; text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="bar"><i id="loadBar"></i></div><span id="loadLabel">Loading frames…</span></div>
+
+<div id="stage"><canvas id="c"></canvas></div>
+<div id="hud">
+  <div id="word">Revuelto</div>
+  <div id="pct" class="mono">000%</div>
+  <div id="hint">Scroll to assemble<span class="arrow">▾</span></div>
+  <div id="done"><b>Back where it belongs.</b><span>1,001 HP · scroll up to take it apart again</span></div>
+</div>
+<div id="spacer"></div>
+
+<script>
+/* A vanilla-JS extraction of the real technique behind REVUELTO: ASSEMBLED
+   (Next.js/GSAP/Lenis in production) — same 110-frame WebP sequence, same
+   reverse-scrub mapping, no framework. Scroll position -> frame index,
+   drawn to a fixed full-viewport canvas with cover-fit. */
+(function(){
+  const N = 110;
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+  const loadBar = document.getElementById("loadBar");
+  const loadLabel = document.getElementById("loadLabel");
+  const loadingEl = document.getElementById("loading");
+  const pctEl = document.getElementById("pct");
+  const hintEl = document.getElementById("hint");
+  const doneEl = document.getElementById("done");
+  const spacer = document.getElementById("spacer");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  const frames = [];
+  let loadedCount = 0;
+  for (let i = 0; i < N; i++) {
+    const img = new Image();
+    img.src = "revuelto/frame-" + String(i).padStart(3, "0") + ".webp";
+    img.onload = img.onerror = onFrameSettled;
+    frames.push(img);
+  }
+  function onFrameSettled() {
+    loadedCount++;
+    const pct = Math.round((loadedCount / N) * 100);
+    loadBar.style.width = pct + "%";
+    loadLabel.textContent = "Loading frames — " + pct + "%";
+    if (loadedCount >= N) {
+      loadingEl.classList.add("hide");
+      onScroll();
+    } else if (loadedCount === Math.round(N * 0.25)) {
+      // draw as soon as a quarter of the exploded end is in, so it doesn't feel frozen
+      loadingEl.classList.add("hide");
+      onScroll();
+    }
+  }
+
+  let current = N - 1; // start fully exploded
+
+  function resize() {
+    canvas.width = Math.max(1, Math.floor(window.innerWidth * dpr));
+    canvas.height = Math.max(1, Math.floor(window.innerHeight * dpr));
+    draw(current);
+  }
+
+  function draw(idxFloat) {
+    const idx = Math.max(0, Math.min(N - 1, Math.round(idxFloat)));
+    const img = frames[idx];
+    if (!img || !img.complete || !img.naturalWidth) return;
+    const cw = canvas.width, ch = canvas.height;
+    const ir = img.naturalWidth / img.naturalHeight, cr = cw / ch;
+    let dw, dh, dx, dy;
+    if (ir > cr) { dh = ch; dw = ch * ir; dx = (cw - dw) / 2; dy = 0; }
+    else { dw = cw; dh = cw / ir; dx = 0; dy = (ch - dh) / 2; }
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  function onScroll() {
+    const max = spacer.offsetHeight - window.innerHeight;
+    const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    current = (1 - progress) * (N - 1); // progress 0 = exploded, progress 1 = assembled
+    draw(current);
+    pctEl.textContent = String(Math.round(progress * 100)).padStart(3, "0") + "%";
+    hintEl.classList.toggle("hide", progress > 0.03);
+    doneEl.classList.toggle("show", progress > 0.94);
+  }
+
+  window.addEventListener("resize", resize);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  resize();
+})();
+</script>
+</body>
+</html>

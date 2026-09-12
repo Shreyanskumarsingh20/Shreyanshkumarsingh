@@ -1,0 +1,2572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AEON — Weapons Consequence Simulator</title>
+<meta name="description" content="An educational simulator of the physical destruction and human cost of modern weapons, built on published blast, thermal, radiation and fallout effects models.">
+<style>/* ===== AEON — Consequence Simulator ================================= */
+:root{
+  --bg:#07080b; --bg2:#0b0d12;
+  --glass:rgba(20,22,28,.62); --glass2:rgba(28,31,38,.55);
+  --stroke:rgba(255,255,255,.09); --stroke2:rgba(255,255,255,.16);
+  --ink:#f2f3f5; --ink2:#a4a9b4; --ink3:#6e7480;
+  --accent:#ff9f0a; --accent2:#5ac8fa; --danger:#ff2d55; --good:#30d158;
+  --r:14px; --rs:9px;
+  --f: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+  --fm: "SF Mono", ui-monospace, "JetBrains Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:13px;line-height:1.45}
+body{position:fixed;inset:0}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.13);border-radius:9px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.24);background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+
+#stage{position:absolute;inset:0}
+canvas#map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
+canvas#map.panning{cursor:grabbing}
+
+/* ---- glass panel primitive ---- */
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(30px) saturate(1.7); -webkit-backdrop-filter:blur(30px) saturate(1.7);
+  border:1px solid var(--stroke); border-radius:var(--r);
+  box-shadow:0 20px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* ---- top bar ---- */
+#top{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:30;
+  display:flex;align-items:center;gap:14px;padding:9px 16px;pointer-events:auto}
+#top h1{font-size:14px;font-weight:650;letter-spacing:.16em;margin:0}
+#top .sub{font-size:11px;color:var(--ink3);letter-spacing:.04em;border-left:1px solid var(--stroke2);padding-left:14px}
+#top .spacer{width:6px}
+
+/* ---- side panels ---- */
+.panel{position:absolute;top:0;bottom:0;width:326px;z-index:20;display:flex;flex-direction:column;
+  margin:14px;border-radius:var(--r);overflow:hidden;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s}
+#left{left:0} #right{right:0;width:314px}
+.panel.hidden{opacity:0;pointer-events:none}
+#left.hidden{transform:translateX(-360px)} #right.hidden{transform:translateX(360px)}
+.panel .scroll{overflow-y:auto;overflow-x:hidden;padding:14px 15px 20px;flex:1}
+.phead{padding:13px 15px 10px;border-bottom:1px solid var(--stroke);
+  display:flex;align-items:center;justify-content:space-between;flex:none}
+.phead h2{font-size:11px;font-weight:650;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+
+section{margin-bottom:19px}
+section > label, .slabel{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:7px;font-weight:600}
+.hint{font-size:11px;color:var(--ink3);line-height:1.45;margin-top:6px}
+
+/* ---- segmented control ---- */
+.seg{display:flex;background:rgba(255,255,255,.045);border-radius:var(--rs);padding:3px;gap:3px;border:1px solid var(--stroke)}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink2);padding:6px 4px;border-radius:6px;
+  cursor:pointer;font-size:11px;font-weight:550;transition:.16s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg button:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.seg button.on{background:rgba(255,255,255,.14);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.seg button:disabled{opacity:.28;cursor:not-allowed}
+.seg.vert{flex-direction:column}
+.seg.vert button{text-align:left;padding:7px 9px}
+
+/* ---- select / list ---- */
+select{width:100%;background:rgba(255,255,255,.055);border:1px solid var(--stroke);border-radius:var(--rs);
+  padding:8px 10px;appearance:none;cursor:pointer;outline:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center}
+select:focus{border-color:var(--stroke2)}
+select option{background:#15171c}
+optgroup{color:var(--ink3);font-size:11px}
+
+/* ---- slider ---- */
+.slider-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:5px}
+.slider-row .val{font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600}
+input[type=range]{-webkit-appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;display:block}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:rgba(255,255,255,.16);border-radius:3px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:#fff;margin-top:-6px;box-shadow:0 1px 5px rgba(0,0,0,.6);transition:transform .12s}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.15)}
+input[type=range]::-moz-range-track{height:3px;background:rgba(255,255,255,.16);border-radius:3px}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border:0;border-radius:50%;background:#fff}
+
+/* ---- readout table ---- */
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.045)}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--ink2);font-size:11.5px;flex:1;min-width:0}
+.kv .v{font-family:var(--fm);font-size:12px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.kv.big .v{font-size:15px}
+.kv .v.dim{color:var(--ink3);font-weight:500}
+
+/* ---- ring legend ---- */
+.ring-item{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.045);cursor:default}
+.ring-item:last-child{border-bottom:0}
+.swatch{width:9px;height:9px;border-radius:50%;flex:none;margin-top:4px;box-shadow:0 0 8px currentColor}
+.ring-item .rl{flex:1;min-width:0}
+.ring-item .rn{font-size:11.5px;line-height:1.3}
+.ring-item .rd{font-size:10.5px;color:var(--ink3);line-height:1.35;margin-top:2px}
+.ring-item .rv{font-family:var(--fm);font-size:11.5px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* ---- casualty callout ---- */
+.toll{background:linear-gradient(160deg,rgba(255,45,85,.14),rgba(255,45,85,.04));
+  border:1px solid rgba(255,45,85,.25);border-radius:var(--rs);padding:12px 13px;margin-bottom:11px}
+.toll .n{font-family:var(--fm);font-size:25px;font-weight:700;letter-spacing:-.02em;line-height:1.05;color:#ff6b81}
+.toll .l{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink2);margin-top:4px}
+.toll.amber{background:linear-gradient(160deg,rgba(255,159,10,.13),rgba(255,159,10,.03));border-color:rgba(255,159,10,.24)}
+.toll.amber .n{color:#ffb340}
+.toll-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toll-grid .toll{margin:0;padding:10px 11px}
+.toll-grid .n{font-size:18px}
+
+/* ---- timeline ---- */
+#timeline{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;z-index:25;
+  width:min(760px,calc(100vw - 700px));min-width:420px;padding:13px 16px 12px}
+#timeline.wide{width:min(900px,calc(100vw - 60px))}
+.tl-top{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.iconbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--stroke);background:rgba(255,255,255,.07);
+  display:grid;place-items:center;cursor:pointer;flex:none;transition:.16s;color:var(--ink)}
+.iconbtn:hover{background:rgba(255,255,255,.14)}
+.iconbtn.primary{background:#fff;color:#111;border-color:#fff}
+.iconbtn.primary:hover{background:#e8e8e8}
+.iconbtn svg{width:13px;height:13px;fill:currentColor}
+#clock{font-family:var(--fm);font-size:15px;font-weight:650;letter-spacing:-.01em;min-width:104px;font-variant-numeric:tabular-nums}
+#phase{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:650}
+.tl-track{position:relative;height:20px}
+#scrub{position:absolute;inset:0;margin:0}
+.tl-marks{position:absolute;left:0;right:0;top:16px;height:12px;pointer-events:none}
+.tl-marks span{position:absolute;transform:translateX(-50%);font-size:9px;color:var(--ink3);font-family:var(--fm);white-space:nowrap}
+#narration{margin-top:14px;font-size:12.5px;line-height:1.55;color:var(--ink2);min-height:52px}
+#narration b{color:var(--ink);font-weight:600}
+#narration .nt{display:block;color:#fff;font-weight:600;font-size:13px;margin-bottom:3px}
+
+/* ---- legend / scale ---- */
+#legend{position:absolute;left:354px;bottom:16px;z-index:15;padding:10px 12px;max-width:210px;font-size:11px}
+#legend .lrow{display:flex;align-items:center;gap:7px;padding:2px 0;color:var(--ink2)}
+#legend .lsw{width:16px;height:3px;border-radius:2px;flex:none}
+#scalebar{position:absolute;right:340px;bottom:16px;z-index:15;padding:8px 11px;font-family:var(--fm);font-size:11px;
+  display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+#scalebar .bar{height:3px;background:#fff;border-radius:2px;position:relative}
+#scalebar .bar:before,#scalebar .bar:after{content:'';position:absolute;width:1px;height:7px;background:#fff;top:-2px}
+#scalebar .bar:before{left:0} #scalebar .bar:after{right:0}
+
+/* ---- inspector ---- */
+#inspector{position:absolute;z-index:28;padding:11px 13px;width:236px;pointer-events:none;opacity:0;
+  transition:opacity .18s;font-size:11.5px}
+#inspector.on{opacity:1}
+#inspector .ih{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+#inspector .irow{display:flex;justify-content:space-between;gap:9px;padding:2.5px 0}
+#inspector .irow span:last-child{font-family:var(--fm);font-weight:600;font-variant-numeric:tabular-nums}
+#inspector .verdict{margin-top:8px;padding-top:8px;border-top:1px solid var(--stroke);font-size:11px;color:var(--ink2);line-height:1.4}
+
+/* ---- elevation inset (cloud column) ---- */
+#elev{position:absolute;right:340px;bottom:78px;z-index:15;width:172px;height:196px;padding:9px 10px 6px;overflow:hidden}
+#elev .eh{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+#elev canvas{width:100%;height:154px;display:block}
+
+/* ---- modal ---- */
+#modal{position:absolute;inset:0;z-index:60;display:none;place-items:center;background:rgba(0,0,0,.62);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#modal.on{display:grid}
+.sheet{width:min(880px,calc(100vw - 60px));max-height:82vh;overflow:auto;padding:24px 26px}
+.sheet h3{font-size:16px;font-weight:650;margin-bottom:4px}
+.sheet .sub{color:var(--ink3);font-size:12px;margin-bottom:18px}
+.sheet h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:18px 0 8px}
+.sheet p{color:var(--ink2);font-size:12.5px;line-height:1.6;margin-bottom:9px}
+.sheet a{color:var(--accent2)}
+.sheet ul{margin:0 0 10px 17px;color:var(--ink2);font-size:12.5px;line-height:1.65}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px}
+table.cmp th,table.cmp td{padding:7px 9px;text-align:right;border-bottom:1px solid rgba(255,255,255,.06)}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left;color:var(--ink2)}
+table.cmp thead th{color:var(--ink3);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+table.cmp td{font-family:var(--fm);font-variant-numeric:tabular-nums}
+table.cmp td:first-child{font-family:var(--f)}
+.closex{position:absolute;top:16px;right:18px}
+
+.btn{border:1px solid var(--stroke);background:rgba(255,255,255,.07);border-radius:var(--rs);
+  padding:7px 13px;cursor:pointer;font-size:11.5px;font-weight:550;transition:.16s;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.14);border-color:var(--stroke2)}
+.btn.on{background:rgba(255,159,10,.2);border-color:rgba(255,159,10,.4);color:#ffc164}
+.btn.ghost{background:transparent}
+.row{display:flex;gap:7px}
+.row .btn{flex:1;text-align:center}
+
+/* ---- wind dial ---- */
+.wind{display:flex;gap:13px;align-items:center}
+#dial{width:74px;height:74px;flex:none;cursor:grab;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  border:1px solid var(--stroke);position:relative}
+#dial:active{cursor:grabbing}
+#dial svg{position:absolute;inset:0;width:100%;height:100%}
+.wind .wfields{flex:1;min-width:0}
+
+.notice{font-size:11px;color:var(--ink3);line-height:1.5;border-left:2px solid rgba(255,159,10,.4);
+  padding-left:9px;margin-top:12px}
+.tag{display:inline-block;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;padding:2px 6px;
+  border-radius:4px;background:rgba(255,255,255,.09);color:var(--ink2);font-weight:600;vertical-align:middle}
+
+#toast{position:absolute;bottom:22px;left:50%;transform:translate(-50%,20px);z-index:70;padding:9px 16px;
+  font-size:12px;opacity:0;transition:.3s;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+#toggles{position:absolute;top:14px;right:14px;z-index:31;display:flex;gap:7px}
+#lefttoggle{position:absolute;top:14px;left:14px;z-index:31}
+
+@media (max-width:1240px){
+  #legend{left:14px;bottom:220px} #scalebar,#elev{right:14px}
+  #timeline{width:min(680px,calc(100vw - 40px));min-width:0}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="map"></canvas>
+
+  <div id="top" class="glass">
+    <h1>AEON</h1>
+    <div class="sub">Weapons Consequence Simulator</div>
+  </div>
+
+  <button id="lefttoggle" class="btn glass" title="Show/hide controls">Controls</button>
+  <div id="toggles">
+    <button id="btnCompare" class="btn glass">Compare</button>
+    <button id="btnSave" class="btn glass">Save</button>
+    <button id="btnLoad" class="btn glass">Load</button>
+    <button id="btnAbout" class="btn glass">Method &amp; sources</button>
+    <input id="fileLoad" type="file" accept="application/json" hidden>
+  </div>
+
+  <!-- ================= LEFT: CONTROLS ================= -->
+  <aside id="left" class="panel glass">
+    <div class="phead"><h2>Scenario</h2><span class="tag" id="tagClass">nuclear</span></div>
+    <div class="scroll">
+      <section>
+        <label>Weapon class</label>
+        <div class="seg" id="clsSeg">
+          <button data-cls="conv">Conventional</button>
+          <button data-cls="thermo">Thermobaric</button>
+          <button data-cls="penet">Penetrator</button>
+          <button data-cls="nuke" class="on">Nuclear</button>
+        </div>
+      </section>
+
+      <section>
+        <label>Device</label>
+        <select id="weaponSel"></select>
+        <div class="hint" id="weaponNote"></div>
+      </section>
+
+      <section id="yieldSec">
+        <div class="slider-row"><span class="slabel" style="margin:0">Yield</span><span class="val" id="yieldVal">1 Mt</span></div>
+        <input type="range" id="yieldSlider" min="0" max="1000" value="600">
+        <div class="hint">Continuous from 10 tonnes to 100 megatons. Every radius below scales as the cube root of this number.</div>
+      </section>
+
+      <section>
+        <label>Burst type</label>
+        <div class="seg" id="burstSeg">
+          <button data-b="air">Air</button>
+          <button data-b="surface">Surface</button>
+          <button data-b="penetrating">Penetrating</button>
+          <button data-b="high">High-altitude</button>
+        </div>
+        <div class="hint" id="burstNote"></div>
+      </section>
+
+      <section id="hobSec" hidden>
+        <div class="slider-row"><span class="slabel" style="margin:0">Burst altitude</span><span class="val" id="hobVal">100 km</span></div>
+        <input type="range" id="hobSlider" min="30" max="500" value="100">
+      </section>
+
+      <section>
+        <label>Ground</label>
+        <div class="seg vert" id="terrSeg"></div>
+        <div class="hint" id="terrNote"></div>
+      </section>
+
+      <section>
+        <label>Wind (carries the fallout)</label>
+        <div class="wind">
+          <div id="dial"><svg viewBox="0 0 74 74">
+            <circle cx="37" cy="37" r="28" fill="none" stroke="rgba(255,255,255,.10)"/>
+            <g id="dialNeedle"><line x1="37" y1="52" x2="37" y2="18" stroke="#5ac8fa" stroke-width="2"/>
+              <polygon points="37,12 32,22 42,22" fill="#5ac8fa"/></g>
+            <text x="37" y="11" fill="rgba(255,255,255,.35)" font-size="7" text-anchor="middle">N</text>
+          </svg></div>
+          <div class="wfields">
+            <div class="slider-row"><span class="slabel" style="margin:0">Speed</span><span class="val" id="windVal">24 km/h</span></div>
+            <input type="range" id="windSlider" min="0" max="120" value="24">
+            <div class="slider-row" style="margin-top:6px"><span class="slabel" style="margin:0">Bearing</span><span class="val" id="dirVal">090°</span></div>
+            <input type="range" id="dirSlider" min="0" max="359" value="90">
+          </div>
+        </div>
+        <div class="hint">Drag the dial or the sliders. Bearing is the direction the wind blows <b>toward</b>.</div>
+      </section>
+
+      <section id="fissionSec">
+        <div class="slider-row"><span class="slabel" style="margin:0">Fission fraction</span><span class="val" id="fissVal">50%</span></div>
+        <input type="range" id="fissSlider" min="5" max="100" value="50">
+        <div class="hint">The share of yield from fission sets how much local fallout a surface burst produces. Only an effects parameter — no design information is modelled.</div>
+      </section>
+
+      <section>
+        <div class="slider-row"><span class="slabel" style="margin:0">Visibility</span><span class="val" id="visVal">Clear · 20 km</span></div>
+        <input type="range" id="visSlider" min="30" max="200" value="100">
+        <div class="hint">Haze absorbs thermal radiation and shrinks the burn rings. It does nothing to the blast.</div>
+      </section>
+
+      <div class="notice">This tool models <b>consequences only</b> — blast, heat, radiation, cratering and fallout — from open, published effects data. It contains no weapon design, construction or targeting information.</div>
+    </div>
+  </aside>
+
+  <!-- ================= RIGHT: CONSEQUENCES ================= -->
+  <aside id="right" class="panel glass">
+    <div class="phead"><h2>Consequences</h2><span class="tag" id="tagPop"></span></div>
+    <div class="scroll">
+      <div class="toll-grid">
+        <div class="toll"><div class="n" id="nDead">—</div><div class="l">Killed</div></div>
+        <div class="toll amber"><div class="n" id="nHurt">—</div><div class="l">Injured</div></div>
+      </div>
+      <div class="toll amber" style="margin-top:8px"><div class="n" id="nDisp">—</div><div class="l">Displaced / homeless</div></div>
+
+      <section style="margin-top:18px">
+        <label>Physical scale</label>
+        <div id="kvMain"></div>
+      </section>
+
+      <section>
+        <label>Damage zones</label>
+        <div id="ringList"></div>
+      </section>
+
+      <section id="falloutSec">
+        <label>Fallout</label>
+        <div id="kvFallout"></div>
+      </section>
+
+      <section>
+        <label>What this does not model</label>
+        <div class="hint" id="caveats"></div>
+      </section>
+    </div>
+  </aside>
+
+  <!-- ================= TIMELINE ================= -->
+  <div id="timeline" class="glass">
+    <div class="tl-top">
+      <button class="iconbtn primary" id="btnPlay" title="Play / pause">
+        <svg id="icoPlay" viewBox="0 0 12 12"><path d="M2 1l9 5-9 5z"/></svg>
+        <svg id="icoPause" viewBox="0 0 12 12" style="display:none"><path d="M2 1h3v10H2zM7 1h3v10H7z"/></svg>
+      </button>
+      <button class="iconbtn" id="btnReplay" title="Restart">
+        <svg viewBox="0 0 12 12"><path d="M6 1a5 5 0 105 5h-1.6A3.4 3.4 0 116 2.6V4.8L9 2.4 6 0z"/></svg>
+      </button>
+      <div id="clock">T + 0.000 s</div>
+      <div id="phase">standby</div>
+      <div style="flex:1"></div>
+      <button class="btn ghost" id="btnSpeed">1×</button>
+    </div>
+    <div class="tl-track">
+      <input type="range" id="scrub" min="-4" max="5.2375" step="0.001" value="-4">
+      <div class="tl-marks" id="tlMarks"></div>
+    </div>
+    <div id="narration"><span class="nt">Ready</span>Choose a device and press play. The timeline is logarithmic: it runs from a ten-thousandth of a second to two days after detonation.</div>
+  </div>
+
+  <div id="legend" class="glass"></div>
+  <div id="scalebar" class="glass"><div class="bar" id="scaleBar" style="width:100px"></div><div id="scaleTxt">10 km</div></div>
+  <div id="elev" class="glass"><div class="eh">Cloud column</div><canvas id="elevCv" width="304" height="308"></canvas></div>
+  <div id="inspector" class="glass"></div>
+  <div id="toast" class="glass"></div>
+
+  <div id="modal"><div class="sheet glass" id="sheet"></div></div>
+</div>
+<script>
+/* ======== physics.js ======== */
+/* =====================================================================
+ * AEON — Blast & Consequence Effects Engine
+ * ---------------------------------------------------------------------
+ * Open, published weapons-EFFECTS models only. This module contains no
+ * weapon design, construction, material, or targeting information.
+ *
+ * Primary sources encoded here:
+ *  [G&D]  Glasstone & Dolan, "The Effects of Nuclear Weapons", 3rd ed.,
+ *         USDOD/DOE 1977. Ch. III (air blast), V (structures),
+ *         VII (thermal), VIII (initial radiation), IX (fallout).
+ *  [OTA]  US Office of Technology Assessment, "The Effects of Nuclear
+ *         War", 1979 — casualty fractions vs. overpressure.
+ *  [WSEG] Pugh & Galiano, WSEG-10 analytical fallout prediction model
+ *         (1959); documented in Bridgman & Bigelow, 1982.
+ *  [K&G]  Kinney & Graham, "Explosive Shocks in Air", 2nd ed. 1985 —
+ *         free-field TNT overpressure vs. scaled distance.
+ *  [Nor]  Nordyke (1973) / Murphy (1981) — cratering & seismic coupling.
+ *  [Kar]  Karzas & Latter (1962) — high-altitude EMP geometry.
+ * ===================================================================== */
+
+(function (root, factory) {
+  const mod = factory();
+  if (typeof module === 'object' && module.exports) module.exports = mod;
+  else root.AEON = mod;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const PI = Math.PI;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const KT_TO_CAL = 1.0e12;      // 1 kt TNT = 4.184e12 J = 1.0e12 cal (thermochemical)
+  const KG_TNT_PER_KT = 1.0e6;   // 1 kt = 1e6 kg TNT
+  const EARTH_R_KM = 6371;
+
+  /* ------------------------------------------------------------------
+   * 1. AIR BLAST — NUCLEAR
+   * ------------------------------------------------------------------
+   * Cube-root (Hopkinson-Cranz) yield scaling: R = R_1kt * Y^(1/3).
+   * The reference table is the 1-kt curve for a burst at the height
+   * that maximises the given overpressure ring (G&D Fig. 3.73a/b).
+   * Optimum HOB for a 1 kt weapon is ~178 m (585 ft) [G&D 3.68].
+   */
+  const BLAST_1KT = [ // [psi, radius_m] — 1 kt, optimum height of burst
+    [200, 100], [100, 130], [50, 180], [30, 235], [20, 280],
+    [15, 340], [10, 450], [7, 560], [5, 700], [3, 1000],
+    [2, 1400], [1, 2200], [0.5, 3600], [0.25, 6000], [0.1, 11000]
+  ];
+
+  // Burst-type coupling factors for AIR BLAST radius (G&D Ch. III).
+  // A contact surface burst loses the Mach-stem enhancement of an
+  // optimised air burst; a buried/penetrating burst couples most of its
+  // energy to the ground and produces far less air blast.
+  const BLAST_COUPLING = { air: 1.00, surface: 0.70, penetrating: 0.36, high: 0.0 };
+
+  /** Peak overpressure (psi) at ground range r_m for yield Y (kt). */
+  function nukeOverpressureAt(r_m, Y_kt, burst) {
+    const k = BLAST_COUPLING[burst] ?? 1;
+    if (k <= 0 || Y_kt <= 0) return 0;
+    const s = Math.cbrt(Y_kt) * k;
+    const r1 = Math.max(r_m / s, 1e-6); // equivalent 1-kt range
+    const T = BLAST_1KT;
+    if (r1 <= T[0][1]) {
+      // extrapolate strong-shock region, p ~ r^-3
+      return T[0][0] * Math.pow(T[0][1] / r1, 3);
+    }
+    for (let i = 0; i < T.length - 1; i++) {
+      const [p0, d0] = T[i], [p1, d1] = T[i + 1];
+      if (r1 >= d0 && r1 <= d1) {
+        const t = Math.log(r1 / d0) / Math.log(d1 / d0);
+        return Math.exp(lerp(Math.log(p0), Math.log(p1), t));
+      }
+    }
+    const [pl, dl] = T[T.length - 1];
+    return pl * Math.pow(dl / r1, 1.6); // far-field acoustic-ish decay
+  }
+
+  /** Ground radius (m) at which peak overpressure equals psi. */
+  function nukeBlastRadius(psi, Y_kt, burst) {
+    const k = BLAST_COUPLING[burst] ?? 1;
+    if (k <= 0 || Y_kt <= 0) return 0;
+    const T = BLAST_1KT;
+    let r1;
+    if (psi >= T[0][0]) r1 = T[0][1] * Math.pow(T[0][0] / psi, 1 / 3);
+    else if (psi <= T[T.length - 1][0]) {
+      const [pl, dl] = T[T.length - 1];
+      r1 = dl * Math.pow(pl / psi, 1 / 1.6);
+    } else {
+      r1 = T[T.length - 1][1];
+      for (let i = 0; i < T.length - 1; i++) {
+        const [p0, d0] = T[i], [p1, d1] = T[i + 1];
+        if (psi <= p0 && psi >= p1) {
+          const t = Math.log(psi / p0) / Math.log(p1 / p0);
+          r1 = Math.exp(lerp(Math.log(d0), Math.log(d1), t));
+          break;
+        }
+      }
+    }
+    return r1 * Math.cbrt(Y_kt) * k;
+  }
+
+  /** Optimum height of burst (m) — scaled from 585 ft at 1 kt [G&D 3.68]. */
+  function optimumHOB(Y_kt) { return 178 * Math.cbrt(Y_kt); }
+
+  /** Dynamic pressure (psi) from peak overpressure — Rankine-Hugoniot. */
+  function dynamicPressure(psi) {
+    const p0 = 14.7;
+    return 2.5 * psi * psi / (7 * p0 + psi);
+  }
+
+  /** Peak wind behind the shock (km/h), G&D Table 3.07. */
+  function blastWindKph(psi) {
+    const p0 = 14.7, a0 = 340; // m/s
+    const q = dynamicPressure(psi);
+    const u = (5 * psi / (7 * p0)) * a0 / Math.sqrt(1 + 6 * psi / (7 * p0));
+    return Math.max(0, u * 3.6) + q * 0; // q retained for readability
+  }
+
+  /** Shock-front arrival time (s) at ground range r_m [G&D Fig 3.77]. */
+  function shockArrivalTime(r_m, Y_kt) {
+    const s = Math.cbrt(Math.max(Y_kt, 1e-9));
+    const r1 = r_m / s;                      // scaled to 1 kt
+    // Empirical fit to the 1-kt arrival-time curve; asymptotes to sonic.
+    const t1 = 0.0000034 * Math.pow(r1, 1.35) + r1 / 340 * 0.62;
+    return t1 * s;
+  }
+
+  /** Shock-front radius (m) at time t (s) — inverse of arrival time. */
+  function shockRadiusAt(t_s, Y_kt) {
+    if (t_s <= 0) return 0;
+    let lo = 0, hi = 200000 * Math.cbrt(Math.max(Y_kt, 1e-9));
+    for (let i = 0; i < 60; i++) {
+      const mid = (lo + hi) / 2;
+      if (shockArrivalTime(mid, Y_kt) < t_s) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  /* ------------------------------------------------------------------
+   * 2. FIREBALL & THERMAL RADIATION
+   * ------------------------------------------------------------------ */
+
+  /** Maximum fireball radius (m). R = 0.0885 * Y^0.4 km (air burst) [G&D 2.126]. */
+  function fireballRadius(Y_kt, burst) {
+    const base = 88.5 * Math.pow(Math.max(Y_kt, 1e-9), 0.4);
+    const f = burst === 'surface' ? 1.2 : burst === 'penetrating' ? 0.35 : 1.0;
+    return base * f;
+  }
+
+  /** Fireball radius (m) as a function of time — rapid growth then decay-to-cloud. */
+  function fireballRadiusAt(t_s, Y_kt, burst) {
+    const Rm = fireballRadius(Y_kt, burst);
+    const tMax = 0.032 * Math.pow(Math.max(Y_kt, 1e-9), 0.44); // s, 2nd max [G&D 2.123]
+    if (t_s <= 0) return 0;
+    if (t_s < tMax) return Rm * Math.pow(t_s / tMax, 0.4);
+    return Rm * Math.pow(tMax / t_s, 0.12);
+  }
+
+  /** Duration of the thermal pulse (s) — time to 2nd thermal maximum ×~3. */
+  function thermalPulseDuration(Y_kt) {
+    return 0.2 * Math.pow(Math.max(Y_kt, 1e-9), 0.44) * 3;
+  }
+
+  // Fraction of yield emitted as thermal radiation. 0.35 for an air burst
+  // in the lower atmosphere; reduced at the surface (fireball/ground
+  // interaction + terrain masking) and negligible if buried [G&D 7.09].
+  const THERMAL_FRACTION = { air: 0.35, surface: 0.20, penetrating: 0.002, high: 0.45 };
+
+  /**
+   * Thermal fluence (cal/cm^2) at slant range r_m.
+   * Q = f*Y*E / (4*pi*r^2) * transmittance, with an exponential
+   * atmospheric attenuation length calibrated so that a 1 Mt air burst
+   * delivers 4.5-6 cal/cm^2 at 9-10 miles (14.5-16 km) — the value
+   * stated in G&D 12.65 for ~12-mile visibility.
+   */
+  const ATTEN_LENGTH_M = 16000;
+  function thermalFluence(r_m, Y_kt, burst, visibilityFactor) {
+    const f = THERMAL_FRACTION[burst] ?? 0.35;
+    if (r_m <= 0 || Y_kt <= 0 || f <= 0) return Infinity;
+    const L = ATTEN_LENGTH_M * (visibilityFactor ?? 1);
+    const E = f * Y_kt * KT_TO_CAL;              // cal
+    const r_cm = r_m * 100;
+    return E * Math.exp(-r_m / L) / (4 * PI * r_cm * r_cm);
+  }
+
+  /** Ground range (m) at which thermal fluence equals q (cal/cm^2). */
+  function thermalRadius(q, Y_kt, burst, visibilityFactor) {
+    const f = THERMAL_FRACTION[burst] ?? 0.35;
+    if (f <= 0 || Y_kt <= 0 || q <= 0) return 0;
+    let lo = 1, hi = 3.0e6;
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      if (thermalFluence(mid, Y_kt, burst, visibilityFactor) > q) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  // Thermal injury / ignition thresholds, cal/cm^2 [G&D Table 7.35, 7.40].
+  // These are yield-dependent because a longer pulse spreads the same
+  // energy over more time; values are scaled from the 1 Mt column.
+  function burnThresholds(Y_kt) {
+    const s = Math.pow(clamp(Y_kt, 0.001, 1e5) / 1000, 0.09); // mild pulse-length correction
+    return {
+      firstDegree: 2.5 * s,
+      secondDegree: 5.0 * s,
+      thirdDegree: 8.0 * s,
+      ignitionFabric: 10.0 * s,
+      charring: 20.0 * s
+    };
+  }
+
+  /* ------------------------------------------------------------------
+   * 3. PROMPT (INITIAL) NUCLEAR RADIATION
+   * ------------------------------------------------------------------
+   * D = k * Y * exp(-r/lambda) / r^2, lambda ~= 345 m (air mean free
+   * path for the combined prompt gamma + neutron field at sea level).
+   * Calibrated to 500 rem at 1150 m for a 20 kt burst [G&D Fig. 8.34].
+   */
+  const PROMPT_K = 9.26e8, PROMPT_LAMBDA = 345;
+  function promptDose(r_m, Y_kt, burst) {
+    if (burst === 'penetrating') return 0;
+    if (r_m <= 0 || Y_kt <= 0) return Infinity;
+    return PROMPT_K * Y_kt * Math.exp(-r_m / PROMPT_LAMBDA) / (r_m * r_m);
+  }
+  function promptDoseRadius(rem, Y_kt, burst) {
+    if (burst === 'penetrating' || Y_kt <= 0) return 0;
+    let lo = 1, hi = 40000;
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      if (promptDose(mid, Y_kt, burst) > rem) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  /* ------------------------------------------------------------------
+   * 4. CRATERING, GROUND SHOCK, SEISMIC EQUIVALENT
+   * ------------------------------------------------------------------ */
+  // Apparent crater radius, dry soil/soft rock. R = 26 * Y^(1/3.4) m,
+  // giving ~200 m radius / ~60 m depth for 1 Mt at the surface [G&D 6.07].
+  const CRATER_MEDIUM = { soil: 1.0, rock: 0.72, water: 0.0, urban: 0.95 };
+  function craterRadius(Y_kt, burst, medium) {
+    if (burst === 'air' || burst === 'high') return 0;
+    const depthFactor = burst === 'penetrating' ? 1.75 : 1.0; // enhanced coupling
+    const m = CRATER_MEDIUM[medium] ?? 1;
+    return 26 * Math.pow(Math.max(Y_kt, 1e-9), 1 / 3.4) * depthFactor * m;
+  }
+  function craterDepth(Y_kt, burst, medium) {
+    return craterRadius(Y_kt, burst, medium) * (burst === 'penetrating' ? 0.42 : 0.30);
+  }
+  /** Radius (m) of severe ground shock / total rupture zone. */
+  function ruptureRadius(Y_kt, burst, medium) {
+    return craterRadius(Y_kt, burst, medium) * 2.5;
+  }
+
+  /**
+   * Seismic body-wave magnitude equivalent.
+   * mb = 4.0 + 0.75*log10(Y_kt) for a fully coupled, tamped explosion
+   * [Nordyke 1973 / Murphy 1981]. Surface and air bursts couple only a
+   * small fraction of their energy into the ground.
+   */
+  function seismicMagnitude(Y_kt, burst) {
+    if (Y_kt <= 0) return 0;
+    const coupling = { penetrating: 1.0, surface: 0.03, air: 0.001, high: 0 }[burst] ?? 0.01;
+    if (coupling <= 0) return 0;
+    const Yeff = Y_kt * coupling;
+    return Math.max(0, 4.0 + 0.75 * Math.log10(Math.max(Yeff, 1e-9)));
+  }
+
+  /* ------------------------------------------------------------------
+   * 5. MUSHROOM CLOUD
+   * ------------------------------------------------------------------
+   * Stabilised cloud-top altitude fitted to observed data
+   * (20 kt -> ~9 km, 1 Mt -> ~19 km, 15 Mt -> ~32 km) [G&D Fig 2.16].
+   */
+  function cloudTopKm(Y_kt) { return 5.13 * Math.pow(Math.max(Y_kt, 1e-9), 0.191); }
+  function cloudBaseKm(Y_kt) { return cloudTopKm(Y_kt) * 0.55; }
+  function cloudRadiusKm(Y_kt) { return 1.6 * Math.pow(Math.max(Y_kt, 1e-9), 0.28); }
+  /** Time (s) for the cloud to stabilise — ~ 10 min for large yields. */
+  function cloudStabiliseTime(Y_kt) { return 90 * Math.pow(Math.max(Y_kt, 1e-9), 0.12); }
+
+  /* ------------------------------------------------------------------
+   * 6. CONVENTIONAL & ADVANCED HIGH-EXPLOSIVE MUNITIONS
+   * ------------------------------------------------------------------
+   * Kinney & Graham free-air TNT overpressure vs. scaled distance
+   * Z = R / W^(1/3)  [m / kg^(1/3)]:
+   *
+   *   Ps/P0 = 808[1+(Z/4.5)^2] /
+   *      sqrt(1+(Z/0.048)^2) sqrt(1+(Z/0.32)^2) sqrt(1+(Z/1.35)^2)
+   */
+  const BAR_PER_PSI = 0.0689476;
+  function kgOverpressureBar(Z) {
+    if (Z <= 0) return Infinity;
+    const num = 808 * (1 + Math.pow(Z / 4.5, 2));
+    const den = Math.sqrt(1 + Math.pow(Z / 0.048, 2)) *
+                Math.sqrt(1 + Math.pow(Z / 0.32, 2)) *
+                Math.sqrt(1 + Math.pow(Z / 1.35, 2));
+    return 1.01325 * num / den; // bar overpressure (P0 = 1.01325 bar)
+  }
+  /** Peak overpressure (psi) at range r_m from W_kg of TNT equivalent. */
+  function heOverpressureAt(r_m, W_kg_tnt, surfaceBurst) {
+    if (W_kg_tnt <= 0) return 0;
+    const W = surfaceBurst ? W_kg_tnt * 1.8 : W_kg_tnt; // ground reflection factor
+    const Z = r_m / Math.cbrt(W);
+    return kgOverpressureBar(Z) / BAR_PER_PSI;
+  }
+  /** Range (m) at which HE overpressure equals psi. */
+  function heBlastRadius(psi, W_kg_tnt, surfaceBurst) {
+    if (W_kg_tnt <= 0 || psi <= 0) return 0;
+    let lo = 0.01, hi = 100000;
+    for (let i = 0; i < 90; i++) {
+      const mid = (lo + hi) / 2;
+      if (heOverpressureAt(mid, W_kg_tnt, surfaceBurst) > psi) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  /**
+   * Lethal fragmentation radius (m) for a cased munition.
+   * Empirical open-literature scaling on total munition mass:
+   * R50 ~ 22 * M^(1/3) for general-purpose cased bombs; hazard radius
+   * (any-injury) extends roughly 4x further.
+   */
+  function fragmentationRadius(caseMass_kg) {
+    if (!caseMass_kg || caseMass_kg <= 0) return 0;
+    return 22 * Math.cbrt(caseMass_kg);
+  }
+  function fragmentHazardRadius(caseMass_kg) { return 4.2 * fragmentationRadius(caseMass_kg); }
+
+  /* ------------------------------------------------------------------
+   * 7. HIGH-ALTITUDE EMP
+   * ------------------------------------------------------------------
+   * The E1 field is deposited over the region of the earth's surface
+   * within line of sight of the burst point [Karzas & Latter 1962].
+   */
+  function empLineOfSightKm(hob_km) {
+    if (hob_km <= 0) return 0;
+    return Math.sqrt(2 * EARTH_R_KM * hob_km + hob_km * hob_km);
+  }
+  function empPeakFieldKvM(Y_kt, hob_km) {
+    if (hob_km < 30) return 0;
+    // Saturates: the deposition region is gamma-limited, not yield-limited.
+    const s = Math.log10(clamp(Y_kt, 0.1, 1e5)) + 1;
+    return clamp(8 * s * Math.pow(clamp(hob_km, 30, 500) / 100, 0.25), 5, 50);
+  }
+
+  /* ------------------------------------------------------------------
+   * 8. FALLOUT — WSEG-10-style advected plume, t^-1.2 decay
+   * ------------------------------------------------------------------
+   * Only surface (and shallow penetrating) bursts loft large amounts of
+   * soil into the fireball; an air burst whose fireball never touches
+   * the ground produces negligible local fallout [G&D 9.50].
+   *
+   * Reference dose rate is normalised at H+1 hour. Radioactive decay
+   * follows the Way-Wigner approximation  I(t) = I_1 * t^-1.2  (t in
+   * hours after burst), valid from ~30 min to ~6 months [G&D 9.16].
+   */
+  function decayFactor(t_hours) {
+    if (t_hours <= 0.0167) return Math.pow(0.0167, -1.2);
+    return Math.pow(t_hours, -1.2);
+  }
+  /** Accumulated dose (rad) between t1 and t2 hours for a location whose
+   *  H+1 dose rate is I1 (rad/hr). Integral of t^-1.2 = -5*t^-0.2. */
+  function accumulatedDose(I1, t1_h, t2_h) {
+    const a = Math.max(t1_h, 0.0167), b = Math.max(t2_h, a);
+    return I1 * 5 * (Math.pow(a, -0.2) - Math.pow(b, -0.2));
+  }
+
+  /**
+   * Build a fallout deposition field on a local grid.
+   * A Lagrangian parcel model: the stabilised cloud is discretised into
+   * altitude bands; each band falls at its own terminal velocity while
+   * being advected by the wind, so the deposition footprint becomes the
+   * familiar cigar shape whose length scales with wind speed and cloud
+   * height. Crosswind spread grows with travel time (wind shear +
+   * turbulent diffusion).
+   *
+   * Returns { cells:Float32Array (rad/hr at H+1), nx, ny, cellKm, x0, y0 }
+   * in a local East/North coordinate frame centred on ground zero.
+   */
+  function falloutField(opts) {
+    const {
+      Y_kt, burst, fissionFraction = 0.5,
+      windSpeedKph = 24, windDirDeg = 90,   // direction wind blows TOWARD
+      windShear = 0.35,
+      nx = 160, ny = 160, extentKm = 400
+    } = opts;
+
+    const cellKm = extentKm / nx;
+    const cells = new Float32Array(nx * ny);
+    const out = { cells, nx, ny, cellKm, extentKm, maxRate: 0, downwindKm: 0 };
+    if (Y_kt <= 0) return out;
+    const groundCoupling = { surface: 1.0, penetrating: 1.35, air: 0.02, high: 0 }[burst] ?? 0;
+    if (groundCoupling <= 0) return out;
+
+    const topKm = cloudTopKm(Y_kt);
+    const baseKm = cloudBaseKm(Y_kt);
+    const cloudR = cloudRadiusKm(Y_kt);
+    const dirRad = windDirDeg * PI / 180;
+    const wx = Math.sin(dirRad), wy = -Math.cos(dirRad); // screen-frame: +x East, +y South
+
+    // Total H+1 activity budget (arbitrary but calibrated below).
+    const BANDS = 28;
+    const totalAct = Y_kt * fissionFraction * groundCoupling;
+
+    for (let b = 0; b < BANDS; b++) {
+      const f = (b + 0.5) / BANDS;
+      const hKm = lerp(baseKm, topKm, f);
+      // Terminal fall velocity: larger particles concentrate low in the
+      // stem, fines ride the cap. v ~ 0.6 - 12 m/s across the spectrum.
+      const vFall = lerp(11.5, 1.1, f);           // m/s
+      const fallTime_h = (hKm * 1000 / vFall) / 3600;
+      const travelKm = windSpeedKph * fallTime_h;
+      // Mass fraction per band: cap carries most of the activity.
+      const mass = (0.35 + 1.65 * f) / BANDS;
+      // Crosswind sigma grows with travel time (shear + diffusion).
+      const sigY = Math.max(cloudR * 0.6, cloudR * 0.6 + windShear * travelKm * 0.30);
+      const sigX = Math.max(cloudR * 0.8, cloudR * 0.8 + 0.18 * travelKm);
+      const cx = travelKm * wx, cy = travelKm * wy;
+      const amp = totalAct * mass / (2 * PI * sigX * sigY);
+
+      for (let j = 0; j < ny; j++) {
+        const y = (j - ny / 2 + 0.5) * cellKm;
+        for (let i = 0; i < nx; i++) {
+          const x = (i - nx / 2 + 0.5) * cellKm;
+          // rotate into plume frame
+          const dx = x - cx, dy = y - cy;
+          const along = dx * wx + dy * wy;
+          const cross = -dx * wy + dy * wx;
+          const e = -(along * along) / (2 * sigX * sigX) - (cross * cross) / (2 * sigY * sigY);
+          if (e < -18) continue;
+          cells[j * nx + i] += amp * Math.exp(e);
+        }
+      }
+    }
+
+    // Calibration: a 1 Mt, 50%-fission surface burst in a 24 km/h wind
+    // produces a 1000 rad/hr H+1 contour extending a few tens of km
+    // downwind and a 100 rad/hr contour of order 150 km [G&D Fig 9.87].
+    const CAL = 2.15e4;
+    let max = 0;
+    for (let k = 0; k < cells.length; k++) { cells[k] *= CAL; if (cells[k] > max) max = cells[k]; }
+    out.maxRate = max;
+
+    // Downwind extent of the 1 rad/hr contour, for reporting.
+    let far = 0;
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      if (cells[j * nx + i] >= 1) {
+        const x = (i - nx / 2 + 0.5) * cellKm, y = (j - ny / 2 + 0.5) * cellKm;
+        const d = Math.hypot(x, y); if (d > far) far = d;
+      }
+    }
+    out.downwindKm = far;
+    return out;
+  }
+
+  function sampleField(field, xKm, yKm) {
+    const { cells, nx, ny, cellKm } = field;
+    const i = Math.round(xKm / cellKm + nx / 2 - 0.5);
+    const j = Math.round(yKm / cellKm + ny / 2 - 0.5);
+    if (i < 0 || j < 0 || i >= nx || j >= ny) return 0;
+    return cells[j * nx + i];
+  }
+
+  /* ------------------------------------------------------------------
+   * 9. CASUALTY MODEL
+   * ------------------------------------------------------------------
+   * Fatality / injury fractions as a function of peak overpressure for
+   * a population in a mixed urban building stock [OTA 1979, App. B;
+   * cross-checked against G&D Ch. XII]. Deaths in the 1-5 psi band are
+   * dominated by building collapse, flying glass and fire.
+   */
+  const CASUALTY_CURVE = [ // [psi, fatalityFrac, injuryFrac]
+    [30, 0.99, 0.01], [20, 0.98, 0.02], [12, 0.90, 0.09],
+    [8, 0.70, 0.25], [5, 0.50, 0.40], [3, 0.25, 0.45],
+    [2, 0.10, 0.42], [1, 0.02, 0.30], [0.5, 0.002, 0.10], [0.25, 0, 0.02]
+  ];
+  function casualtyFractions(psi) {
+    const T = CASUALTY_CURVE;
+    if (psi >= T[0][0]) return { fatal: T[0][1], injured: T[0][2] };
+    if (psi <= T[T.length - 1][0]) return { fatal: 0, injured: 0 };
+    for (let i = 0; i < T.length - 1; i++) {
+      if (psi <= T[i][0] && psi >= T[i + 1][0]) {
+        const t = (Math.log(psi) - Math.log(T[i][0])) / (Math.log(T[i + 1][0]) - Math.log(T[i][0]));
+        return {
+          fatal: clamp(lerp(T[i][1], T[i + 1][1], t), 0, 1),
+          injured: clamp(lerp(T[i][2], T[i + 1][2], t), 0, 1)
+        };
+      }
+    }
+    return { fatal: 0, injured: 0 };
+  }
+
+  /** Additional thermal fatality fraction, weighted by the fraction of
+   *  the population outdoors and in line of sight of the fireball. */
+  function thermalFatalFraction(q_cal, thresholds, outdoorFrac) {
+    const o = outdoorFrac ?? 0.25;
+    if (q_cal >= thresholds.charring) return 0.90 * o;
+    if (q_cal >= thresholds.thirdDegree) return 0.55 * o;
+    if (q_cal >= thresholds.secondDegree) return 0.15 * o;
+    return 0;
+  }
+  function thermalInjuryFraction(q_cal, thresholds, outdoorFrac) {
+    const o = outdoorFrac ?? 0.25;
+    if (q_cal >= thresholds.thirdDegree) return 0.40 * o;
+    if (q_cal >= thresholds.secondDegree) return 0.75 * o;
+    if (q_cal >= thresholds.firstDegree) return 0.55 * o;
+    return 0;
+  }
+
+  /** Acute radiation lethality — LD50/60 ~ 450 rad without medical care. */
+  function radiationFatalFraction(dose_rad) {
+    if (dose_rad <= 100) return 0;
+    // Probit-like logistic around 450 rad, saturating by ~800 rad.
+    return clamp(1 / (1 + Math.exp(-(dose_rad - 450) / 90)), 0, 1);
+  }
+  function radiationSickFraction(dose_rad) {
+    if (dose_rad <= 50) return 0;
+    return clamp(1 / (1 + Math.exp(-(dose_rad - 150) / 70)), 0, 1);
+  }
+
+  /* ------------------------------------------------------------------
+   * 10. WATER BURSTS — surge estimate (order of magnitude only)
+   * ------------------------------------------------------------------
+   * Van Dorn et al. (1968): a shallow-water burst generates a wave whose
+   * height decays roughly as 1/r. Deep-water bursts are inefficient
+   * tsunami generators; this is reported with an explicit caveat.
+   */
+  function waveHeightAt(r_m, Y_kt) {
+    if (Y_kt <= 0 || r_m <= 0) return 0;
+    const H0 = 30 * Math.pow(Y_kt, 0.25);   // m, near-field crest
+    const r0 = 500 * Math.cbrt(Y_kt);
+    return r_m <= r0 ? H0 : H0 * (r0 / r_m);
+  }
+
+  /* ------------------------------------------------------------------
+   * 11. WEAPON CATALOGUE — effects parameters only
+   * ------------------------------------------------------------------
+   * Yields / TNT equivalents below are open, widely published figures
+   * used purely to scale consequence models. No design information.
+   */
+  const WEAPONS = [
+    { id: 'grenade', name: '40 mm grenade', cls: 'conv', tnt: 0.05, mass: 0.2,
+      note: 'Reference floor for the scale.', burst: ['surface'] },
+    { id: 'artillery', name: '155 mm artillery shell', cls: 'conv', tnt: 7, mass: 43,
+      note: 'Standard field-artillery round.', burst: ['surface'] },
+    { id: 'mk82', name: 'Mk-82 / 500 lb bomb', cls: 'conv', tnt: 87, mass: 227,
+      note: 'Most common air-dropped GP bomb.', burst: ['air', 'surface'] },
+    { id: 'mk84', name: 'Mk-84 / 2,000 lb JDAM', cls: 'conv', tnt: 470, mass: 907,
+      note: 'Standard heavy guided bomb.', burst: ['air', 'surface'] },
+    { id: 'cruise', name: 'Cruise missile warhead (~450 kg)', cls: 'missile', tnt: 400, mass: 450,
+      note: 'Subsonic, terrain-following delivery.', burst: ['air', 'surface'] },
+    { id: 'brm', name: 'Ballistic missile conv. warhead (~480 kg)', cls: 'missile', tnt: 480, mass: 500,
+      note: 'Minutes of warning; near-vertical arrival.', burst: ['air', 'surface'] },
+    { id: 'thermo', name: 'Thermobaric warhead (~7 t TNT-eq)', cls: 'thermo', tnt: 7000, mass: 300,
+      note: 'Fuel-air overpressure: long positive-phase impulse, lethal inside enclosed spaces.', burst: ['air', 'surface'] },
+    { id: 'moab', name: 'MOAB-class (~8.5 t TNT-eq)', cls: 'thermo', tnt: 8500, mass: 9800,
+      note: 'Largest conventional air-blast bomb in service use.', burst: ['air', 'surface'] },
+    { id: 'foab', name: 'FOAB-class (~44 t TNT-eq, claimed)', cls: 'thermo', tnt: 44000, mass: 7100,
+      note: 'Claimed figure; treat with caution.', burst: ['air', 'surface'] },
+    { id: 'mop', name: 'Bunker buster, 13.6 t penetrator', cls: 'penet', tnt: 2400, mass: 13600,
+      note: 'Deep penetration before detonation — ground shock, not air blast.', burst: ['penetrating', 'surface'] },
+    { id: 'hiroshima', name: 'Hiroshima-scale, 15 kt', cls: 'nuke', yield: 15,
+      note: '~70,000–140,000 dead by end of 1945.', burst: ['air', 'surface'] },
+    { id: 'nagasaki', name: 'Nagasaki-scale, 21 kt', cls: 'nuke', yield: 21,
+      note: 'Terrain-shielded by valley walls — a real demonstration of topography.', burst: ['air', 'surface'] },
+    { id: 'tactical', name: 'Tactical warhead, 50 kt', cls: 'nuke', yield: 50,
+      note: '"Low-yield" — still 3x Hiroshima.', burst: ['air', 'surface', 'penetrating'] },
+    { id: 'strategic100', name: 'Strategic warhead, 100 kt', cls: 'nuke', yield: 100,
+      note: 'Common modern SLBM/ICBM yield class.', burst: ['air', 'surface', 'penetrating'] },
+    { id: 'strategic300', name: 'Strategic warhead, 300 kt', cls: 'nuke', yield: 300,
+      note: 'Typical deployed ICBM warhead.', burst: ['air', 'surface', 'penetrating'] },
+    { id: 'mt1', name: 'Strategic bomb, 1 Mt', cls: 'nuke', yield: 1000,
+      note: 'The classic reference case in the effects literature.', burst: ['air', 'surface', 'penetrating', 'high'] },
+    { id: 'mt12', name: 'Strategic bomb, 1.2 Mt', cls: 'nuke', yield: 1200,
+      note: 'Upper end of currently deployed gravity bombs.', burst: ['air', 'surface', 'high'] },
+    { id: 'castle', name: 'Castle Bravo test, 15 Mt', cls: 'nuke', yield: 15000,
+      note: '1954: fallout contaminated 18,000 km² of ocean and inhabited atolls.', burst: ['surface', 'air'] },
+    { id: 'tsar', name: 'Tsar Bomba test, 50 Mt', cls: 'nuke', yield: 50000,
+      note: 'Largest device ever detonated. Windows broke 900 km away.', burst: ['air', 'surface'] }
+  ];
+
+  /* ------------------------------------------------------------------
+   * 12. TOP-LEVEL SOLVER
+   * ------------------------------------------------------------------ */
+
+  const RING_DEFS = [
+    { key: 'fireball',  label: 'Fireball',                    kind: 'fireball', color: '#fff3c4', detail: 'Everything inside is vaporised or incinerated. Nothing survives.' },
+    { key: 'crater',    label: 'Crater',                      kind: 'crater',   color: '#8d6b4a', detail: 'Ground excavated and thrown out. Bedrock exposed.' },
+    { key: 'psi20',     label: '20 psi — total destruction',  kind: 'blast', psi: 20, color: '#ff2d55', detail: 'Reinforced concrete structures fail. Near-total fatalities.' },
+    { key: 'psi5',      label: '5 psi — most buildings collapse', kind: 'blast', psi: 5, color: '#ff9f0a', detail: 'Residential buildings collapse. ~50% killed outright, most of the rest injured.' },
+    { key: 'psi1',      label: '1 psi — windows shatter',     kind: 'blast', psi: 1, color: '#5ac8fa', detail: 'Glass fails everywhere. Flying shards cause widespread laceration injuries.' },
+    { key: 'rad500',    label: '500 rem prompt radiation',    kind: 'prompt', rem: 500, color: '#30d158', detail: 'Acute radiation syndrome; without care roughly half die within weeks.' },
+    { key: 'burn3',     label: '3rd-degree burns',            kind: 'thermal', level: 'thirdDegree', color: '#ff6b35', detail: 'Full-thickness burns through the skin. Painless — the nerves are destroyed. Requires immediate specialist care that will not exist.' },
+    { key: 'burn2',     label: '2nd-degree burns',            kind: 'thermal', level: 'secondDegree', color: '#ffb340', detail: 'Blistering burns on exposed skin. Survivable with treatment; hospitals inside this radius are gone.' },
+    { key: 'burn1',     label: '1st-degree burns',            kind: 'thermal', level: 'firstDegree', color: '#ffe066', detail: 'Painful surface burns on anyone facing the flash outdoors.' }
+  ];
+
+  /**
+   * Solve the full effects set for a scenario.
+   * scenario: { weaponId, yieldKt, tntKg, burst, hobKm, medium, popDensity,
+   *             windSpeedKph, windDirDeg, fissionFraction, visibility }
+   */
+  function solve(sc) {
+    const w = WEAPONS.find(x => x.id === sc.weaponId) || WEAPONS[0];
+    const isNuke = w.cls === 'nuke';
+    const burst = sc.burst || 'air';
+    const Y = isNuke ? (sc.yieldKt ?? w.yield) : 0;
+    const Wkg = isNuke ? 0 : (sc.tntKg ?? w.tnt);
+    const medium = sc.medium || 'urban';
+    const vis = sc.visibility ?? 1;
+    const rings = [];
+    const res = {
+      weapon: w, isNuke, burst, yieldKt: Y, tntKg: Wkg, rings,
+      yieldEquivKt: isNuke ? Y : Wkg / KG_TNT_PER_KT
+    };
+
+    if (isNuke) {
+      const th = burnThresholds(Y);
+      res.thresholds = th;
+      res.fireballRadius = fireballRadius(Y, burst);
+      res.craterRadius = craterRadius(Y, burst, medium);
+      res.craterDepth = craterDepth(Y, burst, medium);
+      res.hobM = burst === 'air' ? optimumHOB(Y) : burst === 'high' ? (sc.hobKm ?? 100) * 1000 : 0;
+      res.cloudTopKm = cloudTopKm(Y);
+      res.cloudRadiusKm = cloudRadiusKm(Y);
+      res.seismic = seismicMagnitude(Y, burst);
+      res.thermalPulse = thermalPulseDuration(Y);
+      res.empRadiusKm = burst === 'high' ? empLineOfSightKm(sc.hobKm ?? 100) : 0;
+      res.empFieldKvM = burst === 'high' ? empPeakFieldKvM(Y, sc.hobKm ?? 100) : 0;
+
+      for (const d of RING_DEFS) {
+        let r = 0;
+        if (d.kind === 'fireball') r = res.fireballRadius;
+        else if (d.kind === 'crater') r = res.craterRadius;
+        else if (d.kind === 'blast') r = nukeBlastRadius(d.psi, Y, burst);
+        else if (d.kind === 'prompt') r = promptDoseRadius(d.rem, Y, burst);
+        else if (d.kind === 'thermal') r = thermalRadius(th[d.level], Y, burst, vis);
+        if (burst === 'high') r = d.kind === 'fireball' ? res.fireballRadius : 0;
+        if (r > 0.5) rings.push({ ...d, radius: r });
+      }
+      if (burst === 'high') {
+        rings.push({
+          key: 'emp', label: 'EMP footprint', kind: 'emp', color: '#5ac8fa',
+          radius: res.empRadiusKm * 1000,
+          detail: 'Everything within line of sight of the burst point is inside the pulse. No blast, no heat, no fallout at the ground — but unprotected power grids, transformers and electronics across a continent-sized area can be damaged at once.'
+        });
+      }
+    } else {
+      const surf = burst !== 'air';
+      res.fireballRadius = 4.5 * Math.cbrt(Wkg);         // HE fireball, empirical
+      res.craterRadius = burst === 'penetrating'
+        ? 1.35 * Math.pow(Wkg, 0.33) * 1.6
+        : (surf ? 0.9 * Math.pow(Wkg, 0.33) : 0);
+      res.craterDepth = res.craterRadius * (burst === 'penetrating' ? 0.55 : 0.3);
+      res.fragRadius = fragmentationRadius(w.mass);
+      res.seismic = Wkg > 100 ? Math.max(0, 0.67 * Math.log10(Wkg * (burst === 'penetrating' ? 40 : 1)) - 0.4) : 0;
+      res.thermobaric = w.cls === 'thermo';
+
+      const defs = [
+        { key: 'fireball', label: 'Fireball / detonation', kind: 'fireball', color: '#fff3c4', radius: res.fireballRadius, detail: 'Detonation products at several thousand K. Instantaneous incineration.' },
+        { key: 'crater', label: 'Crater', kind: 'crater', color: '#8d6b4a', radius: res.craterRadius, detail: 'Excavated ground; structural foundations destroyed.' },
+        { key: 'psi20', label: '20 psi — total destruction', kind: 'blast', psi: 20, color: '#ff2d55', radius: heBlastRadius(20, Wkg, surf), detail: 'Hardened structures fail. No survivors in the open.' },
+        { key: 'psi5', label: '5 psi — buildings collapse', kind: 'blast', psi: 5, color: '#ff9f0a', radius: heBlastRadius(5, Wkg, surf), detail: 'Ordinary buildings collapse; lung and ear injury from the pressure wave itself.' },
+        { key: 'frag', label: 'Lethal fragmentation', kind: 'frag', color: '#ff375f', radius: res.fragRadius, detail: 'Casing fragments at >1,500 m/s. Blast is often not the main killer — fragments are.' },
+        { key: 'psi1', label: '1 psi — windows shatter', kind: 'blast', psi: 1, color: '#5ac8fa', radius: heBlastRadius(1, Wkg, surf), detail: 'Glass fails; injuries from flying shards.' },
+        { key: 'fraghaz', label: 'Fragment hazard limit', kind: 'frag', color: '#8e8e93', radius: fragmentHazardRadius(w.mass), detail: 'Outer limit at which stray fragments can still kill.' }
+      ];
+      for (const d of defs) if (d.radius > 0.3) rings.push(d);
+    }
+
+    rings.sort((a, b) => b.radius - a.radius);
+    res.maxRadius = rings.length ? rings[0].radius : 100;
+    return res;
+  }
+
+  /** Point query: what happens at ground range r_m. */
+  function inspect(res, r_m, opts = {}) {
+    const o = { psi: 0, wind: 0, thermal: 0, prompt: 0, burn: 'none', arrival: 0 };
+    if (res.isNuke) {
+      const Y = res.yieldKt;
+      o.psi = nukeOverpressureAt(r_m, Y, res.burst) * (opts.shadow ?? 1);
+      o.thermal = thermalFluence(Math.max(r_m, 1), Y, res.burst, opts.visibility ?? 1) * (opts.los ?? 1);
+      o.prompt = promptDose(Math.max(r_m, 1), Y, res.burst);
+      o.arrival = shockArrivalTime(r_m, Y);
+      const th = res.thresholds;
+      o.burn = o.thermal >= th.charring ? 'incineration'
+        : o.thermal >= th.thirdDegree ? '3rd degree'
+        : o.thermal >= th.secondDegree ? '2nd degree'
+        : o.thermal >= th.firstDegree ? '1st degree' : 'none';
+    } else {
+      o.psi = heOverpressureAt(Math.max(r_m, 0.5), res.tntKg, res.burst !== 'air') * (opts.shadow ?? 1);
+      o.arrival = Math.max(r_m, 0) / 400;
+      o.frag = r_m <= res.fragRadius ? 'lethal' : r_m <= res.fragRadius * 4.2 ? 'hazardous' : 'none';
+    }
+    o.wind = blastWindKph(o.psi);
+    const cf = casualtyFractions(o.psi);
+    o.fatalFrac = clamp(cf.fatal + (res.isNuke ? thermalFatalFraction(o.thermal, res.thresholds, opts.outdoorFrac) : 0), 0, 1);
+    o.injuredFrac = clamp(cf.injured, 0, 1 - o.fatalFrac);
+    return o;
+  }
+
+  return {
+    // constants & tables
+    WEAPONS, RING_DEFS, BLAST_1KT, CASUALTY_CURVE, BLAST_COUPLING, THERMAL_FRACTION,
+    // blast
+    nukeOverpressureAt, nukeBlastRadius, optimumHOB, dynamicPressure, blastWindKph,
+    shockArrivalTime, shockRadiusAt,
+    // thermal
+    fireballRadius, fireballRadiusAt, thermalFluence, thermalRadius, burnThresholds,
+    thermalPulseDuration,
+    // radiation
+    promptDose, promptDoseRadius, decayFactor, accumulatedDose,
+    // ground
+    craterRadius, craterDepth, ruptureRadius, seismicMagnitude,
+    // cloud
+    cloudTopKm, cloudBaseKm, cloudRadiusKm, cloudStabiliseTime,
+    // conventional
+    kgOverpressureBar, heOverpressureAt, heBlastRadius, fragmentationRadius, fragmentHazardRadius,
+    // emp / water
+    empLineOfSightKm, empPeakFieldKvM, waveHeightAt,
+    // fallout
+    falloutField, sampleField,
+    // casualties
+    casualtyFractions, thermalFatalFraction, thermalInjuryFraction,
+    radiationFatalFraction, radiationSickFraction,
+    // solver
+    solve, inspect,
+    util: { clamp, lerp }
+  };
+});
+
+
+/* ======== terrain.js ======== */
+/* =====================================================================
+ * AEON — Terrain, land use and population model
+ * ---------------------------------------------------------------------
+ * A deterministic, procedurally generated stylised landscape. Every cell
+ * carries an elevation (m), a land-use class, and a population density
+ * (people / km^2). Population densities are drawn from published urban
+ * statistics: dense core ~ 12,000-25,000 /km^2 (Manhattan ~ 27,000,
+ * Paris ~ 20,000, Mumbai ~ 30,000), suburb ~ 2,000, town ~ 800,
+ * farmland ~ 60, mountain ~ 8, sea 0.
+ * ===================================================================== */
+
+(function (root, factory) {
+  const mod = factory();
+  if (typeof module === 'object' && module.exports) module.exports = mod;
+  else root.AEONTerrain = mod;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const smooth = t => t * t * (3 - 2 * t);
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function makeNoise(seed) {
+    const rnd = mulberry32(seed);
+    const P = new Uint8Array(512);
+    const perm = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) perm[i] = i;
+    for (let i = 255; i > 0; i--) { const j = (rnd() * (i + 1)) | 0; const t = perm[i]; perm[i] = perm[j]; perm[j] = t; }
+    for (let i = 0; i < 512; i++) P[i] = perm[i & 255];
+    const grad = (h, x, y) => {
+      const u = (h & 1) ? x : -x, v = (h & 2) ? y : -y;
+      return u + v;
+    };
+    return function noise2(x, y) {
+      const X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+      const xf = x - Math.floor(x), yf = y - Math.floor(y);
+      const u = smooth(xf), v = smooth(yf);
+      const aa = P[P[X] + Y], ab = P[P[X] + Y + 1];
+      const ba = P[P[X + 1] + Y], bb = P[P[X + 1] + Y + 1];
+      const x1 = lerp(grad(aa, xf, yf), grad(ba, xf - 1, yf), u);
+      const x2 = lerp(grad(ab, xf, yf - 1), grad(bb, xf - 1, yf - 1), u);
+      return lerp(x1, x2, v) * 0.5; // approx [-1,1]
+    };
+  }
+
+  // Amplified so a single octave spans roughly [-1, 1]; the raw value
+  // noise above has a small dynamic range.
+  const FBM_GAIN = 3.6;
+  function fbm(noise, x, y, oct, lac, gain) {
+    let a = 1, f = 1, s = 0, n = 0;
+    for (let i = 0; i < oct; i++) { s += a * noise(x * f, y * f); n += a; a *= gain; f *= lac; }
+    return clamp(s / n * FBM_GAIN, -1, 1);
+  }
+
+  // Land-use classes
+  const LU = {
+    SEA: 0, BEACH: 1, PLAIN: 2, FARM: 3, FOREST: 4,
+    TOWN: 5, SUBURB: 6, URBAN: 7, CORE: 8, MOUNTAIN: 9, ROCK: 10
+  };
+
+  const LU_META = {
+    0:  { name: 'Open water',        pop: 0,     burnable: 0.0, color: [12, 32, 58],  color2: [18, 48, 84] },
+    1:  { name: 'Shoreline',         pop: 120,   burnable: 0.1, color: [78, 74, 60],  color2: [96, 92, 74] },
+    2:  { name: 'Open plain',        pop: 45,    burnable: 0.4, color: [40, 52, 40],  color2: [54, 68, 50] },
+    3:  { name: 'Farmland',          pop: 70,    burnable: 0.5, color: [52, 60, 38],  color2: [70, 78, 46] },
+    4:  { name: 'Forest',            pop: 20,    burnable: 0.9, color: [26, 46, 34],  color2: [34, 60, 42] },
+    5:  { name: 'Town',              pop: 900,   burnable: 0.6, color: [56, 54, 55],  color2: [72, 69, 68] },
+    6:  { name: 'Suburb',            pop: 2400,  burnable: 0.7, color: [70, 67, 66],  color2: [92, 88, 85] },
+    7:  { name: 'Urban',             pop: 9000,  burnable: 0.55, color: [92, 89, 92],  color2: [124, 121, 126] },
+    8:  { name: 'Dense urban core',  pop: 22000, burnable: 0.5, color: [124, 121, 128], color2: [168, 166, 176] },
+    9:  { name: 'Mountain',          pop: 8,     burnable: 0.25, color: [56, 56, 60],  color2: [92, 94, 100] },
+    10: { name: 'Bare rock / ridge', pop: 2,     burnable: 0.05, color: [70, 70, 74],  color2: [116, 118, 124] }
+  };
+
+  const PRESETS = {
+    metropolis:  { name: 'Dense metropolis',   seed: 1337, sea: 0.00, relief: 140,  cityR: 0.34, mountains: 0.0,  desc: 'Continuous built-up area, ~7 million people inside the frame.' },
+    coastal:     { name: 'Coastal city',       seed: 4242, sea: 0.34, relief: 260,  cityR: 0.26, mountains: 0.2,  desc: 'Port city on a bay — water changes cratering and carries surge.' },
+    valley:      { name: 'Mountain valley',    seed: 9091, sea: 0.00, relief: 2100, cityR: 0.16, mountains: 0.9,  desc: 'Ridges shadow the blast and block line-of-sight thermal — the Nagasaki effect.' },
+    plains:      { name: 'Plains & farmland',  seed: 777,  sea: 0.00, relief: 90,   cityR: 0.10, mountains: 0.0,  desc: 'Nothing to stop the shock front. Sparse population, maximum reach.' },
+    archipelago: { name: 'Islands & open sea', seed: 2024, sea: 0.55, relief: 520,  cityR: 0.13, mountains: 0.45, desc: 'Mostly water — the Castle Bravo case, where fallout fell on atolls.' }
+  };
+
+  /**
+   * Build a terrain field.
+   * @param {string} presetKey
+   * @param {number} n     grid resolution (n x n)
+   * @param {number} spanKm physical width of the grid
+   */
+  function build(presetKey, n, spanKm) {
+    const p = PRESETS[presetKey] || PRESETS.metropolis;
+    const noise = makeNoise(p.seed);
+    const noise2 = makeNoise(p.seed + 991);
+    const noise3 = makeNoise(p.seed + 5501);
+    const elev = new Float32Array(n * n);
+    const use = new Uint8Array(n * n);
+    const pop = new Float32Array(n * n);
+    const cellKm = spanKm / n;
+    const cellArea = cellKm * cellKm;
+
+    // ---- Pass 1: raw height field, normalised to [0,1] over the grid ----
+    const hRaw = new Float32Array(n * n);
+    const uRaw = new Float32Array(n * n);
+    let hMin = Infinity, hMax = -Infinity, uMin = Infinity, uMax = -Infinity;
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const u = i / n, v = j / n, k = j * n + i;
+        const base = fbm(noise, u * 3.1, v * 3.1, 5, 2.0, 0.5);
+        // Ridged multifractal for mountain country: sharp crests, deep valleys
+        const ridge = Math.pow(1 - Math.abs(fbm(noise2, u * 2.4 + 5, v * 2.4 + 5, 5, 2.1, 0.55)), 2.2) * 2 - 1;
+        let h = lerp(base, ridge, p.mountains);
+        // Bias the sea into one corner for the coastal preset so we get a
+        // recognisable coastline rather than random lakes.
+        if (presetKey === 'coastal') h -= (u * 0.6 + v * 0.9 - 0.5) * 1.6;
+        if (presetKey === 'archipelago') h = h * 1.5 - 0.35;
+        hRaw[k] = h;
+        if (h < hMin) hMin = h; if (h > hMax) hMax = h;
+        const un = fbm(noise3, u * 6.5, v * 6.5, 4, 2.2, 0.55);
+        uRaw[k] = un;
+        if (un < uMin) uMin = un; if (un > uMax) uMax = un;
+      }
+    }
+    const hSpan = Math.max(hMax - hMin, 1e-6), uSpan = Math.max(uMax - uMin, 1e-6);
+
+    // ---- Pass 2: elevation, land use, population ----
+    const seaLevelN = p.sea;                 // normalised height of the waterline
+    let popTotal = 0, landCells = 0;
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const k = j * n + i;
+        const u = i / n, v = j / n;
+        const dx = u - 0.5, dy = v - 0.5;
+        const d = Math.hypot(dx, dy);
+
+        const hN = (hRaw[k] - hMin) / hSpan;          // 0 = lowest, 1 = highest
+        const isSea = p.sea > 0 && hN < seaLevelN;
+        // Height above the waterline, mapped to metres.
+        const above = (hN - seaLevelN) / Math.max(1 - seaLevelN, 1e-6);
+        let elevation = isSea
+          ? -Math.max(4, (seaLevelN - hN) / Math.max(seaLevelN, 1e-6) * 220)
+          : above * p.relief;
+
+        const urbanN = (uRaw[k] - uMin) / uSpan;      // 0..1
+
+        let cls;
+        if (isSea) cls = LU.SEA;
+        else if (p.sea > 0 && above < 0.035) cls = LU.BEACH;
+        else if (p.mountains > 0.3 && above > 0.62) cls = above > 0.84 ? LU.ROCK : LU.MOUNTAIN;
+        else {
+          // Cities sit on flat, low ground: score falls off from the centre,
+          // is textured by noise, and is suppressed on slopes and heights.
+          const lowland = clamp(1 - above / 0.62, 0, 1);
+          const cityScore = Math.exp(-Math.pow(d / Math.max(p.cityR, 0.02), 1.7))
+            * (0.55 + 0.85 * urbanN)
+            * lerp(0.25, 1, Math.pow(lowland, p.mountains > 0.3 ? 1.6 : 0.35));
+          if (cityScore > 0.72) cls = LU.CORE;
+          else if (cityScore > 0.46) cls = LU.URBAN;
+          else if (cityScore > 0.26) cls = LU.SUBURB;
+          else if (cityScore > 0.12) cls = LU.TOWN;
+          else if (urbanN > 0.62) cls = LU.FARM;
+          else if (urbanN < 0.32) cls = LU.FOREST;
+          else cls = LU.PLAIN;
+        }
+
+        elev[k] = elevation;
+        use[k] = cls;
+        const meta = LU_META[cls];
+        const jitter = 0.7 + 0.6 * (0.5 + 0.5 * noise(i * 0.7, j * 0.7));
+        pop[k] = meta.pop * jitter;
+        popTotal += pop[k] * cellArea;
+        if (!isSea) landCells++;
+      }
+    }
+
+    return {
+      preset: presetKey, name: p.name, desc: p.desc, n, spanKm, cellKm, elev, use, pop,
+      populationTotal: popTotal, landFraction: landCells / (n * n), relief: p.relief, LU, LU_META,
+      idx(i, j) { return clamp(j, 0, n - 1) * n + clamp(i, 0, n - 1); },
+      /** grid index from local km coords (origin = grid centre) */
+      cellAt(xKm, yKm) {
+        const i = Math.round(xKm / cellKm + n / 2 - 0.5);
+        const j = Math.round(yKm / cellKm + n / 2 - 0.5);
+        if (i < 0 || j < 0 || i >= n || j >= n) return -1;
+        return j * n + i;
+      },
+      elevAt(xKm, yKm) { const k = this.cellAt(xKm, yKm); return k < 0 ? 0 : elev[k]; },
+      useAt(xKm, yKm) { const k = this.cellAt(xKm, yKm); return k < 0 ? LU.PLAIN : use[k]; },
+      popAt(xKm, yKm) { const k = this.cellAt(xKm, yKm); return k < 0 ? 0 : pop[k]; },
+
+      /**
+       * Line-of-sight test from a burst point (x0,y0 in km, height hM above
+       * local ground) to a target cell. Returns 1 if clear, 0 if the ridge
+       * line blocks it, with a soft edge for partial shadow.
+       */
+      lineOfSight(x0, y0, hM, x1, y1) {
+        const dist = Math.hypot(x1 - x0, y1 - y0);
+        if (dist < cellKm) return 1;
+        const steps = Math.min(120, Math.max(6, Math.ceil(dist / cellKm)));
+        const z0 = this.elevAt(x0, y0) + hM;
+        const z1 = this.elevAt(x1, y1) + 2; // eye height
+        let worst = 0;
+        for (let s = 1; s < steps; s++) {
+          const t = s / steps;
+          const x = lerp(x0, x1, t), y = lerp(y0, y1, t);
+          const zRay = lerp(z0, z1, t);
+          const zGround = this.elevAt(x, y);
+          const excess = zGround - zRay;
+          if (excess > worst) worst = excess;
+        }
+        if (worst <= 0) return 1;
+        // soft shadow: diffraction fills in behind low obstacles
+        return clamp(1 - worst / 120, 0, 1) * 0.85;
+      },
+
+      /**
+       * Blast shadowing factor. Terrain masking reduces peak overpressure
+       * behind ridges; reflections in narrow valleys can locally raise it.
+       * (G&D Ch. III notes both effects; this is a first-order treatment.)
+       */
+      blastShadow(x0, y0, x1, y1) {
+        const los = this.lineOfSight(x0, y0, 30, x1, y1);
+        const zT = this.elevAt(x1, y1), z0 = this.elevAt(x0, y0);
+        // Valley channelling: below-average local elevation → mild focusing
+        const focus = clamp(1 + (z0 - zT) / 2500, 0.9, 1.25);
+        return clamp(lerp(0.45, 1, los) * focus, 0.3, 1.3);
+      }
+    };
+  }
+
+  return { build, PRESETS, LU, LU_META, makeNoise, fbm };
+});
+
+
+/* ======== render.js ======== */
+/* =====================================================================
+ * AEON — Canvas renderer
+ * Draws the stylised terrain, the expanding shock and thermal fronts,
+ * the concentric damage rings, the fallout plume and the cloud column.
+ * ===================================================================== */
+(function (root, factory) {
+  const mod = factory(root.AEON, root.AEONTerrain);
+  if (typeof module === 'object' && module.exports) module.exports = mod;
+  else root.AEONRender = mod;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (A, TER) {
+  'use strict';
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const TAU = Math.PI * 2;
+
+  function fmtKm(m) {
+    if (m >= 100000) return (m / 1000).toFixed(0) + ' km';
+    if (m >= 1000) return (m / 1000).toFixed(m >= 10000 ? 1 : 2) + ' km';
+    return m.toFixed(0) + ' m';
+  }
+
+  /* ---------- terrain raster (cached) ---------- */
+  function rasterise(grid) {
+    const n = grid.n;
+    const cv = document.createElement('canvas');
+    cv.width = n; cv.height = n;
+    const ctx = cv.getContext('2d');
+    const img = ctx.createImageData(n, n);
+    const d = img.data;
+    const M = grid.LU_META;
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const k = j * n + i;
+        const m = M[grid.use[k]];
+        // Hillshade from the local elevation gradient (light from NW).
+        // Normalised against the preset's relief rather than against
+        // physical distance, so the shading reads the same whether the
+        // frame is 1.6 km or 320 km across.
+        const e = grid.elev[k];
+        const ex = grid.elev[grid.idx(i + 1, j)] - grid.elev[grid.idx(i - 1, j)];
+        const ey = grid.elev[grid.idx(i, j + 1)] - grid.elev[grid.idx(i, j - 1)];
+        const slope = (-ex * 0.7 - ey * 0.7) / Math.max(grid.relief * 0.05, 1);
+        let shade = clamp(0.80 + slope * 0.42, 0.55, 1.28);
+        if (grid.use[k] === grid.LU.SEA) shade = clamp(0.85 + e / 900, 0.55, 1.0);
+        // Street-grid texture: built-up land reads as blocks and roads
+        const u = grid.use[k];
+        let tex = 0.95 + 0.10 * (((i * 73 ^ j * 151) % 17) / 17);
+        if (u >= grid.LU.TOWN && u <= grid.LU.CORE) {
+          const road = (i % 7 === 0 || j % 7 === 0) ? 0.86 : (i % 3 === 0 && j % 3 === 0) ? 1.10 : 1.0;
+          tex *= road;
+        }
+        const t = clamp(e / Math.max(grid.relief, 1), 0, 1);
+        const r = lerp(m.color[0], m.color2[0], t) * shade * tex;
+        const g = lerp(m.color[1], m.color2[1], t) * shade * tex;
+        const b = lerp(m.color[2], m.color2[2], t) * shade * tex;
+        d[k * 4] = clamp(r, 0, 255); d[k * 4 + 1] = clamp(g, 0, 255);
+        d[k * 4 + 2] = clamp(b, 0, 255); d[k * 4 + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return cv;
+  }
+
+  /* ---------- fallout raster ---------- */
+  // Dose-rate contour palette (rad/hr at H+1), after the civil-defence
+  // convention: 1 / 10 / 100 / 1000 rad-per-hour bands.
+  const FALLOUT_BANDS = [
+    { v: 3000, c: [255, 45, 85],  label: '3,000 rad/hr' },
+    { v: 1000, c: [255, 96, 60],  label: '1,000 rad/hr' },
+    { v: 300,  c: [255, 149, 40], label: '300 rad/hr' },
+    { v: 100,  c: [255, 204, 60], label: '100 rad/hr' },
+    { v: 30,   c: [190, 220, 80], label: '30 rad/hr' },
+    { v: 10,   c: [110, 210, 130],label: '10 rad/hr' },
+    { v: 3,    c: [70, 190, 190], label: '3 rad/hr' },
+    { v: 1,    c: [70, 140, 210], label: '1 rad/hr' }
+  ];
+  function falloutColor(v) {
+    for (const b of FALLOUT_BANDS) if (v >= b.v) return b.c;
+    return null;
+  }
+  function rasteriseFallout(field, decay) {
+    const cv = document.createElement('canvas');
+    cv.width = field.nx; cv.height = field.ny;
+    const ctx = cv.getContext('2d');
+    const img = ctx.createImageData(field.nx, field.ny);
+    const d = img.data;
+    for (let k = 0; k < field.cells.length; k++) {
+      const v = field.cells[k] * decay;
+      const c = falloutColor(v);
+      if (!c) { d[k * 4 + 3] = 0; continue; }
+      d[k * 4] = c[0]; d[k * 4 + 1] = c[1]; d[k * 4 + 2] = c[2];
+      // low-dose bands stay translucent so the ground still reads through
+      d[k * 4 + 3] = clamp(46 + 176 * clamp(Math.log10(Math.max(v, 1)) / 3.5, 0, 1), 0, 255);
+    }
+    ctx.putImageData(img, 0, 0);
+    return cv;
+  }
+
+  /* ---------- renderer ---------- */
+  function Renderer(canvas) {
+    const ctx = canvas.getContext('2d', { alpha: false });
+    let W = 0, H = 0, dpr = 1;
+    let terrainCv = null, terrainKey = '';
+    let falloutCv = null, falloutKey = '';
+
+    const cam = { cx: 0, cy: 0, zoom: 12 }; // zoom = px per km (CSS px)
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const r = canvas.getBoundingClientRect();
+      W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    const w2sx = x => W / 2 + (x - cam.cx) * cam.zoom;
+    const w2sy = y => H / 2 + (y - cam.cy) * cam.zoom;
+    const s2wx = px => (px - W / 2) / cam.zoom + cam.cx;
+    const s2wy = py => (py - H / 2) / cam.zoom + cam.cy;
+    const mpx = m => m * 0.001 * cam.zoom;   // metres → CSS px
+
+    /* ---- terrain layer ---- */
+    function drawTerrain(grid) {
+      const key = grid.preset + ':' + grid.n;
+      if (terrainKey !== key) { terrainCv = rasterise(grid); terrainKey = key; }
+      const half = grid.spanKm / 2;
+      const x0 = w2sx(-half), y0 = w2sy(-half), sz = grid.spanKm * cam.zoom;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(terrainCv, x0, y0, sz, sz);
+      // vignette outside the modelled area
+      ctx.fillStyle = 'rgba(7,8,11,.92)';
+      if (x0 > 0) ctx.fillRect(0, 0, x0, H);
+      if (x0 + sz < W) ctx.fillRect(x0 + sz, 0, W - x0 - sz, H);
+      if (y0 > 0) ctx.fillRect(Math.max(0, x0), 0, Math.min(sz, W), Math.max(0, y0));
+      if (y0 + sz < H) ctx.fillRect(Math.max(0, x0), y0 + sz, Math.min(sz, W), H - y0 - sz);
+      ctx.strokeStyle = 'rgba(255,255,255,.10)'; ctx.lineWidth = 1;
+      ctx.strokeRect(x0, y0, sz, sz);
+    }
+
+    /* ---- graticule ---- */
+    function drawGrid() {
+      // pick a round grid spacing giving 60-160 px cells
+      const targets = [0.1, 0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200];
+      let step = targets[targets.length - 1];
+      for (const t of targets) if (t * cam.zoom >= 70) { step = t; break; }
+      const x0 = Math.floor(s2wx(0) / step) * step, x1 = s2wx(W);
+      const y0 = Math.floor(s2wy(0) / step) * step, y1 = s2wy(H);
+      ctx.strokeStyle = 'rgba(255,255,255,.045)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = x0; x <= x1; x += step) { const sx = Math.round(w2sx(x)) + .5; ctx.moveTo(sx, 0); ctx.lineTo(sx, H); }
+      for (let y = y0; y <= y1; y += step) { const sy = Math.round(w2sy(y)) + .5; ctx.moveTo(0, sy); ctx.lineTo(W, sy); }
+      ctx.stroke();
+      return step;
+    }
+
+    /* ---- fallout ---- */
+    function drawFallout(field, tHours, gz) {
+      if (!field || field.maxRate <= 0) return;
+      const bucket = Math.round(Math.log(Math.max(tHours, 0.02)) * 6);
+      const key = field.stamp + ':' + bucket;
+      if (falloutKey !== key) { falloutCv = rasteriseFallout(field, A.decayFactor(tHours)); falloutKey = key; }
+      const half = field.extentKm / 2;
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.52;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(falloutCv, w2sx(gz.x - half), w2sy(gz.y - half),
+                    field.extentKm * cam.zoom, field.extentKm * cam.zoom);
+      ctx.restore();
+    }
+
+    /* ---- damage rings ---- */
+    function drawRings(res, gz, opts) {
+      const cx = w2sx(gz.x), cy = w2sy(gz.y);
+      const revealR = opts.revealRadius;   // metres — rings appear as the shock reaches them
+      ctx.save();
+      // shaded annuli, painted outermost first
+      for (let i = res.rings.length - 1; i >= 0; i--) {
+        const r = res.rings[i], rp = mpx(Math.min(r.radius, revealR));
+        if (rp < 0.6) continue;
+        ctx.beginPath(); ctx.arc(cx, cy, rp, 0, TAU);
+        ctx.fillStyle = hexA(r.color, r.kind === 'thermal' ? 0.055 : 0.085);
+        ctx.fill();
+      }
+      // strokes + labels
+      for (let i = 0; i < res.rings.length; i++) {
+        const r = res.rings[i], full = mpx(r.radius);
+        const rp = mpx(Math.min(r.radius, revealR));
+        if (rp < 0.6) continue;
+        const reached = r.radius <= revealR;
+        ctx.beginPath(); ctx.arc(cx, cy, rp, 0, TAU);
+        ctx.strokeStyle = hexA(r.color, reached ? 0.95 : 0.5);
+        ctx.lineWidth = r.kind === 'blast' ? 1.9 : 1.3;
+        ctx.setLineDash(r.kind === 'thermal' ? [7, 5] : r.kind === 'frag' ? [2, 3] : []);
+        ctx.shadowColor = hexA(r.color, 0.85); ctx.shadowBlur = reached ? 11 : 0;
+        ctx.stroke();
+        ctx.shadowBlur = 0; ctx.setLineDash([]);
+        if (opts.labels && reached && full > 34) {
+          // fan the callouts right around the circle so they never stack
+          const ang = -Math.PI * 0.97 + (i / Math.max(res.rings.length - 1, 1)) * Math.PI * 1.94;
+          const lx = cx + Math.cos(ang) * full, ly = cy + Math.sin(ang) * full;
+          if (lx > -220 && lx < W + 220 && ly > -60 && ly < H + 60) {
+            label(lx, ly, r.label, fmtKm(r.radius), r.color);
+          }
+        }
+      }
+      ctx.restore();
+    }
+
+    function label(x, y, text, value, color) {
+      ctx.save();
+      ctx.font = '600 11px ' + FONT;
+      const w = Math.max(ctx.measureText(text).width, ctx.measureText(value).width) + 18;
+      const bx = clamp(x + 8, 4, W - w - 4), by = clamp(y - 15, 4, H - 34);
+      ctx.fillStyle = 'rgba(10,11,14,.80)';
+      roundRect(bx, by, w, 30, 6); ctx.fill();
+      ctx.strokeStyle = hexA(color, .5); ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.fillText(value, bx + 9, by + 13);
+      ctx.fillStyle = 'rgba(235,238,242,.86)';
+      ctx.font = '500 10px ' + FONT;
+      ctx.fillText(text, bx + 9, by + 25);
+      ctx.restore();
+    }
+    const FONT = '-apple-system, BlinkMacSystemFont, Inter, "Segoe UI", system-ui, sans-serif';
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
+    }
+    function hexA(hex, a) {
+      const h = hex.replace('#', '');
+      const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+      return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+    }
+
+    /* ---- fireball, flash, shock ---- */
+    function drawBurst(res, gz, t) {
+      const cx = w2sx(gz.x), cy = w2sy(gz.y);
+      const Y = res.isNuke ? res.yieldKt : Math.max(res.tntKg / 1e6, 1e-9);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      // --- thermal pulse: full-frame flash decaying over the pulse ---
+      const pulse = res.isNuke ? A.thermalPulseDuration(res.yieldKt) : 0.12;
+      if (t >= 0 && t < pulse * 4.5 && res.burst !== 'penetrating') {
+        const f = Math.exp(-t / (pulse * 0.7));
+        const rMax = mpx(res.rings.find(r => r.key === 'burn1')?.radius || res.maxRadius);
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rMax, 2));
+        g.addColorStop(0, `rgba(255,252,235,${0.85 * f})`);
+        g.addColorStop(0.25, `rgba(255,226,170,${0.45 * f})`);
+        g.addColorStop(0.6, `rgba(255,168,90,${0.16 * f})`);
+        g.addColorStop(1, 'rgba(255,120,40,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(rMax, 2), 0, TAU); ctx.fill();
+      }
+
+      // --- fireball ---
+      const rfM = res.isNuke ? A.fireballRadiusAt(t, res.yieldKt, res.burst)
+                             : Math.min(res.fireballRadius, res.fireballRadius * Math.min(1, t / 0.05)) * Math.exp(-Math.max(0, t - 0.3) / 0.8);
+      const rf = mpx(rfM);
+      if (rf > 0.4 && t < (res.isNuke ? 60 : 3)) {
+        const fade = res.isNuke ? clamp(1 - (t - 3) / 12, 0, 1) : clamp(1 - t / 2, 0, 1);
+        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rf * 2.4, 2));
+        g.addColorStop(0, `rgba(255,255,252,${0.98 * fade})`);
+        g.addColorStop(0.32, `rgba(255,241,190,${0.92 * fade})`);
+        g.addColorStop(0.52, `rgba(255,176,70,${0.55 * fade})`);
+        g.addColorStop(0.75, `rgba(255,92,28,${0.20 * fade})`);
+        g.addColorStop(1, 'rgba(180,40,10,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(rf * 2.4, 2), 0, TAU); ctx.fill();
+      }
+
+      // --- shock front ---
+      const rsM = res.isNuke ? A.shockRadiusAt(t, res.yieldKt) : Math.max(0, t) * 420;
+      const rs = mpx(rsM);
+      const psi = res.isNuke ? A.nukeOverpressureAt(Math.max(rsM, 1), res.yieldKt, res.burst)
+                             : A.heOverpressureAt(Math.max(rsM, 0.5), res.tntKg, res.burst !== 'air');
+      if (rs > 1 && psi > 0.12) {
+        const a = clamp(Math.log10(psi + 1) * 0.55, 0.06, 0.8);
+        const inner = Math.max(0, rs * 0.9);
+        const g = ctx.createRadialGradient(cx, cy, inner, cx, cy, Math.max(rs * 1.05, inner + 0.5));
+        g.addColorStop(0, 'rgba(120,190,255,0)');
+        g.addColorStop(0.6, `rgba(190,225,255,${a * 0.55})`);
+        g.addColorStop(0.86, `rgba(255,255,255,${a})`);
+        g.addColorStop(1, 'rgba(150,200,255,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(rs * 1.05, 1), 0, TAU); ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.beginPath(); ctx.arc(cx, cy, rs, 0, TAU);
+        ctx.strokeStyle = `rgba(255,255,255,${clamp(a * 1.1, 0.08, 0.9)})`;
+        ctx.lineWidth = clamp(1 + a * 3, 1, 4); ctx.stroke();
+        ctx.globalCompositeOperation = 'lighter';
+      }
+      ctx.restore();
+      return { shockRadius: rsM, fireballRadius: rfM };
+    }
+
+    /* ---- fire zone ---- */
+    function drawFires(res, gz, t, grid) {
+      if (!res.isNuke || res.burst === 'penetrating' || t < 8) return;
+      const ring = res.rings.find(r => r.key === 'burn3');
+      if (!ring) return;
+      const grow = clamp((t - 8) / 900, 0, 1);
+      const r = mpx(ring.radius * lerp(0.55, 1.0, grow));
+      if (r < 1) return;
+      const cx = w2sx(gz.x), cy = w2sy(gz.y);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(r, 1));
+      const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 620);
+      g.addColorStop(0, `rgba(255,120,40,${0.16 + 0.05 * pulse})`);
+      g.addColorStop(0.55, `rgba(255,80,25,${0.10 + 0.03 * pulse})`);
+      g.addColorStop(1, 'rgba(200,40,10,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(r, 1), 0, TAU); ctx.fill();
+      ctx.restore();
+    }
+
+    /* ---- mushroom cloud in plan view ---- */
+    function drawCloud(res, gz, t, wind) {
+      if (!res.isNuke || res.burst === 'high' || t < 10) return;
+      const stab = A.cloudStabiliseTime(res.yieldKt);
+      const grow = clamp(t / stab, 0, 1);
+      const rk = A.cloudRadiusKm(res.yieldKt) * lerp(0.3, 1, grow);
+      const drift = (wind.speed / 3600) * Math.max(0, t - stab * 0.3);
+      const dir = wind.dir * Math.PI / 180;
+      const dx = Math.sin(dir) * drift, dy = -Math.cos(dir) * drift;
+      const cx = w2sx(gz.x + dx), cy = w2sy(gz.y + dy);
+      const r = rk * cam.zoom;
+      if (r < 1.5) return;
+      const fade = clamp(1 - (t - stab * 6) / (stab * 30), 0.18, 1);
+      ctx.save();
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(r, 1));
+      g.addColorStop(0, `rgba(206,200,190,${0.34 * fade})`);
+      g.addColorStop(0.6, `rgba(178,170,160,${0.22 * fade})`);
+      g.addColorStop(1, 'rgba(150,142,132,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(r, 1), 0, TAU); ctx.fill();
+      ctx.strokeStyle = `rgba(255,255,255,${0.16 * fade})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, Math.max(r, 1), 0, TAU); ctx.stroke();
+      ctx.restore();
+    }
+
+    /* ---- crater ---- */
+    function drawCrater(res, gz, t) {
+      if (!(res.craterRadius > 0) || t < 0.05) return;
+      const r = mpx(res.craterRadius * clamp(t / 0.6, 0, 1));
+      if (r < 0.8) return;
+      const cx = w2sx(gz.x), cy = w2sy(gz.y);
+      ctx.save();
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(r, 1));
+      g.addColorStop(0, 'rgba(24,18,14,.95)');
+      g.addColorStop(0.75, 'rgba(58,44,32,.9)');
+      g.addColorStop(1, 'rgba(96,76,54,.55)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, Math.max(r, 1), 0, TAU); ctx.fill();
+      ctx.restore();
+    }
+
+    /* ---- ground-zero marker ---- */
+    function drawGZ(gz, dim) {
+      const cx = w2sx(gz.x), cy = w2sy(gz.y);
+      ctx.save();
+      ctx.strokeStyle = dim ? 'rgba(255,255,255,.35)' : 'rgba(255,255,255,.85)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(cx - 9, cy); ctx.lineTo(cx - 3, cy); ctx.moveTo(cx + 3, cy); ctx.lineTo(cx + 9, cy);
+      ctx.moveTo(cx, cy - 9); ctx.lineTo(cx, cy - 3); ctx.moveTo(cx, cy + 3); ctx.lineTo(cx, cy + 9);
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, 2, 0, TAU); ctx.fillStyle = '#fff'; ctx.fill();
+      ctx.restore();
+    }
+
+    /* ---- comparison overlay ---- */
+    function drawCompare(res, gz) {
+      const cx = w2sx(gz.x), cy = w2sy(gz.y);
+      ctx.save(); ctx.setLineDash([5, 6]); ctx.lineWidth = 1.4;
+      for (const r of res.rings) {
+        if (!['psi20', 'psi5', 'psi1', 'burn3', 'fireball'].includes(r.key)) continue;
+        const rp = mpx(r.radius); if (rp < 1) continue;
+        ctx.beginPath(); ctx.arc(cx, cy, rp, 0, TAU);
+        ctx.strokeStyle = 'rgba(90,200,250,.75)'; ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    /* ---- wind arrow ---- */
+    function drawWind(wind) {
+      if (!(wind.speed > 0)) return;
+      const x = W - 40, y = 92;
+      const a = wind.dir * Math.PI / 180;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+      ctx.strokeStyle = 'rgba(255,255,255,.30)'; ctx.fillStyle = 'rgba(255,255,255,.30)';
+      ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -16); ctx.lineTo(0, 12); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, 18); ctx.lineTo(-4.5, 9); ctx.lineTo(4.5, 9); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    /* ---- elevation inset: cloud column ---- */
+    function drawElevation(ecv, res, t, wind) {
+      const c = ecv.getContext('2d');
+      const edpr = ecv._dpr || 1;
+      const w = ecv.width / edpr, h = ecv.height / edpr;
+      c.setTransform(edpr, 0, 0, edpr, 0, 0);
+      c.clearRect(0, 0, w, h);
+      if (!res.isNuke) {
+        c.fillStyle = 'rgba(150,155,165,.55)'; c.font = '10px ' + FONT; c.textAlign = 'center';
+        c.fillText('conventional — no cloud column', w / 2, h / 2);
+        return;
+      }
+      const topKm = A.cloudTopKm(res.yieldKt);
+      const maxKm = Math.max(topKm * 1.15, 14);
+      const y = km => h - 14 - (km / maxKm) * (h - 22);
+      // tropopause reference
+      c.strokeStyle = 'rgba(90,200,250,.28)'; c.setLineDash([3, 3]); c.lineWidth = 1;
+      c.beginPath(); c.moveTo(0, y(11)); c.lineTo(w, y(11)); c.stroke(); c.setLineDash([]);
+      c.fillStyle = 'rgba(120,190,230,.6)'; c.font = '8px ' + FONT; c.textAlign = 'left';
+      c.fillText('tropopause 11 km', 3, y(11) - 3);
+      // ground
+      c.fillStyle = 'rgba(255,255,255,.16)'; c.fillRect(0, h - 14, w, 1);
+      // altitude ticks
+      const stepKm = maxKm > 25 ? 10 : maxKm > 12 ? 5 : 2;
+      c.fillStyle = 'rgba(150,155,165,.5)'; c.textAlign = 'right';
+      for (let k = stepKm; k <= maxKm; k += stepKm) c.fillText(k + ' km', w - 3, y(k) + 3);
+
+      const stab = A.cloudStabiliseTime(res.yieldKt);
+      const grow = clamp(t / stab, 0, 1);
+      const curTop = topKm * Math.pow(grow, 0.55);
+      const capR = (A.cloudRadiusKm(res.yieldKt) / maxKm) * (h - 22) * lerp(0.25, 1, grow);
+      const cx = w * 0.42;
+      if (t > 0.4 && curTop > 0.2) {
+        // stem
+        c.fillStyle = 'rgba(190,184,176,.30)';
+        const stemW = Math.max(2, capR * 0.26);
+        c.beginPath();
+        c.moveTo(cx - stemW * 1.5, h - 14); c.lineTo(cx - stemW * .6, y(curTop * .6));
+        c.lineTo(cx + stemW * .6, y(curTop * .6)); c.lineTo(cx + stemW * 1.5, h - 14);
+        c.closePath(); c.fill();
+        // cap
+        const capY = y(curTop * 0.82);
+        const g = c.createRadialGradient(cx, capY, 0, cx, capY, Math.max(capR, 1));
+        g.addColorStop(0, 'rgba(228,222,214,.62)'); g.addColorStop(1, 'rgba(170,164,156,0)');
+        c.fillStyle = g;
+        c.beginPath(); c.ellipse(cx, capY, Math.max(capR, 1), Math.max(capR * 0.62, 1), 0, 0, TAU); c.fill();
+        // fireball at t≈0
+        if (t < 6) {
+          const fr = (A.fireballRadiusAt(t, res.yieldKt, res.burst) / 1000 / maxKm) * (h - 22);
+          const fy = y(res.hobM / 1000);
+          const fg = c.createRadialGradient(cx, fy, 0, cx, fy, Math.max(fr * 2, 1));
+          fg.addColorStop(0, 'rgba(255,250,225,.95)'); fg.addColorStop(0.5, 'rgba(255,180,70,.5)');
+          fg.addColorStop(1, 'rgba(255,120,40,0)');
+          c.fillStyle = fg; c.beginPath(); c.arc(cx, fy, Math.max(fr * 2, 1), 0, TAU); c.fill();
+        }
+        c.fillStyle = 'rgba(240,243,247,.85)'; c.font = '600 9px ' + FONT; c.textAlign = 'left';
+        c.fillText(curTop.toFixed(1) + ' km', 3, y(curTop) - 4);
+      }
+    }
+
+    return {
+      ctx, cam, resize,
+      get W() { return W; }, get H() { return H; },
+      w2sx, w2sy, s2wx, s2wy, mpx,
+      clear() { ctx.fillStyle = '#07080b'; ctx.fillRect(0, 0, W, H); },
+      drawTerrain, drawGrid, drawFallout, drawRings, drawBurst, drawFires,
+      drawCloud, drawCrater, drawGZ, drawCompare, drawWind, drawElevation,
+      invalidateFallout() { falloutKey = ''; },
+      invalidateTerrain() { terrainKey = ''; },
+      FALLOUT_BANDS, fmtKm
+    };
+  }
+
+  return { Renderer, FALLOUT_BANDS, fmtKm };
+});
+
+
+/* ======== ui.js ======== */
+/* =====================================================================
+ * AEON — application shell: state, controls, narration, integration
+ * ===================================================================== */
+(function () {
+  'use strict';
+  const A = window.AEON, TER = window.AEONTerrain, RND = window.AEONRender;
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* ---------------- formatting ---------------- */
+  function fmtPeople(v) {
+    if (!(v > 0)) return '0';
+    if (v >= 1e6) return (v / 1e6).toFixed(v >= 1e7 ? 1 : 2) + ' M';
+    if (v >= 1e4) return Math.round(v / 1000) + 'k';
+    if (v >= 1000) return (v / 1000).toFixed(1) + 'k';
+    return Math.round(v).toLocaleString();
+  }
+  function fmtDist(m) {
+    if (m >= 1e5) return (m / 1000).toFixed(0) + ' km';
+    if (m >= 1000) return (m / 1000).toFixed(m >= 1e4 ? 1 : 2) + ' km';
+    if (m >= 1) return m.toFixed(0) + ' m';
+    return m.toFixed(1) + ' m';
+  }
+  function fmtArea(km2) {
+    if (km2 >= 1000) return Math.round(km2).toLocaleString() + ' km²';
+    if (km2 >= 1) return km2.toFixed(1) + ' km²';
+    return (km2 * 1e6).toFixed(0) + ' m²';
+  }
+  function fmtYield(kt) {
+    if (kt >= 1000) return (kt / 1000).toFixed(kt >= 10000 ? 0 : kt >= 2000 ? 1 : 2) + ' Mt';
+    if (kt >= 1) return (kt >= 100 ? kt.toFixed(0) : kt.toFixed(1)) + ' kt';
+    return (kt * 1000).toFixed(0) + ' t TNT-eq';
+  }
+  function fmtTime(t) {
+    if (t < 1e-3) return 'T + ' + (t * 1e6).toFixed(0) + ' µs';
+    if (t < 1) return 'T + ' + (t * 1000).toFixed(t < 0.01 ? 1 : 0) + ' ms';
+    if (t < 60) return 'T + ' + t.toFixed(t < 10 ? 2 : 1) + ' s';
+    if (t < 3600) return 'T + ' + Math.floor(t / 60) + ' min ' + Math.round(t % 60) + ' s';
+    if (t < 86400) return 'T + ' + (t / 3600).toFixed(1) + ' hours';
+    return 'T + ' + (t / 86400).toFixed(2) + ' days';
+  }
+
+  /* ---------------- state ---------------- */
+  const S = {
+    cls: 'nuke', weaponId: 'mt1', yieldKt: 1000, burst: 'air', hobKm: 100,
+    terrain: 'metropolis', windSpeed: 24, windDir: 90, fission: 0.5, vis: 1.0,
+    gz: { x: 0, y: 0 }, u: -4, playing: false, speed: 1, compareId: null
+  };
+  const U_MIN = -4, U_MAX = Math.log10(172800);
+  const SWEEP_SECONDS = 62;
+
+  let grid = null, res = null, fallout = null, cons = null, cmpRes = null;
+  let renderer = null, elevCv = null;
+  let needCompute = true, lastFrame = performance.now();
+
+  /* ---------------- terrain span buckets ---------------- */
+  const SPANS = [1.6, 6, 24, 90, 320];
+  function spanFor(maxRadiusM) {
+    const want = maxRadiusM * 2.5 / 1000;
+    for (const s of SPANS) if (s >= want) return s;
+    return SPANS[SPANS.length - 1];
+  }
+
+  /* ---------------- solve ---------------- */
+  function scenarioObj(weaponId, yieldKt) {
+    return {
+      weaponId, yieldKt, burst: S.burst, hobKm: S.hobKm,
+      medium: mediumAt(S.gz.x, S.gz.y), visibility: S.vis
+    };
+  }
+  function mediumAt(x, y) {
+    if (!grid) return 'urban';
+    const u = grid.useAt(x, y);
+    if (u === grid.LU.SEA) return 'water';
+    if (u === grid.LU.ROCK || u === grid.LU.MOUNTAIN) return 'rock';
+    if (u >= grid.LU.TOWN && u <= grid.LU.CORE) return 'urban';
+    return 'soil';
+  }
+
+  let lastFitRadius = 0;
+  function rebuild(refit) {
+    res = A.solve(scenarioObj(S.weaponId, S.yieldKt));
+    // The terrain frame is sized to the weapon so that a 500 kg bomb and a
+    // 50 Mt device are both legible; the population density per km² is the
+    // same either way, so the casualty model stays consistent.
+    const span = res.burst === 'high' ? SPANS[SPANS.length - 1] : spanFor(res.maxRadius);
+    if (!grid || grid.preset !== S.terrain || Math.abs(grid.spanKm - span) > 1e-6) {
+      grid = TER.build(S.terrain, 224, span);
+      renderer.invalidateTerrain();
+      refit = true;
+    }
+    // re-solve now that we know what is under ground zero
+    res = A.solve(scenarioObj(S.weaponId, S.yieldKt));
+    cmpRes = S.compareId ? A.solve(scenarioObj(S.compareId, weaponById(S.compareId).yield || S.yieldKt)) : null;
+
+    if (res.isNuke && (S.burst === 'surface' || S.burst === 'penetrating')) {
+      const extent = clamp(grid.spanKm * 6, 60, 900);
+      const stamp = [res.yieldKt, S.burst, S.fission, S.windSpeed, S.windDir, extent].join('|');
+      if (!fallout || fallout.stamp !== stamp) {
+        fallout = A.falloutField({
+          Y_kt: res.yieldKt, burst: S.burst, fissionFraction: S.fission,
+          windSpeedKph: S.windSpeed, windDirDeg: S.windDir,
+          nx: 168, ny: 168, extentKm: extent
+        });
+        fallout.stamp = stamp;
+        renderer.invalidateFallout();
+      }
+    } else if (fallout) { fallout = null; renderer.invalidateFallout(); }
+
+    needCompute = true;
+    if (refit || Math.abs(res.maxRadius - lastFitRadius) / Math.max(lastFitRadius, 1) > 0.12) fitCamera();
+    renderControls();
+  }
+
+  function fitCamera() {
+    const r = Math.max(res.maxRadius / 1000, 0.05);
+    const px = Math.min(renderer.W - 700, renderer.H - 230);
+    renderer.cam.zoom = clamp(Math.max(px, 300) / (r * 2.5), 0.0004, 8000);
+    renderer.cam.cx = S.gz.x; renderer.cam.cy = S.gz.y;
+    lastFitRadius = res.maxRadius;
+  }
+
+  const weaponById = id => A.WEAPONS.find(w => w.id === id) || A.WEAPONS[0];
+
+  /* ---------------- consequence integration ---------------- */
+  let lastCompute = 0;
+  function compute() {
+    if (!grid || !res) return;
+    const now = performance.now();
+    if (now - lastCompute < 80) return;      // keep slider drags at 60fps
+    lastCompute = now;
+    const cellArea = grid.cellKm * grid.cellKm;
+    const n = grid.n;
+    const useShadow = TER.PRESETS[S.terrain].mountains > 0.25;
+    const burnR = (res.rings.find(r => r.key === 'burn1') || {}).radius || 0;
+    const blastR = (res.rings.find(r => r.key === 'psi1') || {}).radius || res.maxRadius;
+    const ignite = res.isNuke ? res.thresholds.ignitionFabric : Infinity;
+    const hobM = res.hobM || 0;
+
+    let dead = 0, injured = 0, displaced = 0, exposed = 0;
+    let areaDestroyed = 0, areaFlattened = 0, fireArea = 0, contamArea = 0;
+    let falloutDead = 0, falloutSick = 0, peakDose = 0, evacuees = 0, plumePop = 0;
+
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const k = j * n + i;
+        const x = (i - n / 2 + 0.5) * grid.cellKm, y = (j - n / 2 + 0.5) * grid.cellKm;
+        const dx = x - S.gz.x, dy = y - S.gz.y;
+        const rKm = Math.hypot(dx, dy), rM = rKm * 1000;
+        const pop = grid.pop[k] * cellArea;
+        exposed += pop;
+
+        let q = null;
+        if (rM <= Math.max(blastR, burnR) * 1.05) {
+          const shadow = useShadow ? grid.blastShadow(S.gz.x, S.gz.y, x, y) : 1;
+          const los = (useShadow && res.isNuke) ? grid.lineOfSight(S.gz.x, S.gz.y, hobM + 60, x, y) : 1;
+          q = A.inspect(res, rM, { shadow, los, visibility: S.vis, outdoorFrac: 0.25 });
+          const d = pop * q.fatalFrac;
+          const inj = pop * q.injuredFrac;
+          dead += d; injured += inj;
+          if (q.psi >= 5) areaDestroyed += cellArea;
+          if (q.psi >= 20) areaFlattened += cellArea;
+          if (q.psi >= 2) displaced += Math.max(0, pop - d);
+          if (res.isNuke && q.thermal >= ignite) {
+            const burnable = grid.LU_META[grid.use[k]].burnable;
+            if (burnable > 0.3) fireArea += cellArea * burnable;
+          }
+        }
+
+        if (fallout) {
+          const fx = x - S.gz.x, fy = y - S.gz.y;
+          const rate1 = A.sampleField(fallout, fx, fy);
+          if (rate1 > 0.5) {
+            // unsheltered dose accumulated from H+1 to H+48
+            const dose = A.accumulatedDose(rate1, 1, 48);
+            if (dose > peakDose) peakDose = dose;
+            plumePop += pop;
+            if (rate1 >= 2) { contamArea += cellArea; evacuees += pop; }
+            const alive = Math.max(0, pop - (q ? pop * q.fatalFrac : 0));
+            falloutDead += alive * A.radiationFatalFraction(dose);
+            falloutSick += alive * A.radiationSickFraction(dose);
+          }
+        }
+      }
+    }
+    injured = Math.min(injured, Math.max(0, exposed - dead));
+    displaced = Math.min(displaced + evacuees, Math.max(0, exposed - dead - falloutDead));
+
+    cons = {
+      dead: dead + falloutDead, blastDead: dead, falloutDead,
+      injured: injured + falloutSick, displaced, exposed,
+      areaDestroyed, areaFlattened, fireArea, contamArea, peakDose, plumePop,
+      populationTotal: grid.populationTotal
+    };
+    needCompute = false;
+    renderReadout();
+  }
+
+  /* ---------------- narration ---------------- */
+  function narrate(t) {
+    const nuke = res.isNuke;
+    const Y = res.yieldKt;
+    const shockR = nuke ? A.shockRadiusAt(t, Y) : t * 420;
+    const fbR = nuke ? A.fireballRadiusAt(t, Y, res.burst) : res.fireballRadius;
+    const pulse = nuke ? A.thermalPulseDuration(Y) : 0.1;
+    const stab = nuke ? A.cloudStabiliseTime(Y) : 1;
+    const r5 = (res.rings.find(r => r.key === 'psi5') || {}).radius || 0;
+    const r1 = (res.rings.find(r => r.key === 'psi1') || {}).radius || 0;
+    const b3 = (res.rings.find(r => r.key === 'burn3') || {}).radius || 0;
+
+    if (!nuke) {
+      if (t <= 0) return ['Standby', 'A conventional warhead. The lethal radius is measured in tens of metres — but that is a street, a building, a shelter.'];
+      if (t < 0.02) return ['Detonation', `The explosive column reaches several thousand kelvin. A shock front leaves the casing at over 6 km/s. Anything inside <b>${fmtDist(res.fireballRadius)}</b> is destroyed outright.`];
+      if (t < 0.3) return ['Fragmentation', `Casing fragments fly outward at more than 1,500 m/s. Inside <b>${fmtDist(res.fragRadius || 0)}</b> they are reliably lethal to a person in the open — with conventional munitions the fragments usually kill more people than the pressure does.`];
+      if (t < 3) return ['Shock front', `The blast wave has passed <b>${fmtDist(shockR)}</b>. At 5 psi ordinary buildings collapse; at 1 psi every window in the street becomes shrapnel. ${res.thermobaric ? 'A thermobaric charge sustains that pressure far longer than an equal mass of ordinary explosive, which is why it is so lethal inside enclosed spaces — basements, tunnels, shelters.' : ''}`];
+      if (t < 60) return ['Aftermath', `Structural collapse, fire and fragment wounds. A single ${fmtYield(res.tntKg / 1e6)} weapon on a populated street produces casualties that will occupy an entire hospital.`];
+      return ['Hours later', 'Rubble, secondary fires, unexploded submunitions, and a rescue effort that will take days. Multiply this by the thousands of rounds fired in a modern campaign.'];
+    }
+
+    if (t <= 0) return ['Standby', `A ${fmtYield(Y)} detonation. Press play. The clock will run from a ten-thousandth of a second to two days.`];
+    if (t < 1e-3) return ['Zero', 'The energy release is already complete. Nothing has moved yet. There is a point of light brighter than the sun, and the air around it has become opaque plasma.'];
+    if (t < 0.05) return ['Flash', `The fireball is <b>${fmtDist(fbR)}</b> across and radiating like a small star. Anyone looking toward it, out to tens of kilometres, is flash-blinded. The light has already arrived; the sound has not.`];
+    if (t < pulse * 3) return ['Thermal pulse', `The heat pulse peaks. At <b>${fmtDist(b3)}</b> exposed skin receives third-degree burns — full thickness, painless, because the nerve endings are destroyed. Wood, fabric and paper ignite. This all happens before the blast wave arrives, so people are burned first, then struck by the shock.`];
+    if (t < 6) return ['Shock front', `The shock wave is at <b>${fmtDist(shockR)}</b> and still supersonic. Behind it the wind is hundreds of kilometres an hour. It reaches the 5 psi line at <b>${fmtDist(r5)}</b> about ${A.shockArrivalTime(r5, Y).toFixed(1)} s after the flash.`];
+    if (t < 45) return ['Collapse', `The wave passes <b>${fmtDist(shockR)}</b>. Inside <b>${fmtDist(r5)}</b> ordinary buildings are down; out at <b>${fmtDist(r1)}</b> the glass fails and the injuries are lacerations. People sheltering in the buildings that just collapsed are now under them, and every fire engine in the region is inside the damage zone.`];
+    if (t < 240) return ['Firestorm', `Thousands of separate ignitions merge. Over roughly <b>${fmtArea(cons ? cons.fireArea : 0)}</b> the fires draw in their own wind and become self-sustaining. Broken water mains mean nothing can be fought. This is what killed most of the people in Hiroshima and in Dresden.`];
+    if (t < stab * 3) return ['Cloud rise', `The cloud is climbing through <b>${(A.cloudTopKm(Y) * clamp(t / stab, 0, 1) ** 0.55).toFixed(1)} km</b>, dragging pulverised soil and debris with it. ${res.burst === 'surface' ? 'Because this was a surface burst, that debris is now intensely radioactive and it has to come back down.' : 'Because the fireball never touched the ground, there is little material to make local fallout — the debris stays aloft.'}`];
+    if (t < 3600) return ['Fallout begins', fallout
+      ? `Heavy particles are already landing downwind. Where the H+1 dose rate exceeds <b>1,000 rad/hr</b>, an unsheltered person accumulates a fatal dose in well under an hour. The plume reaches roughly <b>${fallout.downwindKm.toFixed(0)} km</b>.`
+      : 'An air burst leaves little local fallout — but the fission products are still in the stratosphere and will come down globally over months and years.'];
+    if (t < 86400) return ['Hours after', fallout
+      ? `Radioactivity decays fast at first — the seven-ten rule: at H+7 hours the dose rate is a tenth of what it was at H+1, at H+49 hours a hundredth. Peak unsheltered 48-hour dose in the plume is about <b>${Math.round(cons ? cons.peakDose : 0).toLocaleString()} rad</b>; 450 rad kills roughly half of untreated adults.`
+      : 'Survivors with burns and crush injuries need care that no longer exists. The hospitals were inside the damage radius.'];
+    return ['Two days', `About <b>${fmtPeople(cons ? cons.dead : 0)}</b> people are dead and <b>${fmtPeople(cons ? cons.injured : 0)}</b> injured in a single detonation. <b>${fmtPeople(cons ? cons.displaced : 0)}</b> have no home to return to. There is no medical system left in the region: the burn beds needed for a single city of this size exceed the entire national supply of most countries by a factor of a thousand.`];
+  }
+
+  /* ---------------- rendering the panels ---------------- */
+  function kv(rows) {
+    return rows.map(r => `<div class="kv${r.big ? ' big' : ''}"><span class="k">${r.k}</span><span class="v${r.dim ? ' dim' : ''}"${r.c ? ` style="color:${r.c}"` : ''}>${r.v}</span></div>`).join('');
+  }
+
+  function renderControls() {
+    const w = weaponById(S.weaponId);
+    $('#tagClass').textContent = { conv: 'conventional', thermo: 'thermobaric', penet: 'penetrator', missile: 'missile', nuke: 'nuclear' }[w.cls];
+    $('#weaponNote').textContent = w.note;
+    $('#yieldSec').hidden = !res.isNuke;
+    $('#fissionSec').hidden = !(res.isNuke && (S.burst === 'surface' || S.burst === 'penetrating'));
+    $('#hobSec').hidden = S.burst !== 'high';
+    $('#yieldVal').textContent = fmtYield(S.yieldKt);
+    $('#windVal').textContent = S.windSpeed + ' km/h';
+    $('#dirVal').textContent = String(S.windDir).padStart(3, '0') + '°';
+    $('#fissVal').textContent = Math.round(S.fission * 100) + '%';
+    $('#visVal').textContent = (S.vis >= 1.4 ? 'Exceptional' : S.vis >= 0.9 ? 'Clear' : S.vis >= 0.6 ? 'Hazy' : 'Poor') + ' · ' + Math.round(20 * S.vis) + ' km';
+    $('#dialNeedle').setAttribute('transform', `rotate(${S.windDir} 37 37)`);
+    $('#tagPop').textContent = grid ? fmtPeople(grid.populationTotal) + ' in frame' : '';
+    $('#terrNote').textContent = grid ? grid.desc : '';
+    $('#burstNote').innerHTML = {
+      air: 'Detonated at the altitude that maximises the 5 psi blast radius. Widest destruction, almost no local fallout.',
+      surface: 'Detonated at ground level. Smaller blast radius, but it digs a crater and lofts soil that comes down as intense local fallout.',
+      penetrating: 'Buried before detonating. Most energy couples into the ground: a deep crater, a strong seismic signal, far less air blast — and it still throws contaminated soil.',
+      high: 'Detonated above the atmosphere. No blast or heat at the ground at all. The effect is an electromagnetic pulse over everything within line of sight.'
+    }[S.burst];
+    $$('#burstSeg button').forEach(b => {
+      b.classList.toggle('on', b.dataset.b === S.burst);
+      b.disabled = !w.burst.includes(b.dataset.b);
+    });
+    $$('#clsSeg button').forEach(b => b.classList.toggle('on', b.dataset.cls === S.cls));
+    $$('#terrSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === S.terrain));
+    $('#btnCompare').classList.toggle('on', !!S.compareId);
+  }
+
+  function renderReadout() {
+    if (!res || !cons) return;
+    $('#nDead').textContent = fmtPeople(cons.dead);
+    $('#nHurt').textContent = fmtPeople(cons.injured);
+    $('#nDisp').textContent = fmtPeople(cons.displaced);
+
+    const rows = [];
+    rows.push({ k: 'Yield', v: res.isNuke ? fmtYield(res.yieldKt) : fmtYield(res.tntKg / 1e6), big: true, c: 'var(--accent)' });
+    if (res.isNuke) rows.push({ k: 'TNT equivalent', v: (res.yieldKt * 1000).toLocaleString() + ' tonnes', dim: true });
+    rows.push({ k: 'Fireball radius', v: fmtDist(res.fireballRadius) });
+    if (res.hobM) rows.push({ k: 'Burst altitude', v: fmtDist(res.hobM), dim: true });
+    if (res.craterRadius > 0) {
+      rows.push({ k: 'Crater', v: fmtDist(res.craterRadius * 2) + ' across' });
+      rows.push({ k: 'Crater depth', v: fmtDist(res.craterDepth), dim: true });
+    }
+    rows.push({ k: 'Area totally destroyed (≥20 psi)', v: fmtArea(cons.areaFlattened) });
+    rows.push({ k: 'Area of severe damage (≥5 psi)', v: fmtArea(cons.areaDestroyed) });
+    if (cons.fireArea > 0) rows.push({ k: 'Area on fire', v: fmtArea(cons.fireArea), c: '#ff9f0a' });
+    if (res.seismic > 0.5) rows.push({ k: 'Seismic equivalent', v: 'mb ' + res.seismic.toFixed(1) });
+    if (res.isNuke) {
+      rows.push({ k: 'Cloud top', v: res.cloudTopKm.toFixed(1) + ' km' });
+      rows.push({ k: 'Thermal pulse length', v: res.thermalPulse.toFixed(2) + ' s', dim: true });
+    }
+    if (res.empRadiusKm > 0) {
+      rows.push({ k: 'EMP line-of-sight radius', v: Math.round(res.empRadiusKm).toLocaleString() + ' km', c: '#5ac8fa' });
+      rows.push({ k: 'Peak E1 field', v: '~' + res.empFieldKvM.toFixed(0) + ' kV/m', dim: true });
+    }
+    if (mediumAt(S.gz.x, S.gz.y) === 'water' && res.isNuke && S.burst !== 'air') {
+      rows.push({ k: 'Wave height at 10 km', v: A.waveHeightAt(10000, res.yieldKt).toFixed(1) + ' m', c: '#5ac8fa' });
+    }
+    rows.push({ k: 'Population in frame', v: fmtPeople(cons.populationTotal), dim: true });
+    rows.push({ k: 'Fatality rate among exposed', v: (100 * cons.dead / Math.max(cons.exposed, 1)).toFixed(1) + '%', dim: true });
+    $('#kvMain').innerHTML = kv(rows);
+
+    $('#ringList').innerHTML = res.rings.map(r =>
+      `<div class="ring-item"><div class="swatch" style="background:${r.color};color:${r.color}"></div>
+       <div class="rl"><div class="rn">${r.label}</div><div class="rd">${r.detail}</div></div>
+       <div class="rv" style="color:${r.color}">${fmtDist(r.radius)}</div></div>`).join('');
+
+    const fs = $('#falloutSec');
+    if (fallout && fallout.maxRate > 1) {
+      fs.hidden = false;
+      $('#kvFallout').innerHTML = kv([
+        { k: 'Peak dose rate at H+1', v: Math.round(fallout.maxRate).toLocaleString() + ' rad/hr', c: '#ff2d55', big: true },
+        { k: 'Plume reach (1 rad/hr)', v: fallout.downwindKm.toFixed(0) + ' km downwind' },
+        { k: 'Area needing evacuation', v: fmtArea(cons.contamArea) },
+        { k: 'People under the plume', v: fmtPeople(cons.plumePop) },
+        { k: 'Peak unsheltered 48-h dose', v: Math.round(cons.peakDose).toLocaleString() + ' rad' },
+        { k: 'Deaths from fallout alone', v: fmtPeople(cons.falloutDead), c: '#ff6b81' },
+        { k: 'Decay rule', v: '7× time → 1/10 dose', dim: true }
+      ]);
+    } else {
+      fs.hidden = !res.isNuke;
+      if (res.isNuke) $('#kvFallout').innerHTML = `<div class="hint">An air burst whose fireball never touches the ground produces very little <i>local</i> fallout. The fission products are lofted into the stratosphere instead and return worldwide over months to years.</div>`;
+    }
+
+    $('#caveats').innerHTML = res.isNuke
+      ? 'Firestorm dynamics and smoke-driven climate effects; multi-burst interaction; medical-system collapse beyond the frame; long-term cancer incidence; economic and social breakdown. Casualty figures assume no warning and no evacuation, and are estimates with wide error bars — the real number depends on time of day, weather, building stock and whether anyone was sheltered.'
+      : 'Structural specifics, indoor blast reflection, secondary fires, unexploded ordnance, and the cumulative effect of sustained bombardment — which is how these weapons are actually used.';
+
+    // legend
+    $('#legend').innerHTML = '<div style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Damage zones</div>'
+      + res.rings.slice().reverse().map(r => `<div class="lrow"><div class="lsw" style="background:${r.color}"></div>${r.label.split('—')[0].trim()}</div>`).join('')
+      + (fallout && fallout.maxRate > 1
+        ? '<div style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);margin:8px 0 5px">Fallout, rad/hr at H+1</div>'
+          + RND.FALLOUT_BANDS.filter((_, i) => i % 2 === 0).map(b => `<div class="lrow"><div class="lsw" style="background:rgb(${b.c.join(',')})"></div>${b.label}</div>`).join('')
+        : '');
+  }
+
+  /* ---------------- main loop ---------------- */
+  function frame(now) {
+    const dt = Math.min((now - lastFrame) / 1000, 0.1);
+    lastFrame = now;
+    if (S.playing) {
+      S.u += dt * (U_MAX - U_MIN) / SWEEP_SECONDS * S.speed;
+      if (S.u >= U_MAX) { S.u = U_MAX; setPlaying(false); }
+      $('#scrub').value = S.u;
+      autoZoom(dt);
+    }
+    const t = S.u <= U_MIN ? 0 : Math.pow(10, S.u);
+    draw(t);
+    requestAnimationFrame(frame);
+  }
+
+  /**
+   * During playback the camera eases outward once the fallout phase
+   * begins, because the plume is an order of magnitude larger than the
+   * blast damage and the scale difference is itself the point.
+   */
+  function autoZoom(dt) {
+    if (!fallout || !res) return;
+    const t = Math.pow(10, S.u);
+    if (t < 600) return;
+    const blastKm = res.maxRadius / 1000;
+    const plumeKm = Math.max(fallout.downwindKm * 1.35, blastKm * 2);
+    const f = clamp((Math.log10(t) - Math.log10(600)) / (Math.log10(7200) - Math.log10(600)), 0, 1);
+    const wantKm = lerp(blastKm * 2.5, plumeKm * 2.1, f);
+    const px = Math.min(renderer.W - 700, renderer.H - 230);
+    const wantZoom = clamp(Math.max(px, 300) / wantKm, 0.0004, 8000);
+    const k = 1 - Math.pow(0.02, dt);          // frame-rate independent ease
+    renderer.cam.zoom = lerp(renderer.cam.zoom, wantZoom, k);
+    // keep the plume in frame by drifting toward its centroid
+    const dir = S.windDir * Math.PI / 180;
+    const off = fallout.downwindKm * 0.30 * f;
+    renderer.cam.cx = lerp(renderer.cam.cx, S.gz.x + Math.sin(dir) * off, k);
+    renderer.cam.cy = lerp(renderer.cam.cy, S.gz.y - Math.cos(dir) * off, k);
+  }
+
+  function draw(t) {
+    const R = renderer;
+    R.clear();
+    if (!grid || !res) return;
+    R.drawTerrain(grid);
+    const step = R.drawGrid();
+    // scale bar
+    const barPx = step * R.cam.zoom;
+    $('#scaleBar').style.width = Math.round(barPx) + 'px';
+    $('#scaleTxt').textContent = step >= 1 ? step + ' km' : (step * 1000) + ' m';
+
+    const shockR = res.isNuke ? A.shockRadiusAt(t, res.yieldKt) : t * 420;
+    // Before the clock starts, show the complete zone map; once it runs, the
+    // rings are revealed as the shock front actually reaches them.
+    const reveal = (t <= 1.01e-4 && !S.playing) ? Infinity
+      : Math.max(shockR, res.fireballRadius, res.burst === 'high' ? res.maxRadius : 0) * 1.02;
+    if (fallout && t > 300) R.drawFallout(fallout, Math.max(t / 3600, 0.02), S.gz);
+    R.drawCrater(res, S.gz, t);
+    R.drawRings(res, S.gz, { revealRadius: reveal, labels: R.cam.zoom > 0.0008 });
+    if (cmpRes) R.drawCompare(cmpRes, S.gz);
+    R.drawFires(res, S.gz, t, grid);
+    // at standby show the clean zone map, not the flash
+    if (reveal !== Infinity) R.drawBurst(res, S.gz, t);
+    R.drawCloud(res, S.gz, t, { speed: S.windSpeed, dir: S.windDir });
+    R.drawGZ(S.gz, t > 0.5);
+    R.drawWind({ speed: S.windSpeed, dir: S.windDir });
+    R.drawElevation(elevCv, res, t, { speed: S.windSpeed, dir: S.windDir });
+
+    $('#clock').textContent = fmtTime(t);
+    const [ph, txt] = narrate(t);
+    $('#phase').textContent = ph;
+    const nar = $('#narration');
+    const html = `<span class="nt">${ph}</span>${txt}`;
+    if (nar.dataset.h !== html) { nar.innerHTML = html; nar.dataset.h = html; }
+    if (needCompute) compute();
+  }
+
+  /* ---------------- inspector ---------------- */
+  function inspectAt(px, py, clientX, clientY) {
+    const x = renderer.s2wx(px), y = renderer.s2wy(py);
+    const rM = Math.hypot(x - S.gz.x, y - S.gz.y) * 1000;
+    const useShadow = TER.PRESETS[S.terrain].mountains > 0.25;
+    const shadow = useShadow ? grid.blastShadow(S.gz.x, S.gz.y, x, y) : 1;
+    const los = (useShadow && res.isNuke) ? grid.lineOfSight(S.gz.x, S.gz.y, (res.hobM || 0) + 60, x, y) : 1;
+    const q = A.inspect(res, rM, { shadow, los, visibility: S.vis, outdoorFrac: 0.25 });
+    const lu = grid.LU_META[grid.useAt(x, y)];
+    const rate1 = fallout ? A.sampleField(fallout, x - S.gz.x, y - S.gz.y) : 0;
+    const dose48 = rate1 > 0 ? A.accumulatedDose(rate1, 1, 48) : 0;
+
+    const row = (a, b, c) => `<div class="irow"><span>${a}</span><span${c ? ` style="color:${c}"` : ''}>${b}</span></div>`;
+    let verdict;
+    if (q.psi >= 20) verdict = 'Nothing here survives. Structures are swept away and the ground is scoured.';
+    else if (q.psi >= 5) verdict = 'Buildings collapse. Roughly half the people here are killed outright; most of the rest are injured.';
+    else if (q.psi >= 1) verdict = 'Windows blow in as shrapnel. Survivable, but with widespread lacerations and no ambulances coming.';
+    else if (q.thermal > (res.thresholds ? res.thresholds.secondDegree : 1e9)) verdict = 'Outside the blast damage, but anyone outdoors facing the flash is badly burned.';
+    else if (dose48 > 450) verdict = 'Outside the blast entirely — and still a lethal radiation dose within two days if you stay above ground.';
+    else if (dose48 > 100) verdict = 'Radiation sickness likely without shelter or evacuation.';
+    else verdict = 'Outside the main damage zones. Broken glass, fear, and a city nearby that no longer functions.';
+
+    const el = $('#inspector');
+    el.innerHTML = `<div class="ih">At ${fmtDist(rM)} · ${lu.name}</div>`
+      + row('Peak overpressure', q.psi >= 0.01 ? q.psi.toFixed(q.psi < 1 ? 2 : 1) + ' psi' : '—', q.psi >= 5 ? '#ff9f0a' : '')
+      + row('Blast wind', q.psi >= 0.05 ? Math.round(q.wind).toLocaleString() + ' km/h' : '—')
+      + row('Shock arrives', q.arrival > 0 ? 'T + ' + q.arrival.toFixed(q.arrival < 10 ? 2 : 1) + ' s' : '—')
+      + (res.isNuke ? row('Thermal fluence', q.thermal >= 0.05 ? q.thermal.toFixed(1) + ' cal/cm²' : '—') : '')
+      + (res.isNuke ? row('Burns', q.burn, q.burn === 'none' ? '' : '#ff6b35') : row('Fragments', q.frag, q.frag === 'lethal' ? '#ff375f' : ''))
+      + (res.isNuke ? row('Prompt radiation', q.prompt >= 1 ? Math.round(q.prompt).toLocaleString() + ' rem' : '—', q.prompt >= 100 ? '#30d158' : '') : '')
+      + (rate1 > 0.5 ? row('Fallout at H+1', Math.round(rate1).toLocaleString() + ' rad/hr', '#ffcc3c') : '')
+      + (dose48 > 1 ? row('48-hour dose', Math.round(dose48).toLocaleString() + ' rad', dose48 > 450 ? '#ff2d55' : '') : '')
+      + row('Chance of death', (100 * q.fatalFrac).toFixed(0) + '%', q.fatalFrac > 0.3 ? '#ff2d55' : '')
+      + `<div class="verdict">${verdict}</div>`;
+    el.classList.add('on');
+    const w = 236, h = el.offsetHeight || 200;
+    el.style.left = clamp(clientX + 16, 8, window.innerWidth - w - 8) + 'px';
+    el.style.top = clamp(clientY - h / 2, 8, window.innerHeight - h - 8) + 'px';
+  }
+
+  /* ---------------- sheets ---------------- */
+  function openSheet(html) { $('#sheet').innerHTML = html + '<button class="btn closex" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">Close</button>'; $('#modal').classList.add('on'); }
+
+  function aboutSheet() {
+    openSheet(`
+      <h3>How this is calculated</h3>
+      <div class="sub">Every radius drawn on the map comes from a published effects model. Nothing here is artistic licence.</div>
+
+      <h4>Air blast</h4>
+      <p>Peak overpressure is scaled from the 1-kiloton reference curve by the Hopkinson–Cranz cube-root law: <b>R ∝ Y<sup>1/3</sup></b>. Eight times the yield gives only twice the radius — which is why arsenals moved to many small warheads rather than a few enormous ones. Damage thresholds: <b>20 psi</b> reinforced structures fail, <b>5 psi</b> ordinary buildings collapse, <b>1 psi</b> windows shatter. A surface burst loses the Mach-stem enhancement of an optimised air burst and reaches about 70% as far; a buried burst couples its energy into the ground instead and reaches roughly a third as far.</p>
+
+      <h4>Thermal radiation</h4>
+      <p>Fluence in cal/cm² is computed from the thermal yield fraction (0.35 for an air burst) spread over a sphere, with exponential atmospheric attenuation calibrated so that a 1 Mt air burst delivers 4.5–6 cal/cm² at 9–10 miles — the figure given in <i>The Effects of Nuclear Weapons</i>. Burn thresholds are ≈2.5 / 5 / 8 cal/cm² for first, second and third-degree burns at this yield, adjusted slightly for pulse length. Terrain that blocks line of sight blocks the burn: this is why Nagasaki's casualties were lower than Hiroshima's despite a larger weapon.</p>
+
+      <h4>Prompt radiation</h4>
+      <p>Modelled as D = k·Y·e<sup>−r/λ</sup>/r², with λ ≈ 345 m, calibrated to 500 rem at 1,150 m for 20 kt. Note what this implies: prompt radiation matters at low yields and becomes irrelevant at high ones, because blast and heat outrun it. At 1 Mt the lethal radiation radius sits well inside the zone where everything has already been flattened.</p>
+
+      <h4>Fallout</h4>
+      <p>Only surface and shallow-buried bursts loft enough soil to make heavy local fallout. The plume here is a Lagrangian parcel model in the spirit of WSEG-10: the stabilised cloud is split into altitude bands, each falls at its own terminal velocity while the wind carries it, and the deposition adds up to the characteristic cigar shape. Decay follows the Way–Wigner approximation <b>I(t) = I₁·t<sup>−1.2</sup></b> — the "seven-ten rule": at seven times the elapsed time, one tenth of the dose rate.</p>
+
+      <h4>Casualties</h4>
+      <p>Fatality and injury fractions are interpolated from the overpressure–casualty curves in the US Office of Technology Assessment's <i>The Effects of Nuclear War</i> (1979), applied cell-by-cell to a population raster, with additional thermal deaths for the fraction of people outdoors and additional radiation deaths from accumulated fallout dose (LD50 ≈ 450 rad untreated). These are estimates with wide error bars. They assume no warning, no evacuation, and a normal distribution of people between indoors and out.</p>
+
+      <h4>Cratering, ground shock and seismic yield</h4>
+      <p>Apparent crater radius scales as Y<sup>1/3.4</sup>, giving ~200 m radius and ~60 m depth for 1 Mt at the surface. Seismic body-wave magnitude uses m<sub>b</sub> = 4.0 + 0.75·log₁₀(Y) for a fully coupled explosion, reduced by the coupling factor of the burst type — a surface burst wastes most of its energy in the air.</p>
+
+      <h4>Sources</h4>
+      <ul>
+        <li>Glasstone, S. &amp; Dolan, P., <i>The Effects of Nuclear Weapons</i>, 3rd ed., US DoD / DoE, 1977 — chapters III, VI, VII, VIII, IX, XII.</li>
+        <li>US Office of Technology Assessment, <i>The Effects of Nuclear War</i>, 1979.</li>
+        <li>Pugh &amp; Galiano, WSEG Research Memorandum 10 (1959); Bridgman &amp; Bigelow's later documentation of the model.</li>
+        <li>Kinney, G. &amp; Graham, K., <i>Explosive Shocks in Air</i>, 2nd ed., 1985 — conventional HE overpressure.</li>
+        <li>Nordyke (1973) and Murphy (1981) on cratering and seismic coupling.</li>
+        <li>Karzas &amp; Latter (1962) on high-altitude EMP geometry.</li>
+        <li>Alex Wellerstein's NUKEMAP, for the modern presentation of these same models.</li>
+      </ul>
+
+      <h4>Scope</h4>
+      <p>This is a consequence model. It contains no information about how any weapon is designed, built, enhanced or delivered against a real target, and it never will. Its only purpose is to make the scale of the effects legible — because the numbers are otherwise abstract, and they should not be.</p>
+
+      <h4>Controls</h4>
+      <p>Drag to pan · scroll to zoom · click anywhere on the map for a point readout · <b>shift-click</b> to move ground zero · <b>space</b> play/pause · <b>R</b> restart · <b>[</b> and <b>]</b> step time.</p>
+    `);
+  }
+
+  function compareSheet() {
+    const opts = A.WEAPONS.map(w => `<option value="${w.id}"${w.id === S.compareId ? ' selected' : ''}>${w.name}</option>`).join('');
+    const a = res;
+    const b = S.compareId ? A.solve(scenarioObj(S.compareId, weaponById(S.compareId).yield || S.yieldKt)) : null;
+    const get = (r, key) => { if (!r) return '—'; const x = r.rings.find(z => z.key === key); return x ? fmtDist(x.radius) : '—'; };
+    const areaOf = (r, key) => { if (!r) return '—'; const x = r.rings.find(z => z.key === key); return x ? fmtArea(Math.PI * (x.radius / 1000) ** 2) : '—'; };
+    openSheet(`
+      <h3>Compare two weapons</h3>
+      <div class="sub">Both are evaluated at the same burst type, terrain and weather. The comparison weapon is drawn on the map as dashed blue rings.</div>
+      <div class="row" style="margin-bottom:18px;max-width:520px">
+        <select id="cmpSel"><option value="">— none —</option>${opts}</select>
+        <button class="btn" id="cmpClear">Clear</button>
+      </div>
+      <table class="cmp">
+        <thead><tr><th></th><th>${a.weapon.name}</th><th>${b ? b.weapon.name : '—'}</th><th>Ratio</th></tr></thead>
+        <tbody>
+          <tr><td>Yield / TNT equivalent</td><td>${a.isNuke ? fmtYield(a.yieldKt) : fmtYield(a.tntKg / 1e6)}</td><td>${b ? (b.isNuke ? fmtYield(b.yieldKt) : fmtYield(b.tntKg / 1e6)) : '—'}</td><td>${b ? (a.yieldEquivKt / Math.max(b.yieldEquivKt, 1e-12)).toFixed(1) + '×' : '—'}</td></tr>
+          <tr><td>Fireball radius</td><td>${fmtDist(a.fireballRadius)}</td><td>${b ? fmtDist(b.fireballRadius) : '—'}</td><td>${b ? (a.fireballRadius / Math.max(b.fireballRadius, 1e-9)).toFixed(1) + '×' : '—'}</td></tr>
+          <tr><td>20 psi — total destruction</td><td>${get(a, 'psi20')}</td><td>${get(b, 'psi20')}</td><td></td></tr>
+          <tr><td>5 psi — buildings collapse</td><td>${get(a, 'psi5')}</td><td>${get(b, 'psi5')}</td><td>${b && a.rings.find(r => r.key === 'psi5') && b.rings.find(r => r.key === 'psi5') ? (a.rings.find(r => r.key === 'psi5').radius / b.rings.find(r => r.key === 'psi5').radius).toFixed(1) + '×' : ''}</td></tr>
+          <tr><td>Area of severe damage</td><td>${areaOf(a, 'psi5')}</td><td>${areaOf(b, 'psi5')}</td><td>${b && a.rings.find(r => r.key === 'psi5') && b.rings.find(r => r.key === 'psi5') ? ((a.rings.find(r => r.key === 'psi5').radius / b.rings.find(r => r.key === 'psi5').radius) ** 2).toFixed(0) + '×' : ''}</td></tr>
+          <tr><td>1 psi — windows shatter</td><td>${get(a, 'psi1')}</td><td>${get(b, 'psi1')}</td><td></td></tr>
+          <tr><td>3rd-degree burns</td><td>${get(a, 'burn3')}</td><td>${get(b, 'burn3')}</td><td></td></tr>
+          <tr><td>Crater diameter</td><td>${a.craterRadius ? fmtDist(a.craterRadius * 2) : '—'}</td><td>${b && b.craterRadius ? fmtDist(b.craterRadius * 2) : '—'}</td><td></td></tr>
+          <tr><td>Seismic equivalent</td><td>${a.seismic > .5 ? 'mb ' + a.seismic.toFixed(1) : '—'}</td><td>${b && b.seismic > .5 ? 'mb ' + b.seismic.toFixed(1) : '—'}</td><td></td></tr>
+          <tr><td>Cloud top</td><td>${a.isNuke ? a.cloudTopKm.toFixed(1) + ' km' : '—'}</td><td>${b && b.isNuke ? b.cloudTopKm.toFixed(1) + ' km' : '—'}</td><td></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:16px">Because destroyed <i>area</i> goes as the square of the radius and radius goes as the cube root of yield, area scales only as Y<sup>2/3</sup>. A weapon a thousand times more powerful destroys a hundred times the area — not a thousand times. That single fact shaped the whole architecture of nuclear arsenals.</p>
+    `);
+    $('#cmpSel').onchange = e => { S.compareId = e.target.value || null; rebuild(); compareSheet(); };
+    $('#cmpClear').onclick = () => { S.compareId = null; rebuild(); $('#modal').classList.remove('on'); };
+  }
+
+  /* ---------------- save / load ---------------- */
+  function saveScenario() {
+    const data = { v: 1, app: 'AEON', saved: new Date().toISOString(), state: { ...S, playing: false } };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'aeon-scenario-' + S.weaponId + '-' + S.burst + '.json';
+    a.click(); URL.revokeObjectURL(a.href);
+    toast('Scenario saved');
+  }
+  function loadScenario(file) {
+    const fr = new FileReader();
+    fr.onload = () => {
+      try {
+        const d = JSON.parse(fr.result);
+        if (!d.state) throw 0;
+        Object.assign(S, d.state, { playing: false });
+        syncInputs(); rebuild(); toast('Scenario loaded');
+      } catch (e) { toast('Could not read that file'); }
+    };
+    fr.readAsText(file);
+  }
+  let toastT;
+  function toast(msg) {
+    const el = $('#toast'); el.textContent = msg; el.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200);
+  }
+
+  /* ---------------- inputs ---------------- */
+  // Yield slider: log scale from 0.01 kt (10 t) to 100,000 kt (100 Mt)
+  const yToU = y => (Math.log10(y) + 2) / 7 * 1000;
+  const uToY = u => Math.pow(10, u / 1000 * 7 - 2);
+
+  function fillWeapons() {
+    const sel = $('#weaponSel');
+    const groups = { conv: 'Conventional', missile: 'Missile-delivered', thermo: 'Thermobaric & large air-blast', penet: 'Penetrating', nuke: 'Nuclear' };
+    const wanted = S.cls === 'conv' ? ['conv', 'missile'] : [S.cls];
+    sel.innerHTML = Object.keys(groups).filter(g => wanted.includes(g)).map(g =>
+      `<optgroup label="${groups[g]}">` + A.WEAPONS.filter(w => w.cls === g)
+        .map(w => `<option value="${w.id}"${w.id === S.weaponId ? ' selected' : ''}>${w.name}</option>`).join('') + '</optgroup>'
+    ).join('');
+    if (!A.WEAPONS.some(w => w.id === S.weaponId && wanted.includes(w.cls))) {
+      const first = A.WEAPONS.find(w => wanted.includes(w.cls));
+      S.weaponId = first.id; sel.value = first.id;
+      if (first.yield) S.yieldKt = first.yield;
+      if (!first.burst.includes(S.burst)) S.burst = first.burst[0];
+    }
+  }
+  function syncInputs() {
+    fillWeapons();
+    $('#yieldSlider').value = yToU(S.yieldKt);
+    $('#windSlider').value = S.windSpeed; $('#dirSlider').value = S.windDir;
+    $('#fissSlider').value = Math.round(S.fission * 100);
+    $('#visSlider').value = Math.round(S.vis * 100);
+    $('#hobSlider').value = S.hobKm;
+    $('#scrub').value = S.u;
+  }
+
+  function setPlaying(p) {
+    S.playing = p;
+    $('#icoPlay').style.display = p ? 'none' : '';
+    $('#icoPause').style.display = p ? '' : 'none';
+  }
+
+  /* ---------------- boot ---------------- */
+  function init() {
+    const canvas = $('#map');
+    renderer = RND.Renderer(canvas);
+    elevCv = $('#elevCv');
+    const edpr = Math.min(window.devicePixelRatio || 1, 2);
+    elevCv.width = Math.round(152 * edpr); elevCv.height = Math.round(154 * edpr);
+    elevCv._dpr = edpr;
+
+    renderer.resize();
+    window.addEventListener('resize', () => { renderer.resize(); });
+
+    // terrain buttons
+    $('#terrSeg').innerHTML = Object.entries(TER.PRESETS)
+      .map(([k, p]) => `<button data-t="${k}">${p.name}</button>`).join('');
+
+    // timeline marks
+    const marks = [[-4, '0.1 ms'], [-2, '10 ms'], [0, '1 s'], [1, '10 s'], [2, '1.7 min'], [3, '17 min'], [3.56, '1 h'], [4.5, '9 h'], [5.2375, '48 h']];
+    $('#tlMarks').innerHTML = marks.map(([u, l]) =>
+      `<span style="left:${((u - U_MIN) / (U_MAX - U_MIN) * 100).toFixed(2)}%">${l}</span>`).join('');
+
+    syncInputs();
+    rebuild();
+    setPlaying(false);
+
+    /* --- control wiring --- */
+    $('#clsSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.cls = b.dataset.cls; fillWeapons(); rebuild(true); };
+    $('#terrSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.terrain = b.dataset.t; grid = null; rebuild(true); };
+    $('#burstSeg').onclick = e => { const b = e.target.closest('button'); if (!b || b.disabled) return; S.burst = b.dataset.b; rebuild(true); };
+    $('#weaponSel').onchange = e => {
+      S.weaponId = e.target.value;
+      const w = weaponById(S.weaponId);
+      if (w.yield) { S.yieldKt = w.yield; $('#yieldSlider').value = yToU(w.yield); }
+      if (!w.burst.includes(S.burst)) S.burst = w.burst[0];
+      rebuild(true);
+    };
+    $('#yieldSlider').oninput = e => {
+      S.yieldKt = Math.max(0.01, uToY(+e.target.value));
+      S.yieldKt = S.yieldKt >= 100 ? Math.round(S.yieldKt) : +S.yieldKt.toPrecision(3);
+      rebuild();
+    };
+    $('#hobSlider').oninput = e => { S.hobKm = +e.target.value; $('#hobVal').textContent = S.hobKm + ' km'; rebuild(); };
+    $('#windSlider').oninput = e => { S.windSpeed = +e.target.value; rebuild(); };
+    $('#dirSlider').oninput = e => { S.windDir = +e.target.value; rebuild(); };
+    $('#fissSlider').oninput = e => { S.fission = +e.target.value / 100; rebuild(); };
+    $('#visSlider').oninput = e => { S.vis = +e.target.value / 100; rebuild(); };
+
+    // wind dial drag
+    let dialDrag = false;
+    const dialSet = ev => {
+      const r = $('#dial').getBoundingClientRect();
+      const dx = ev.clientX - (r.left + r.width / 2), dy = ev.clientY - (r.top + r.height / 2);
+      S.windDir = (Math.round(Math.atan2(dx, -dy) * 180 / Math.PI) + 360) % 360;
+      $('#dirSlider').value = S.windDir; rebuild();
+    };
+    $('#dial').addEventListener('pointerdown', e => { dialDrag = true; $('#dial').setPointerCapture(e.pointerId); dialSet(e); });
+    $('#dial').addEventListener('pointermove', e => { if (dialDrag) dialSet(e); });
+    $('#dial').addEventListener('pointerup', () => { dialDrag = false; });
+
+    // timeline
+    $('#btnPlay').onclick = () => { if (S.u >= U_MAX - 1e-6) S.u = U_MIN; setPlaying(!S.playing); };
+    $('#btnReplay').onclick = () => { S.u = U_MIN; $('#scrub').value = U_MIN; setPlaying(true); };
+    $('#scrub').oninput = e => { S.u = +e.target.value; setPlaying(false); };
+    const speeds = [0.25, 0.5, 1, 2, 4];
+    $('#btnSpeed').onclick = () => {
+      S.speed = speeds[(speeds.indexOf(S.speed) + 1) % speeds.length];
+      $('#btnSpeed').textContent = S.speed + '×';
+    };
+
+    // panels & sheets
+    $('#btnAbout').onclick = aboutSheet;
+    $('#btnCompare').onclick = compareSheet;
+    $('#btnSave').onclick = saveScenario;
+    $('#btnLoad').onclick = () => $('#fileLoad').click();
+    $('#fileLoad').onchange = e => { if (e.target.files[0]) loadScenario(e.target.files[0]); e.target.value = ''; };
+    $('#modal').onclick = e => { if (e.target.id === 'modal') $('#modal').classList.remove('on'); };
+    $('#lefttoggle').onclick = () => {
+      const h = $('#left').classList.toggle('hidden');
+      $('#right').classList.toggle('hidden', h);
+      $('#timeline').classList.toggle('wide', h);
+    };
+
+    /* --- map interaction --- */
+    let dragging = false, dragged = false, lastX = 0, lastY = 0;
+    canvas.addEventListener('pointerdown', e => {
+      dragging = true; dragged = false; lastX = e.clientX; lastY = e.clientY;
+      canvas.setPointerCapture(e.pointerId); canvas.classList.add('panning');
+    });
+    canvas.addEventListener('pointermove', e => {
+      const r = canvas.getBoundingClientRect();
+      if (dragging) {
+        const dx = e.clientX - lastX, dy = e.clientY - lastY;
+        if (Math.abs(dx) + Math.abs(dy) > 2) dragged = true;
+        renderer.cam.cx -= dx / renderer.cam.zoom;
+        renderer.cam.cy -= dy / renderer.cam.zoom;
+        lastX = e.clientX; lastY = e.clientY;
+      } else {
+        inspectAt(e.clientX - r.left, e.clientY - r.top, e.clientX, e.clientY);
+      }
+    });
+    canvas.addEventListener('pointerup', e => {
+      dragging = false; canvas.classList.remove('panning');
+      if (!dragged) {
+        const r = canvas.getBoundingClientRect();
+        if (e.shiftKey) {
+          S.gz.x = renderer.s2wx(e.clientX - r.left);
+          S.gz.y = renderer.s2wy(e.clientY - r.top);
+          needCompute = true; rebuild(); toast('Ground zero moved');
+        } else inspectAt(e.clientX - r.left, e.clientY - r.top, e.clientX, e.clientY);
+      }
+    });
+    canvas.addEventListener('pointerleave', () => $('#inspector').classList.remove('on'));
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
+      const wx = renderer.s2wx(mx), wy = renderer.s2wy(my);
+      const f = Math.exp(-e.deltaY * 0.0015);
+      renderer.cam.zoom = clamp(renderer.cam.zoom * f, 0.02, 20000);
+      renderer.cam.cx = wx - (mx - renderer.W / 2) / renderer.cam.zoom;
+      renderer.cam.cy = wy - (my - renderer.H / 2) / renderer.cam.zoom;
+    }, { passive: false });
+
+    window.addEventListener('keydown', e => {
+      if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+      if (e.code === 'Space') { e.preventDefault(); $('#btnPlay').click(); }
+      if (e.key === 'r' || e.key === 'R') $('#btnReplay').click();
+      if (e.key === '[') { S.u = clamp(S.u - 0.15, U_MIN, U_MAX); $('#scrub').value = S.u; setPlaying(false); }
+      if (e.key === ']') { S.u = clamp(S.u + 0.15, U_MIN, U_MAX); $('#scrub').value = S.u; setPlaying(false); }
+      if (e.key === 'Escape') $('#modal').classList.remove('on');
+    });
+
+    requestAnimationFrame(frame);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>
