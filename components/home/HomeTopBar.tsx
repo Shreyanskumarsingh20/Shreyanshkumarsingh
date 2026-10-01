@@ -1,9 +1,11 @@
-import Link from "next/link";
+import NavLinks from "@/components/home/NavLinks";
 
 /**
- * The home page's full top bar — desktop nav + the ⌘K command-palette
- * trigger. Purely presentational; HomeInteractions.tsx wires up
- * #cmdkTrigger's click handler after mount (element ids are stable, so the
+ * The home page's full top bar — desktop nav, the ⌘K command-palette
+ * trigger, and (below 980px, where the inline nav is hidden) the hamburger
+ * that opens the same links as an overlay (components/ui/MobileNav.tsx).
+ * Purely presentational; HomeInteractions.tsx wires up #cmdkTrigger's and
+ * #navToggle's click handlers after mount (element ids are stable, so the
  * imperative wiring from the original script ports over unchanged).
  */
 export default function HomeTopBar() {
@@ -19,17 +21,7 @@ export default function HomeTopBar() {
       </div>
       <div className="topbar-right">
         <nav className="topbar-nav">
-          <a href="#range">Range</a>
-          <Link href="/experience">Experience</Link>
-          <a href="#research">Research</a>
-          <a href="#method">Method</a>
-          <a href="#philosophy">Philosophy</a>
-          <a href="#faq">FAQ</a>
-          <a href="#telemetry">Telemetry</a>
-          <a href="#contact">Contact</a>
-          <Link href="/lets-talk" className="topbar-cta">
-            Let&apos;s Talk
-          </Link>
+          <NavLinks />
         </nav>
         <div className="topbar-tools">
           <button
@@ -40,6 +32,18 @@ export default function HomeTopBar() {
           >
             <span className="cmdk-label">Jump to…</span>
             <kbd>⌘K</kbd>
+          </button>
+          <button
+            type="button"
+            className="nav-toggle"
+            id="navToggle"
+            aria-label="Open menu"
+            aria-haspopup="dialog"
+            aria-controls="navOv"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
         </div>
       </div>
