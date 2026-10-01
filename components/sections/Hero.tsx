@@ -59,7 +59,7 @@ export default function Hero() {
               <span></span>
               <span></span>
             </span>
-            <span className="label">Shreyansh Kumar Singh — Engineer</span>
+            <span className="label">Shreyansh Kumar Singh — AI &amp; Full-Stack Engineer · Pune</span>
           </div>
           <h1 className="rise" style={{ transitionDelay: "60ms" }}>
             Nine repositories.

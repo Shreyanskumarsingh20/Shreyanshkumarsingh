@@ -11,22 +11,64 @@ import {
   EXP_HERO_STATS,
   EXP_TECH_GROUPS,
 } from "@/lib/experience";
+import JsonLd from "@/components/JsonLd";
+import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { graph, personNode, websiteNode, breadcrumbs, plain } from "@/lib/jsonld";
+
+const DESCRIPTION =
+  "Shreyansh Kumar Singh — about four years as a full-stack developer at RamanByte, Pune: ASP.NET Web API and SQL Server back ends bound into Angular front ends, shipped to production for real institutions.";
 
 export const metadata: Metadata = {
-  title: "Experience",
-  description:
-    "Shreyansh Kumar Singh — four years as a full-stack developer at RamanByte: .NET / SQL Server APIs bound into Angular front-ends, shipped to production for real institutions.",
+  title: "Experience — Full-Stack .NET & Angular at RamanByte",
+  description: DESCRIPTION,
+  alternates: { canonical: "/experience" },
   openGraph: {
     type: "profile",
+    url: "/experience",
     title: "Experience — Shreyansh Kumar Singh",
     description:
-      "Four years at RamanByte — full-stack .NET + Angular, shipped to production. Case study: PIBM's A Journal of Management.",
+      "About four years at RamanByte — full-stack .NET + Angular, shipped to production. Case study: PIBM's A Journal of Management.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Experience — Shreyansh Kumar Singh",
+    description: DESCRIPTION,
   },
 };
+
+const jsonLd = graph(
+  {
+    "@type": "ProfilePage",
+    "@id": `${SITE_URL}/experience#page`,
+    url: `${SITE_URL}/experience`,
+    name: "Experience — Shreyansh Kumar Singh",
+    description: DESCRIPTION,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: { "@id": PERSON_ID },
+    breadcrumb: breadcrumbs([
+      { name: "Home", path: "/" },
+      { name: "Experience", path: "/experience" },
+    ]),
+    hasPart: EXPERIENCE_CASES.map((c) => ({
+      "@type": "CreativeWork",
+      "@id": `${SITE_URL}/experience#${c.id}`,
+      name: plain(c.title),
+      description: plain(c.line),
+      genre: "Case study",
+      about: c.domain,
+      creator: { "@id": PERSON_ID },
+      keywords: c.stackGroups.flatMap((g) => g.tags).join(", "),
+      ...(c.sideLink ? { url: c.sideLink.href } : {}),
+    })),
+  },
+  personNode,
+  websiteNode,
+);
 
 export default function ExperiencePage() {
   return (
     <>
+      <JsonLd data={jsonLd} />
       <ConstellationBackground />
       <SimpleTopBar backHref="/" backLabel="← Back to the portfolio" variant="exp" />
 
