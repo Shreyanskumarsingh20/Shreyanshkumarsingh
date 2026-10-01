@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { PROJECTS } from "@/lib/projects";
 import { RESEARCH_CASES } from "@/lib/research";
 import { BELIEFS } from "@/lib/beliefs";
+import { scrollToElement } from "@/lib/smooth-scroll";
 
 /**
  * Every imperative, DOM-driven behavior from index.html's original inline
@@ -76,7 +77,7 @@ export default function HomeInteractions() {
       const progress = Math.min(Math.max(-rect.top, 0), total) / total;
       const p = PROJECTS[active];
       hudLine.textContent = `PROJECT ${p.n}/0${N} — ${p.name} · ${p.domain}`;
-      hudBar.style.width = `${Math.round(progress * 100)}%`;
+      hudBar.style.transform = `scaleX(${progress.toFixed(3)})`;
     }
 
     // ==========================================================================
@@ -87,8 +88,11 @@ export default function HomeInteractions() {
       if (reduceMotion || !faqItems.length) return;
       const vh = window.innerHeight;
       const mid = vh / 2;
-      faqItems.forEach((el) => {
-        const r = el.getBoundingClientRect();
+      // measure every item first, then write — interleaving the two forced a
+      // style recalc per item, per scroll frame
+      const rects = faqItems.map((el) => el.getBoundingClientRect());
+      faqItems.forEach((el, i) => {
+        const r = rects[i];
         if (r.bottom < -200 || r.top > vh + 200) return;
         const delta = Math.max(-1, Math.min(1, (r.top + r.height / 2 - mid) / mid));
         el.style.transform = `perspective(900px) rotateX(${(delta * -6).toFixed(2)}deg)`;
@@ -105,7 +109,7 @@ export default function HomeInteractions() {
       const rect = buildStory.getBoundingClientRect();
       const total = rect.height - window.innerHeight * 0.5;
       const progress = total > 0 ? Math.min(Math.max(window.innerHeight * 0.7 - rect.top, 0), total) / total : 0;
-      buildSpineFill.style.height = `${Math.round(progress * 100)}%`;
+      buildSpineFill.style.transform = `scaleY(${progress.toFixed(3)})`;
     }
 
     let ticking = false;
@@ -139,10 +143,13 @@ export default function HomeInteractions() {
     // rides its own observer instance alongside the rest of this effect).
     // ==========================================================================
     const riseEls = document.querySelectorAll<HTMLElement>(".rise");
-    riseEls.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight && r.bottom > 0) el.classList.add("in");
-    });
+    const riseVh = window.innerHeight;
+    [...riseEls]
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top < riseVh && r.bottom > 0;
+      })
+      .forEach((el) => el.classList.add("in")); // all reads, then all writes
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -291,8 +298,8 @@ export default function HomeInteractions() {
       { label: "Contact", href: "#contact" },
     ];
     function scrollToHash(hash: string) {
-      const el = document.querySelector(hash);
-      if (el) el.scrollIntoView({ block: "start" });
+      const el = document.querySelector<HTMLElement>(hash);
+      if (el) scrollToElement(el);
     }
     const ALL_COMMANDS = [
       ...SECTIONS_NAV.map((s) => ({ group: "Jump to", label: s.label, key: "", action: () => scrollToHash(s.href) })),
@@ -673,12 +680,80 @@ export default function HomeInteractions() {
     // FAQ — independent per-item switches
     // ==========================================================================
     const faqCleanups: Array<() => void> = [];
+
+    // Pin #faq's blurred mesh to a pixel box measured at rest (see the #faq
+    // .carrd-mesh rule in globals.css) so answers opening doesn't resize it.
+    const faqSection = document.getElementById("faq");
+    const faqMesh = faqSection?.querySelector<HTMLElement>(".carrd-mesh");
+    let meshW = -1;
+    function pinFaqMesh(force = false) {
+      if (!faqSection || !faqMesh) return;
+      if (!force && window.innerWidth === meshW) return; // mobile URL-bar resizes
+      meshW = window.innerWidth;
+      const h = faqSection.offsetHeight;
+      faqMesh.style.setProperty("--mesh-top", `${Math.round(h * -0.12)}px`);
+      faqMesh.style.setProperty("--mesh-h", `${Math.round(h * 1.24)}px`);
+    }
+    pinFaqMesh(true);
+    const onMeshResize = () => pinFaqMesh();
+    const onMeshLoad = () => pinFaqMesh(true); // late fonts/images can shift height
+    window.addEventListener("resize", onMeshResize);
+    window.addEventListener("load", onMeshLoad);
+    cleanups.push(() => window.removeEventListener("resize", onMeshResize));
+    cleanups.push(() => window.removeEventListener("load", onMeshLoad));
+
+    // Open/close: animate a measured pixel height with WAAPI (compositor-
+    // friendly timing, interruptible mid-flight) and fade/slide the answer
+    // text in, instead of revealing it behind a hard clipping edge.
+    const OPEN_EASE = "cubic-bezier(.22,1,.36,1)"; // ease-out-quint: glides to rest
+    const CLOSE_EASE = "cubic-bezier(.55,0,.35,1)"; // gentle in-out: no snap shut
     document.querySelectorAll<HTMLElement>(".faq-item").forEach((item) => {
       const btn = item.querySelector<HTMLButtonElement>(".faq-q");
-      if (!btn) return;
+      const wrap = item.querySelector<HTMLElement>(".faq-a-wrap");
+      const inner = item.querySelector<HTMLElement>(".faq-a-inner");
+      if (!btn || !wrap || !inner) return;
+      let heightAnim: Animation | null = null;
+      let fadeAnim: Animation | null = null;
       const onFaqClick = () => {
+        // read the live height first, so reversing mid-animation starts from
+        // exactly where the panel is on screen
+        const from = wrap.getBoundingClientRect().height;
+        heightAnim?.cancel();
+        fadeAnim?.cancel();
         const open = item.classList.toggle("open");
         btn.setAttribute("aria-expanded", String(open));
+        if (reduceMotion) return;
+
+        const to = open ? wrap.scrollHeight : 0;
+        const dist = Math.abs(to - from);
+        if (dist < 1) return;
+        // longer answers get a little more time, so speed feels constant
+        const duration = Math.round(Math.min(560, (open ? 300 : 240) + dist * 0.55));
+        heightAnim = wrap.animate([{ height: `${from}px` }, { height: `${to}px` }], {
+          duration,
+          easing: open ? OPEN_EASE : CLOSE_EASE,
+        });
+        fadeAnim = inner.animate(
+          open
+            ? [
+                { opacity: 0, transform: "translateY(-6px)" },
+                { opacity: 1, transform: "none" },
+              ]
+            : [
+                { opacity: 1, transform: "none" },
+                { opacity: 0, transform: "translateY(-4px)" },
+              ],
+          open
+            ? { duration: duration + 60, delay: 50, easing: OPEN_EASE, fill: "backwards" }
+            : { duration: Math.round(duration * 0.6), easing: "ease-out", fill: "forwards" },
+        );
+        heightAnim.onfinish = () => {
+          heightAnim = null;
+          if (!open) {
+            fadeAnim?.cancel();
+            fadeAnim = null;
+          }
+        };
       };
       btn.addEventListener("click", onFaqClick);
       faqCleanups.push(() => btn.removeEventListener("click", onFaqClick));
@@ -885,7 +960,7 @@ export default function HomeInteractions() {
 
         startFieldGame = function () {
           const hero = document.getElementById("top");
-          if (hero) hero.scrollIntoView({ block: "start", behavior: "smooth" });
+          if (hero) scrollToElement(hero);
           gameActive = true;
           gameOver = false;
           blasts = [];

@@ -20,10 +20,13 @@ import { useEffect } from "react";
 export default function RevealObserver() {
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".rise");
-    els.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight && r.bottom > 0) el.classList.add("in");
-    });
+    const vh = window.innerHeight;
+    [...els]
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top < vh && r.bottom > 0;
+      })
+      .forEach((el) => el.classList.add("in")); // all reads, then all writes
 
     const io = new IntersectionObserver(
       (entries) => {

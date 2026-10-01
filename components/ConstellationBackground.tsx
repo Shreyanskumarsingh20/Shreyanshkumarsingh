@@ -24,10 +24,21 @@ export default function ConstellationBackground() {
     let raf = 0;
 
     function resize() {
+      const prevW = w,
+        prevH = h;
       w = canvas!.width = Math.floor(window.innerWidth * dpr);
       h = canvas!.height = Math.floor(window.innerHeight * dpr);
       canvas!.style.width = window.innerWidth + "px";
       canvas!.style.height = window.innerHeight + "px";
+      // height-only resizes are mobile browsers showing/hiding the URL bar
+      // mid-scroll — stretch the existing field instead of re-randomizing
+      // every star, which read as a visible jump
+      if (stars.length && prevW === w && prevH) {
+        const k = h / prevH;
+        stars.forEach((s) => (s.y *= k));
+        if (reduce) draw(0);
+        return;
+      }
       const count = Math.min(60, Math.floor((window.innerWidth * window.innerHeight) / 26000));
       stars = Array.from({ length: count }, () => ({
         x: Math.random() * w,
@@ -36,6 +47,8 @@ export default function ConstellationBackground() {
         phase: Math.random() * Math.PI * 2,
         speed: 0.3 + Math.random() * 0.7,
       }));
+      // no rAF loop under reduced motion — resizing clears the canvas, so redraw
+      if (reduce && prevW) draw(0);
     }
 
     function draw(t: number) {
