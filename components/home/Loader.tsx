@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 
 /**
  * The opening loader — your name signed live in Beau Rivage, a circuit-line
@@ -9,6 +9,8 @@ import { useLayoutEffect } from "react";
  * nothing below depends on it, and it always self-releases.
  */
 export default function Loader() {
+  const [done, setDone] = useState(false);
+
   useLayoutEffect(() => {
     const loader = document.getElementById("loader");
     if (!loader) return;
@@ -54,17 +56,23 @@ export default function Loader() {
       window.scrollTo(0, 0);
       document.body.classList.remove("loading");
       loader!.classList.add("hide");
-      setTimeout(() => {
-        if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-      }, 900);
+      // unmount through React rather than detaching the node by hand —
+      // a manual removeChild leaves React holding a stale node, and it
+      // throws NotFoundError when the page later unmounts on navigation
+      removeT = window.setTimeout(() => setDone(true), 900);
     }
+    let removeT: number | undefined;
     const t = setTimeout(finish, DURATION);
     return () => {
       clearTimeout(t);
+      clearTimeout(removeT);
+      document.body.classList.remove("loading");
       if (tick) clearInterval(tick);
       if (pctTick) clearInterval(pctTick);
     };
   }, []);
+
+  if (done) return null;
 
   return (
     <div className="loader" id="loader" role="status" aria-live="polite" aria-label="Loading THE RANGE">
