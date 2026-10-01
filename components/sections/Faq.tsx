@@ -18,7 +18,8 @@ export default function Faq() {
             <h2 className="rise">FAQ</h2>
             <p className="rise" style={{ transitionDelay: "60ms" }}>
               Direct answers to what recruiters, founders and collaborators
-              ask most about the beliefs above.
+              ask most — who I am, what I&apos;ve built, and how to work
+              with me.
             </p>
           </div>
           <div className="faq-list" id="faqList">

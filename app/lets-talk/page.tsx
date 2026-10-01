@@ -5,22 +5,52 @@ import ConstellationBackground from "@/components/ConstellationBackground";
 import RevealObserver from "@/components/RevealObserver";
 import Toast from "@/components/ui/Toast";
 import LetsTalkInteractions from "@/components/LetsTalkInteractions";
+import JsonLd from "@/components/JsonLd";
+import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { graph, personNode, websiteNode, breadcrumbs } from "@/lib/jsonld";
+
+const DESCRIPTION =
+  "Contact Shreyansh Kumar Singh, AI and full-stack engineer in Pune, India — a direct way to start a real conversation about a system that needs to exist, not a form that goes nowhere.";
 
 export const metadata: Metadata = {
-  title: "Let's Talk",
-  description:
-    "Shreyansh Kumar Singh — a direct way to start a real conversation, not a form that goes nowhere.",
+  title: "Let's Talk — Contact",
+  description: DESCRIPTION,
+  alternates: { canonical: "/lets-talk" },
   openGraph: {
     type: "website",
+    url: "/lets-talk",
     title: "Let's Talk — Shreyansh Kumar Singh",
-    description:
-      "Shreyansh Kumar Singh — a direct way to start a real conversation, not a form that goes nowhere.",
+    description: DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Let's Talk — Shreyansh Kumar Singh",
+    description: DESCRIPTION,
   },
 };
+
+const jsonLd = graph(
+  {
+    "@type": "ContactPage",
+    "@id": `${SITE_URL}/lets-talk#page`,
+    url: `${SITE_URL}/lets-talk`,
+    name: "Let's Talk — Shreyansh Kumar Singh",
+    description: DESCRIPTION,
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": PERSON_ID },
+    breadcrumb: breadcrumbs([
+      { name: "Home", path: "/" },
+      { name: "Let's Talk", path: "/lets-talk" },
+    ]),
+  },
+  personNode,
+  websiteNode,
+);
 
 export default function LetsTalkPage() {
   return (
     <>
+      <JsonLd data={jsonLd} />
       <ConstellationBackground />
       <SimpleTopBar backHref="/#contact" backLabel="← Back to the portfolio" variant="talk" />
 

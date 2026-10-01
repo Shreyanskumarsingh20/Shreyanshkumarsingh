@@ -17,45 +17,91 @@ import ProjectModal from "@/components/ui/ProjectModal";
 import SimModal from "@/components/ui/SimModal";
 import ContactModal from "@/components/ui/ContactModal";
 import Toast from "@/components/ui/Toast";
+import JsonLd from "@/components/JsonLd";
+import { PROJECTS, type Project } from "@/lib/projects";
+import { FAQS } from "@/lib/faqs";
+import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { graph, personNode, websiteNode } from "@/lib/jsonld";
+
+function projectImage(p: Project): string {
+  const a = p.art;
+  if ("img" in a) return a.img;
+  if ("main" in a) return a.main.img;
+  return "/opengraph-image";
+}
+
+const TITLE = "Shreyansh Kumar Singh — AI & Full-Stack Engineer · THE RANGE";
+const DESCRIPTION =
+  "Shreyansh Kumar Singh, AI and full-stack engineer in Pune, India — nine running repositories: RAG for a bank, an autonomous pentest agent, a 3D museum, and four years of production .NET + Angular.";
 
 export const metadata: Metadata = {
-  title: "Shreyansh Kumar Singh — THE RANGE",
-  description:
-    "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
   openGraph: {
-    type: "website",
-    title: "Shreyansh Kumar Singh — THE RANGE",
-    description:
-      "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
-    images: ["/shots/collectors-real.jpg"],
+    type: "profile",
+    url: "/",
+    title: TITLE,
+    description: DESCRIPTION,
+    firstName: "Shreyansh",
+    lastName: "Kumar Singh",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shreyansh Kumar Singh — THE RANGE",
-    description:
-      "Shreyansh Kumar Singh — nine repositories, stacked. A scroll-driven range of real, running work.",
-    images: ["/shots/collectors-real.jpg"],
+    title: TITLE,
+    description: DESCRIPTION,
   },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Shreyansh Kumar Singh",
-  jobTitle: "Engineer",
-  url: "https://github.com/gamersinghxx-creator",
-  sameAs: ["https://github.com/gamersinghxx-creator"],
-  description:
-    "Builds systems that make invisible things legible — blast physics, attack surfaces, a thousand years of art, a bank's document pile.",
-};
+const jsonLd = graph(
+  {
+    "@type": "ProfilePage",
+    "@id": `${SITE_URL}/#profile`,
+    url: SITE_URL,
+    name: TITLE,
+    description: DESCRIPTION,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: { "@id": PERSON_ID },
+    about: { "@id": PERSON_ID },
+    inLanguage: "en",
+  },
+  personNode,
+  websiteNode,
+  {
+    "@type": "ItemList",
+    "@id": `${SITE_URL}/#range`,
+    name: "THE RANGE — projects by Shreyansh Kumar Singh",
+    numberOfItems: PROJECTS.length,
+    itemListElement: PROJECTS.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "SoftwareSourceCode",
+        name: p.name,
+        description: p.line,
+        applicationCategory: p.domain,
+        programmingLanguage: p.stack,
+        author: { "@id": PERSON_ID },
+        image: `${SITE_URL}${projectImage(p)}`,
+        ...(p.url ? { codeRepository: p.url, url: p.url } : {}),
+      },
+    })),
+  },
+  {
+    "@type": "FAQPage",
+    "@id": `${SITE_URL}/#faq`,
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  },
+);
 
 export default function HomePage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       {/* background particle field — real gravity/cursor physics, fixed behind
           the whole page, visible in every gap between opaque sections. */}

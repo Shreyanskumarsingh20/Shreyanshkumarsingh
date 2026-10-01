@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+
+// matches the .lightbox.closing animation in globals.css
+const EXIT_MS = 200;
 
 export default function Lightbox({
   src,
@@ -14,26 +17,40 @@ export default function Lightbox({
   phone?: boolean;
   onClose: () => void;
 }) {
+  const [closing, setClosing] = useState(false);
+  const exitTimer = useRef<number | undefined>(undefined);
+
+  // play the exit animation first, then let the parent unmount us
+  const close = useCallback(() => {
+    if (exitTimer.current !== undefined) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return onClose();
+    setClosing(true);
+    exitTimer.current = window.setTimeout(onClose, EXIT_MS);
+  }, [onClose]);
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") close();
     };
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", onKey);
     };
-  }, [onClose]);
+  }, [close]);
+
+  useEffect(() => () => clearTimeout(exitTimer.current), []);
 
   return (
     <div
-      className={phone ? "lightbox phone" : "lightbox"}
+      className={`lightbox${phone ? " phone" : ""}${closing ? " closing" : ""}`}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) close();
       }}
     >
-      <button className="lightbox-close" aria-label="Close" onClick={onClose}>
+      <button className="lightbox-close" aria-label="Close" onClick={close}>
         &times;
       </button>
       <Image
