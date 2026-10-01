@@ -11,6 +11,7 @@ import Philosophy from "@/components/sections/Philosophy";
 import Faq from "@/components/sections/Faq";
 import Telemetry from "@/components/sections/Telemetry";
 import Contact from "@/components/sections/Contact";
+import MobileNav from "@/components/ui/MobileNav";
 import CommandPalette from "@/components/ui/CommandPalette";
 import Terminal from "@/components/ui/Terminal";
 import ProjectModal from "@/components/ui/ProjectModal";
@@ -128,6 +129,7 @@ export default function HomePage() {
       <Telemetry />
       <Contact />
 
+      <MobileNav />
       <CommandPalette />
       <Terminal />
       <ProjectModal />

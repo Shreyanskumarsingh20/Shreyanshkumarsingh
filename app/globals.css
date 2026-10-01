@@ -56,12 +56,12 @@ body{
 a{color:inherit;}
 img{max-width:100%;}
 .mono{font-family:var(--font-jetbrains-mono),ui-monospace,monospace;}
-.shell{width:100%; max-width:1320px; margin-inline:auto; padding-inline:clamp(20px,5vw,80px);}
+.shell{--shell-max:1320px; --gutter:clamp(20px,5vw,80px); width:100%; max-width:var(--shell-max); margin-inline:auto; padding-inline:var(--gutter);}
 /* per-page width overrides — index.html/experience.html/lets-talk.html each
    used a differently-capped .shell (1320 / 1180 / 900px); same class, three
    caps, so the narrower pages add one of these alongside "shell". */
-.shell--exp{max-width:1180px;}
-.shell--talk{max-width:900px;}
+.shell--exp{--shell-max:1180px;}
+.shell--talk{--shell-max:900px;}
 .measure{max-width:60ch;}
 .upper{text-transform:uppercase;}
 .label{font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--steel);}
@@ -130,7 +130,7 @@ img{max-width:100%;}
 }
 .topbar--exp{width:min(calc(100% - 32px), 1180px);}
 .topbar--talk{width:min(calc(100% - 32px), 900px);}
-.topbar-id{display:flex; align-items:center; gap:12px; font-size:13px; font-weight:600; letter-spacing:.04em; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.topbar-id{display:flex; align-items:center; gap:12px; min-width:0; font-size:13px; font-weight:600; letter-spacing:.04em; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 @media(max-width:480px){ .topbar-id{ font-size:11px; gap:8px; } }
 .topbar-right{display:flex; align-items:center; gap:20px;}
 .topbar-nav{display:none; gap:20px;}
@@ -139,8 +139,15 @@ img{max-width:100%;}
 .topbar-cta:hover{ color:var(--gold-dark) !important; }
 .topbar-nav a{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--steel); text-decoration:none; transition:color .3s var(--ease);}
 .topbar-nav a:hover{color:var(--gold);}
-.topbar-back{font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--steel); text-decoration:none; transition:color .3s var(--ease);}
+.topbar-back{flex:none; margin-left:12px; white-space:nowrap; font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--steel); text-decoration:none; transition:color .3s var(--ease);}
 .topbar-back:hover{color:var(--gold);}
+/* on a phone the wordmark and the back link don't both fit at full size:
+   the link stays on one line and shrinks, then drops to just "← Back" */
+@media(max-width:480px){ .topbar-back{ font-size:10px; letter-spacing:.03em; } }
+@media(max-width:400px){
+  .topbar-back{ font-size:11.5px; letter-spacing:.06em; }
+  .topbar-back-tail{ display:none; }
+}
 
 /* live position readout — only visible while inside the stack */
 .hud{
@@ -933,7 +940,11 @@ body.loading{ overflow:hidden; }
 .loader-sig-wrap{ position:relative; display:inline-flex; max-width:100%; }
 .loader-sig-text{
   font-family:var(--font-beau-rivage), var(--font-italianno), cursive; font-weight:400; line-height:1.3;
-  font-size:clamp(3.4rem, 12vw, 7.6rem); white-space:nowrap; padding:0 .15em;
+  /* the signature is one unbreakable line ≈7.7em wide (padding included), so
+     the second term caps the size at whatever fits the screen with ~32px to
+     spare each side — below ~630px the old 3.4rem floor ran the surname off
+     the right edge of a phone */
+  font-size:min(clamp(3.4rem, 12vw, 7.6rem), calc((100vw - 64px) / 7.7)); white-space:nowrap; padding:0 .15em;
   background:linear-gradient(115deg, #90e0ef 0%, #ffffff 50%, #d8f4fb 100%);
   -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
   filter:drop-shadow(0 0 20px rgba(144,224,239,.4));
@@ -1010,6 +1021,20 @@ body.modal-open{ overflow:hidden; }
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); color:var(--steel);
 }
 
+/* hamburger — stands in for .topbar-nav below 980px, opening the same links
+   as an overlay (#navOv). ::after pads the tap target out past the 34px box. */
+.nav-toggle{
+  position:relative; display:flex; flex-direction:column; justify-content:center; gap:4px;
+  width:40px; height:34px; padding:0 11px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:9px;
+  cursor:pointer; transition:border-color .3s var(--ease);
+}
+.nav-toggle::after{ content:""; position:absolute; inset:-7px; }
+.nav-toggle span{ display:block; height:1.5px; border-radius:1px; background:var(--steel); transition:background-color .3s var(--ease); }
+.nav-toggle:hover{ border-color:rgba(255,255,255,.25); }
+.nav-toggle:hover span{ background:var(--white); }
+@media(min-width:980px){ .nav-toggle{ display:none; } }
+
 .ov{
   position:fixed; inset:0; z-index:500; display:flex; align-items:flex-start; justify-content:center;
   padding:12vh 16px 16px; background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
@@ -1023,6 +1048,16 @@ body.modal-open{ overflow:hidden; }
   transform:translateY(-10px) scale(.98); transition:transform .25s var(--ease);
 }
 .ov.on .ov-panel{ transform:none; }
+
+.nav-panel{ max-width:420px; max-height:82vh; padding:22px 22px 10px; position:relative; }
+.nav-list{ display:flex; flex-direction:column; min-height:0; overflow-y:auto; margin-top:12px; }
+.nav-list a{
+  display:flex; align-items:center; flex:none; min-height:48px; border-top:1px solid rgba(255,255,255,.07);
+  font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#d8d8d8; text-decoration:none;
+  transition:color .3s var(--ease);
+}
+.nav-list a:first-child{ border-top:0; }
+.nav-list a:hover{ color:var(--gold); }
 
 .cmdk-input-row{ display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.08); flex:none; }
 .cmdk-input-row svg{ width:16px; height:16px; flex:none; opacity:.5; }
@@ -1295,8 +1330,11 @@ body.modal-open{ overflow:hidden; }
 }
 .lightbox-close:hover{ background:rgba(255,255,255,.16); }
 
-.case-cols{ display:grid; grid-template-columns:1fr; gap:var(--lg); }
-@media(min-width:900px){ .case-cols{ grid-template-columns:1.5fr 1fr; gap:var(--xl); align-items:start; } }
+/* minmax(0,…) rather than bare fr: a bare 1fr track grows to its widest
+   unbreakable content (a hostname in .nums), pushing the column past a
+   phone's viewport */
+.case-cols{ display:grid; grid-template-columns:minmax(0,1fr); gap:var(--lg); }
+@media(min-width:900px){ .case-cols{ grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:var(--xl); align-items:start; } }
 .case-about p{ font-size:14.5px; line-height:1.78; color:var(--ash); margin:0 0 14px; max-width:56ch; }
 .case-about p b{ color:#e2e2e2; font-weight:600; }
 .case-sub{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin:0 0 20px; }
@@ -1313,10 +1351,17 @@ body.modal-open{ overflow:hidden; }
 .stack-group .label{ margin-bottom:10px; display:block; }
 .stack-tags{ display:flex; flex-wrap:wrap; gap:7px; }
 .stack-tags span{ font-size:11.5px; font-family:var(--font-jetbrains-mono),monospace; padding:5px 10px; border-radius:5px; background:rgba(255,255,255,.05); color:#cfcfcf; border:1px solid rgba(255,255,255,.08); }
-.nums{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.nums{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
 .nums div{ background:var(--black); padding:16px 16px; }
 .nums .v{ font-size:1.3rem; font-weight:500; font-family:var(--font-jetbrains-mono),monospace; letter-spacing:-.01em; }
-.nums .k{ margin-top:5px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--steel); line-height:1.4; }
+.nums .k{ margin-top:5px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--steel); line-height:1.4; overflow-wrap:anywhere; }
+/* phones: one stat per row — two columns leave ~70px of text, which breaks
+   words mid-syllable. .v/.k also inherit the cell padding from `.nums div`;
+   dropped here so the stacked cells stay compact. */
+@media(max-width:480px){
+  .nums{ grid-template-columns:minmax(0,1fr); }
+  .nums .v,.nums .k{ padding:0; }
+}
 
 .more{ padding:var(--xxl) 0; border-top:1px solid var(--line); }
 .more h2{ font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--steel); margin:0 0 12px; }
@@ -1377,7 +1422,9 @@ body.modal-open{ overflow:hidden; }
 }
 @keyframes talk-breathe{ 0%,100%{ transform:scale(.9); opacity:.6; } 50%{ transform:scale(1.12); opacity:1; } }
 .talk-kicker{ font-size:11px; letter-spacing:.3em; color:var(--gold); margin:0 0 20px; }
-.talk-h1{ font-size:clamp(2.6rem,7vw,5.2rem); font-weight:400; text-transform:uppercase; line-height:.98; margin:0 0 24px; letter-spacing:-.01em; }
+/* min(11vw, …) only bites below ~378px, where "CONVERSATION." at the 2.6rem
+   floor is wider than the column */
+.talk-h1{ font-size:min(11vw, clamp(2.6rem,7vw,5.2rem)); font-weight:400; text-transform:uppercase; line-height:.98; margin:0 0 24px; letter-spacing:-.01em; }
 .talk-h1 .dim{ color:var(--steel); }
 .talk-thesis{ font-size:clamp(15px,1.6vw,17px); line-height:1.8; color:#b8b8b8; max-width:56ch; margin:0; }
 
@@ -1419,7 +1466,7 @@ body.modal-open{ overflow:hidden; }
 .talk-sign{ padding:var(--xxl) 0 var(--xl); border-top:1px solid var(--line); text-align:center; }
 .talk-sign-text{
   font-family:var(--font-beau-rivage), cursive; font-weight:400; line-height:1.3;
-  font-size:clamp(2.6rem, 9vw, 5.4rem); white-space:nowrap; display:inline-block;
+  font-size:min(12.5vw, clamp(2.6rem, 9vw, 5.4rem)); white-space:nowrap; display:inline-block; /* 12.5vw: fits the one-line signature inside the gutters at 320px */
   background:linear-gradient(115deg, #90e0ef 0%, #ffffff 50%, #d8f4fb 100%);
   -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
   filter:drop-shadow(0 0 20px rgba(144,224,239,.35));
@@ -1428,4 +1475,18 @@ body.modal-open{ overflow:hidden; }
 
 @media(prefers-reduced-motion: reduce){
   .talk-glow{transform:scale(1); opacity:.7;}
+}
+
+/* ============================================================================
+   SIDE GUTTERS — /experience and /lets-talk. Their sections sit on the same
+   element as .shell, and each one's `padding:… 0` shorthand wipes .shell's
+   side padding. Above the shell's max-width the auto margins hide that; below
+   it the text ran flush against the screen edges. This hands the gutter back,
+   tapering to 0 as those margins take over, so the wide layout is unchanged.
+   Last in the file on purpose — it has to follow the shorthands it corrects.
+   ========================================================================= */
+.exp-co,.exp-method,.xp-case,.more,.tech,.exp-sign,
+.talk-start,.talk-good,.talk-how,.talk-reach,.talk-sign,
+.simple-footer{
+  padding-inline:clamp(0px, calc((var(--shell-max) + 2 * var(--gutter) - 100vw) / 2), var(--gutter));
 }

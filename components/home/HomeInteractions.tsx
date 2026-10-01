@@ -303,6 +303,13 @@ export default function HomeInteractions() {
     }
     const ALL_COMMANDS = [
       ...SECTIONS_NAV.map((s) => ({ group: "Jump to", label: s.label, key: "", action: () => scrollToHash(s.href) })),
+      {
+        group: "Jump to",
+        label: "Experience",
+        key: "↗",
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- see "What I'm building right now" below
+        action: () => (window.location.href = "/experience"),
+      },
       ...PROJECTS.map((p) => ({
         group: "Projects",
         label: p.name,
@@ -448,6 +455,34 @@ export default function HomeInteractions() {
     };
     cmdkListEl?.addEventListener("click", onCmdkListClick);
     cleanups.push(() => cmdkListEl?.removeEventListener("click", onCmdkListClick));
+
+    // ==========================================================================
+    // MOBILE NAV — the hamburger's overlay, standing in for the top bar's
+    // inline nav below 980px. A tapped link closes the overlay first, so the
+    // section jump / route change never runs against a scroll-locked <body>
+    // (and body.modal-open can't outlive this page on a client-side nav).
+    // ==========================================================================
+    const navOv = document.getElementById("navOv");
+    const navToggle = document.getElementById("navToggle");
+    const openNav = () => {
+      openOverlay(navOv);
+      const t = window.setTimeout(() => navOv?.querySelector<HTMLElement>("a")?.focus(), 40);
+      timers.push(t);
+    };
+    navToggle?.addEventListener("click", openNav);
+    cleanups.push(() => navToggle?.removeEventListener("click", openNav));
+    const onNavLinkClick = (e: Event) => {
+      if ((e.target as HTMLElement).closest("a")) closeAllOverlays();
+    };
+    navOv?.addEventListener("click", onNavLinkClick);
+    cleanups.push(() => navOv?.removeEventListener("click", onNavLinkClick));
+    // the hamburger disappears at 980px — don't leave its menu open behind it
+    const wideMq = window.matchMedia("(min-width: 980px)");
+    const onWide = () => {
+      if (wideMq.matches && navOv?.classList.contains("on")) closeAllOverlays();
+    };
+    wideMq.addEventListener("change", onWide);
+    cleanups.push(() => wideMq.removeEventListener("change", onWide));
 
     // ==========================================================================
     // TERMINAL

@@ -52,7 +52,7 @@ export default function LetsTalkPage() {
     <>
       <JsonLd data={jsonLd} />
       <ConstellationBackground />
-      <SimpleTopBar backHref="/#contact" backLabel="← Back to the portfolio" variant="talk" />
+      <SimpleTopBar backHref="/#contact" backLabel="← Back" backLabelTail=" to the portfolio" variant="talk" />
 
       {/* ============================================================ HERO */}
       <section className="talk-hero">

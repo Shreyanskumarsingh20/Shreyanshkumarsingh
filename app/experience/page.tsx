@@ -70,7 +70,7 @@ export default function ExperiencePage() {
     <>
       <JsonLd data={jsonLd} />
       <ConstellationBackground />
-      <SimpleTopBar backHref="/" backLabel="← Back to the portfolio" variant="exp" />
+      <SimpleTopBar backHref="/" backLabel="← Back" backLabelTail=" to the portfolio" variant="exp" />
 
       {/* ============================================================ HERO */}
       <section className="exp-hero">
