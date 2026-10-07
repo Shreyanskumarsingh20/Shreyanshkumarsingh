@@ -39,7 +39,9 @@ export default function Hero() {
         </div>
         <div className="field-over" id="fieldOver">
           <div className="field-over-card">
-            <h4>Caught in the blast</h4>
+            {/* not a heading — it's a game-over overlay, and as an <h4> it
+                was the first heading in the raw HTML, ahead of the <h1> */}
+            <p className="field-over-title">Caught in the blast</p>
             <p id="fieldOverStat">Survived 0.0s</p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <button type="button" className="btn btn-gold cut-sm" id="fieldRetry">
@@ -62,6 +64,9 @@ export default function Hero() {
             <span className="label">Shreyansh Kumar Singh — AI &amp; Full-Stack Engineer · Pune</span>
           </div>
           <h1 className="rise" style={{ transitionDelay: "60ms" }}>
+            {/* the name is already visible in the eyebrow above; repeating it
+                inside the h1 ties the page's one heading to the person */}
+            <span className="sr-only">Shreyansh Kumar Singh, AI &amp; full-stack engineer in Pune: </span>
             Nine repositories.
             <br />
             <span className="dim">One stack.</span>

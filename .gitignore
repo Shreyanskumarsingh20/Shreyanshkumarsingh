@@ -22,6 +22,10 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# research notes and reports (working material, not part of the site)
+/research_notes/
+/reports/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -13,7 +13,6 @@ function title(name: string) {
     .toLowerCase()
     .replace(/(^|[\s:—-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase())
     .replace(/\bAi\b/g, "AI")
-    .replace(/\bIdbi\b/g, "IDBI")
     .replace(/\bVaultiq\b/g, "VaultIQ")
     .replace(/\bHallogenai\b/g, "HallogenAI");
 }

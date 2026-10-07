@@ -16,7 +16,7 @@ export const FAQS: Faq[] = [
   },
   {
     q: "What AI systems has Shreyansh built?",
-    a: "I've built four AI systems where the model is load-bearing, not decorative: IDBI Sarthi, Nythera, HallogenAI and BookVerse AI. IDBI Sarthi is production RAG and document intelligence for a bank, followed by a written audit of its own P0 holes. Nythera is an autonomous penetration-testing platform that validates every finding before it reports it. HallogenAI uses eight specialized agents to re-verify reported bugs against live application behavior. BookVerse AI turns any book into summaries, timelines, mind maps and a grounded tutor — with zero API keys required.",
+    a: "I've built four AI systems where the model is load-bearing, not decorative: Sarthi, Nythera, HallogenAI and BookVerse AI. Sarthi is an AI relationship-manager copilot for banking — RAG and document intelligence — followed by a written audit of its own P0 holes. Nythera is an autonomous penetration-testing platform that validates every finding before it reports it. HallogenAI uses eight specialized agents to re-verify reported bugs against live application behavior. BookVerse AI turns any book into summaries, timelines, mind maps and a grounded tutor — with zero API keys required.",
   },
   {
     q: "What does Shreyansh do at RamanByte?",
@@ -28,19 +28,19 @@ export const FAQS: Faq[] = [
   },
   {
     q: "Has Shreyansh shipped production software?",
-    a: "Yes — about four years of production software at RamanByte, plus production RAG built for a bank. At RamanByte my code runs for real institutions: PIBM's journal portal is live on the institution's own domain, and the Classroom+ apps were built for the admins, faculty and students who run on them. The personal repositories are where I push into newer ground: agents, security tooling, 3D and simulation.",
+    a: "Yes — about four years of production software at RamanByte, alongside independent AI systems like Sarthi, a RAG copilot for banking. At RamanByte my code runs for real institutions: PIBM's journal portal is live on the institution's own domain, and the Classroom+ apps were built for the admins, faculty and students who run on them. The personal repositories are where I push into newer ground: agents, security tooling, 3D and simulation.",
   },
   {
     q: "How does Shreyansh approach building software?",
-    a: "I write the specification before the code, then try to break what I built. Before any code exists I write down what the thing is, what it looks like, and what \"done\" means — every repository on this site ships one. Once it's built, it gets attacked like an outsider, run without its safety nets. IDBI Sarthi's self-published P0 audit and Nythera's validated-only findings are that discipline in practice, not a slide about it.",
+    a: "I write the specification before the code, then try to break what I built. Before any code exists I write down what the thing is, what it looks like, and what \"done\" means — every repository on this site ships one. Once it's built, it gets attacked like an outsider, run without its safety nets. Sarthi's self-published P0 audit and Nythera's validated-only findings are that discipline in practice, not a slide about it.",
   },
   {
     q: "How is Shreyansh's AI work different from a chatbot wrapper?",
-    a: "The model is infrastructure, not a plugin bolted onto a finished product. I design the system assuming a model sits inside the loop from day one — IDBI Sarthi's four-stage RAG pipeline keeps every stage independently inspectable and replaceable, and Nythera checks its own findings through an agent loop before reporting them. The model's output is then reviewed and audited like any other engineer's code.",
+    a: "The model is infrastructure, not a plugin bolted onto a finished product. I design the system assuming a model sits inside the loop from day one — Sarthi's four-stage RAG pipeline keeps every stage independently inspectable and replaceable, and Nythera checks its own findings through an agent loop before reporting them. The model's output is then reviewed and audited like any other engineer's code.",
   },
   {
     q: "What kind of projects is Shreyansh a good fit for?",
-    a: "Five kinds of project, each backed by a shipped repository: security you want proven rather than assumed (Nythera); AI that has to understand documents, not just keyword-search them (IDBI Sarthi, BookVerse AI); 3D experiences on the web that are actually walkable (Antarang); enterprise systems in Clean Architecture built to survive a second client (VaultIQ); and QA where \"fixed\" is verified against live behavior, not a closed ticket (HallogenAI).",
+    a: "Five kinds of project, each backed by a shipped repository: security you want proven rather than assumed (Nythera); AI that has to understand documents, not just keyword-search them (Sarthi, BookVerse AI); 3D experiences on the web that are actually walkable (Antarang); enterprise systems in Clean Architecture built to survive a second client (VaultIQ); and QA where \"fixed\" is verified against live behavior, not a closed ticket (HallogenAI).",
   },
   {
     q: "Why is the portfolio called THE RANGE?",
@@ -48,6 +48,6 @@ export const FAQS: Faq[] = [
   },
   {
     q: "How can I contact Shreyansh Kumar Singh?",
-    a: "Email shreyanshkumarsingh208@gmail.com, or start from the Let's Talk page. The most useful first message covers three things: what's actually broken, what you've already tried, and what \"done\" looks like. Source code for every project is on GitHub at github.com/gamersinghxx-creator.",
+    a: "Email shreyanshkumarsingh208@gmail.com, or start from the Let's Talk page. The most useful first message covers three things: what's actually broken, what you've already tried, and what \"done\" looks like. Source code for the projects is on GitHub at github.com/Shreyanskumarsingh20.",
   },
 ];

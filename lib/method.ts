@@ -92,7 +92,7 @@ export const METHOD_ACTS: MethodAct[] = [
       {
         n: "04",
         title: "Audit your own work like an adversary",
-        body: "IDBI SARTHI ships a full static self-review, graded P0 to P3, most damaging finding written first.",
+        body: "SARTHI ships a full static self-review, graded P0 to P3, most damaging finding written first.",
         ev: "QA_AUDIT.md",
       },
       {
@@ -105,7 +105,7 @@ export const METHOD_ACTS: MethodAct[] = [
         n: "06",
         title: "Choose the tool for the problem",
         body: "Vanilla canvas physics. Python security tooling. R3F galleries. Next.js RAG. ASP.NET Clean Architecture. A canvas frame-sequence scrubbed to scroll instead of a video element. The range is deliberate.",
-        ev: "7 repositories · TS · JS · Python · C# · WebGL",
+        ev: "9 repositories · TS · JS · Python · C# · WebGL",
       },
     ],
   },

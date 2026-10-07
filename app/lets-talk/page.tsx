@@ -6,7 +6,7 @@ import RevealObserver from "@/components/RevealObserver";
 import Toast from "@/components/ui/Toast";
 import LetsTalkInteractions from "@/components/LetsTalkInteractions";
 import JsonLd from "@/components/JsonLd";
-import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { SITE_URL, PERSON, PERSON_ID, WEBSITE_ID, GITHUB_USER } from "@/lib/site";
 import { graph, personNode, websiteNode, breadcrumbs } from "@/lib/jsonld";
 
 const DESCRIPTION =
@@ -114,7 +114,7 @@ export default function LetsTalkPage() {
           </div>
           <div className="talk-good-card rise" style={{ transitionDelay: "120ms" }}>
             <b>AI that has to understand, not just search</b>
-            <span>A pile of documents or a workflow that needs real context, not a keyword match — the RAG work behind IDBI SARTHI and BookVerse AI.</span>
+            <span>A pile of documents or a workflow that needs real context, not a keyword match — the RAG work behind Sarthi and BookVerse AI.</span>
           </div>
           <div className="talk-good-card rise" style={{ transitionDelay: "180ms" }}>
             <b>Something that needs to be walkable</b>
@@ -162,7 +162,7 @@ export default function LetsTalkPage() {
         </div>
         <p className="talk-how-link rise" style={{ transitionDelay: "240ms" }}>
           Not just words — see the process in{" "}
-          <Link href="/#method">Method</Link>, and see it applied across eight
+          <Link href="/#method">Method</Link>, and see it applied across nine
           real repositories in <Link href="/#range">The Range</Link>.
         </p>
       </section>
@@ -189,8 +189,8 @@ export default function LetsTalkPage() {
           </h2>
           <p className="rise" style={{ transitionDelay: "120ms" }}>
             <b>GitHub —</b>{" "}
-            <a href="https://github.com/gamersinghxx-creator" target="_blank" rel="noopener">
-              gamersinghxx-creator
+            <a href={PERSON.github} target="_blank" rel="noopener">
+              {GITHUB_USER}
             </a>
             , every repository referenced on this site, source-visible.
           </p>

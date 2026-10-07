@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   // set NEXT_PUBLIC_SITE_URL at deploy time — see lib/site.ts
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Shreyansh Kumar Singh — AI & Full-Stack Engineer · THE RANGE",
+    default: "Shreyansh Kumar Singh — Applied AI & Full-Stack Engineer, Pune",
     template: "%s — Shreyansh Kumar Singh",
   },
   description: SUMMARY,
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "/",
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", creator: PERSON.xHandle },
   formatDetection: { email: false, telephone: false, address: false },
   icons: {
     icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23000'/%3E%3Cg fill='%23FFC000'%3E%3Crect x='4' y='11' width='3' height='9'/%3E%3Crect x='10.5' y='6' width='3' height='14'/%3E%3Crect x='17' y='9' width='3' height='11'/%3E%3C/g%3E%3C/svg%3E",

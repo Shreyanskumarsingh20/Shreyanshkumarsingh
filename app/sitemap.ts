@@ -3,6 +3,17 @@ import { SITE_URL } from "@/lib/site";
 import { PROJECTS } from "@/lib/projects";
 import { EXPERIENCE_CASES } from "@/lib/experience";
 
+// lastModified is the date the page's *content* last changed — never the
+// build time. Google only trusts <lastmod> when it's "consistently and
+// verifiably accurate"; stamping every URL with new Date() on each deploy
+// teaches it to ignore the field. changefreq/priority are omitted because
+// Google ignores both. Bump a date here when that page's content changes.
+const UPDATED = {
+  home: "2026-10-07",
+  experience: "2026-10-07",
+  letsTalk: "2026-10-07",
+} as const;
+
 function projectImages(): string[] {
   return PROJECTS.flatMap((p) => {
     const a = p.art;
@@ -23,27 +34,9 @@ function experienceImages(): string[] {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
   return [
-    {
-      url: SITE_URL,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 1,
-      images: projectImages(),
-    },
-    {
-      url: `${SITE_URL}/experience`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-      images: experienceImages(),
-    },
-    {
-      url: `${SITE_URL}/lets-talk`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
+    { url: SITE_URL, lastModified: UPDATED.home, images: projectImages() },
+    { url: `${SITE_URL}/experience`, lastModified: UPDATED.experience, images: experienceImages() },
+    { url: `${SITE_URL}/lets-talk`, lastModified: UPDATED.letsTalk },
   ];
 }

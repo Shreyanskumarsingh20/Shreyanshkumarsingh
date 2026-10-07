@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PERSON, GITHUB_USER } from "@/lib/site";
 
 /**
  * CONTACT — the footer. Uses `.site-footer` (not a bare `footer{}` element
@@ -43,11 +44,11 @@ export default function Contact() {
           </button>
           <a
             className="btn btn-ghost"
-            href="https://github.com/gamersinghxx-creator"
+            href={PERSON.github}
             target="_blank"
             rel="noopener"
           >
-            GitHub — gamersinghxx-creator
+            GitHub — {GITHUB_USER}
           </a>
           <button type="button" className="btn btn-ghost" id="printTrigger">
             Résumé (PDF) ↓

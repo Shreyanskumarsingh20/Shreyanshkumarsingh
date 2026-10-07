@@ -1,7 +1,8 @@
 # THE RANGE
 
-A scroll-driven portfolio for Ansh (Shreyansh Kumar Singh) — Next.js App
-Router, TypeScript, Tailwind CSS.
+The portfolio of Shreyansh Kumar Singh, AI & full-stack engineer in Pune —
+Next.js App Router, TypeScript, Tailwind CSS. Live at
+https://www.shreyanshkumarsingh.com.
 
 ## Run it
 

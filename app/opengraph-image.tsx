@@ -8,6 +8,6 @@ export default function Image() {
   return renderOg({
     kicker: "THE RANGE",
     headline: "Nine repositories. One stack.",
-    sub: "RAG for a bank, an autonomous pentest agent, a 3D museum — and four years of production .NET + Angular.",
+    sub: "A RAG copilot for banking, an autonomous pentest agent, a 3D museum — and four years of production .NET + Angular.",
   });
 }

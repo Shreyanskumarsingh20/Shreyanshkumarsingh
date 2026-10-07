@@ -12,7 +12,7 @@ export default function Terminal() {
           <i></i>
           <i></i>
           <i></i>
-          <span>ansh@the-range — zsh</span>
+          <span>shreyansh@the-range — zsh</span>
         </div>
         <div className="term-log" id="termLog">
           <div className="out">

@@ -5,6 +5,7 @@ import { PROJECTS } from "@/lib/projects";
 import { RESEARCH_CASES } from "@/lib/research";
 import { BELIEFS } from "@/lib/beliefs";
 import { scrollToElement } from "@/lib/smooth-scroll";
+import { GITHUB_URL } from "@/lib/site";
 
 /**
  * Every imperative, DOM-driven behavior from index.html's original inline
@@ -371,7 +372,7 @@ export default function HomeInteractions() {
         group: "Actions",
         label: "Open GitHub profile",
         key: "↗",
-        action: () => window.open("https://github.com/gamersinghxx-creator", "_blank", "noopener"),
+        action: () => window.open(GITHUB_URL, "_blank", "noopener"),
       },
       { group: "Actions", label: "Open terminal", key: "`", action: () => openTerminal() },
       { group: "Actions", label: "Save résumé as PDF", key: "", action: () => window.print() },

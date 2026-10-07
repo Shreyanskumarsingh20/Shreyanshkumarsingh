@@ -2,6 +2,7 @@ import { PROJECTS } from "@/lib/projects";
 import { RESEARCH_CASES } from "@/lib/research";
 import ProjectCardArt from "@/components/home/ProjectCardArt";
 import type { CSSVarStyle } from "@/lib/css-vars";
+import { onColor } from "@/lib/color";
 
 /**
  * THE RANGE — sticky-stacking cards. The stacking mechanic itself is pure
@@ -37,7 +38,7 @@ export default function Range() {
               key={p.n}
               className="stack-card"
               id={`project-${p.n}`}
-              style={{ "--accent": p.accent, "--k": i } as CSSVarStyle}
+              style={{ "--accent": p.accent, "--on-accent": onColor(p.accent), "--k": i } as CSSVarStyle}
             >
               <div className="stack-card-inner">
                 <div className="stack-left">
@@ -70,7 +71,7 @@ export default function Range() {
                         <span>View repository →</span>
                       </a>
                     ) : (
-                      <span className="badge">Not yet public</span>
+                      <span className="badge">{p.sourceNote ?? "Not yet public"}</span>
                     )}
                     {caseHref && (
                       <a className="btn btn-ghost" href={caseHref}>

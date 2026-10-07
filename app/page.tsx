@@ -31,9 +31,9 @@ function projectImage(p: Project): string {
   return "/opengraph-image";
 }
 
-const TITLE = "Shreyansh Kumar Singh — AI & Full-Stack Engineer · THE RANGE";
+const TITLE = "Shreyansh Kumar Singh — Applied AI & Full-Stack Engineer, Pune";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh, AI and full-stack engineer in Pune, India — nine running repositories: RAG for a bank, an autonomous pentest agent, a 3D museum, and four years of production .NET + Angular.";
+  "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India: a RAG copilot for banking, an autonomous pentest agent, a 3D museum, and four years of production .NET and Angular.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -119,14 +119,16 @@ export default function HomePage() {
         </div>
       </div>
 
-      <Hero />
-      <Build />
-      <Range />
-      <Research />
-      <Method />
-      <Philosophy />
-      <Faq />
-      <Telemetry />
+      <main id="main">
+        <Hero />
+        <Build />
+        <Range />
+        <Research />
+        <Method />
+        <Philosophy />
+        <Faq />
+        <Telemetry />
+      </main>
       <Contact />
 
       <MobileNav />

@@ -1,4 +1,6 @@
-// THE RANGE — the 7+2 project cards. Every field traces back to the
+import { repo } from "@/lib/site";
+
+// THE RANGE — the nine project cards. Every field traces back to the
 // project's own real repository/design tokens (see RESEARCH.md /
 // CHANGELOG.md for provenance) — nothing here is invented.
 
@@ -56,6 +58,8 @@ export type Project = {
   figs: [string, string][];
   stack: string[];
   url: string | null;
+  /** shown instead of the repo button when `url` is null */
+  sourceNote?: string;
   art: ProjectArt;
 };
 
@@ -74,7 +78,7 @@ export const PROJECTS: Project[] = [
       ["6", "Spec docs shipped"],
     ],
     stack: ["Next.js 16", "React 19", "TypeScript", "Tailwind v4", "Gemini"],
-    url: "https://github.com/gamersinghxx-creator/the-collectors-pulse",
+    url: repo("the-collectors-pulse"),
     art: {
       kind: "scrollable",
       chromeLabel: "thecollectorshub — newsroom, live",
@@ -98,7 +102,7 @@ export const PROJECTS: Project[] = [
       ["1", "Default-off internal mode"],
     ],
     stack: ["Python", "Async HTTP", "LLM agent loop", "Docker"],
-    url: "https://github.com/gamersinghxx-creator/Nythera",
+    url: repo("Nythera"),
     art: {
       kind: "scrollable",
       chromeLabel: "nythera — open-source scanner · localhost:8000",
@@ -110,24 +114,27 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "03",
-    name: "IDBI SARTHI",
+    name: "SARTHI",
     ref: "2607.AI.03",
     domain: "APPLIED AI",
     domColor: "gold",
     accent: "#00674D",
-    line: "Production RAG and document intelligence for a bank — then a written audit of its own P0 holes.",
+    line: "An AI relationship-manager copilot for banking — RAG and document intelligence, then a written audit of its own P0 holes.",
     figs: [
       ["P0", "Highest self-reported"],
       ["4", "Severity tiers"],
       ["17", "Library modules"],
     ],
     stack: ["Next.js", "TypeScript", "Prisma", "Supabase", "Groq", "Gemini"],
-    url: "https://github.com/gamersinghxx-creator/idbi-sarthi",
+    // repo link withheld until the repository is renamed — its current
+    // name and description identify the bank, which the client doesn't want named
+    url: null,
+    sourceNote: "Source on request",
     art: {
       kind: "scrollable",
       chromeLabel: "sarthi — AI RM Copilot · Customer 360",
-      img: "/shots/idbi-real.jpg",
-      alt: "IDBI SARTHI's real Customer 360 dashboard, full length, populated with a live synthetic customer record",
+      img: "/shots/sarthi-dashboard.jpg",
+      alt: "Sarthi's real Customer 360 dashboard, full length, populated with a live synthetic customer record",
       w: 900,
       h: 789,
     },
@@ -146,7 +153,7 @@ export const PROJECTS: Project[] = [
       ["1", "Permitted data source"],
     ],
     stack: ["Next.js", "React Three Fiber", "Three.js", "Drizzle", "Neon"],
-    url: "https://github.com/gamersinghxx-creator/3dIndianmusem",
+    url: repo("3dIndianmusem"),
     art: {
       kind: "gallery",
       chromeLabel: "antarang — world & indian art timeline",
@@ -174,7 +181,7 @@ export const PROJECTS: Project[] = [
       ["∞", "Cache lifetime"],
     ],
     stack: ["Next.js 16", "React", "TypeScript", "Tailwind", "Groq", "Ollama"],
-    url: "https://github.com/gamersinghxx-creator/BookVerseAi",
+    url: repo("BookVerseAi"),
     art: {
       kind: "scrollable",
       chromeLabel: "bookverse — step inside any book",
@@ -198,7 +205,7 @@ export const PROJECTS: Project[] = [
       ["0", "Dependencies"],
     ],
     stack: ["Vanilla JS", "Canvas 2D", "Zero deps"],
-    url: "https://github.com/gamersinghxx-creator/THE_EVOLUTION",
+    url: repo("THE_EVOLUTION"),
     art: {
       kind: "sim-quad",
       chromeLabel: "aeon.html — local file · zero deps",
@@ -252,7 +259,7 @@ export const PROJECTS: Project[] = [
       ["18", "Angular major version"],
     ],
     stack: ["C#", ".NET 8", "Angular 18", "Signals", "EF Core", "SQL Server"],
-    url: "https://github.com/gamersinghxx-creator/vaultIQ",
+    url: repo("vaultIQ"),
     art: {
       kind: "scrollable",
       chromeLabel: "vaultiq — AI startup idea generator",

@@ -58,7 +58,7 @@ export const RESEARCH_CASES: ResearchCase[] = [
   },
   {
     caseNo: "CASE 03",
-    project: "IDBI SARTHI",
+    project: "SARTHI",
     icon: `<svg viewBox="0 0 24 24"><g fill="none" stroke="var(--gold)" stroke-width="1.4"><rect x="2" y="4" width="7" height="7"/><rect x="15" y="4" width="7" height="7"/><rect x="2" y="15" width="7" height="7"/><rect x="15" y="15" width="7" height="7"/></g><path d="M9 7.5h6M12 11v2M5.5 11v4M18.5 11v4" stroke="var(--steel)" stroke-width="1"/></svg>`,
     notes: [
       {
