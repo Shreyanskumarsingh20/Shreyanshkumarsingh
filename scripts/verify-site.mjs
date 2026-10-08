@@ -68,6 +68,11 @@ function headings(html) {
 const sitemap = await get("/sitemap.xml");
 const pages = [...sitemap.body.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
 check("sitemap.xml lists pages", sitemap.res.status === 200 && pages.length >= 20, `${pages.length} URLs`);
+// sitemaps.org schema order inside <url>: loc, lastmod, …, then extensions
+check(
+  "sitemap <url> children in schema order (loc, lastmod, then images)",
+  [...sitemap.body.matchAll(/<url>([\s\S]*?)<\/url>/g)].every((m) => /^\s*<loc>[^<]+<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*(<image:image>[\s\S]*<\/image:image>\s*)?$/.test(m[1])),
+);
 for (const f of ["/.well-known/ai-catalog.json", "/.well-known/mcp/server-card.json", "/.well-known/ard.json"]) {
   const { res, body } = await get(f);
   let ok = res.status === 200;

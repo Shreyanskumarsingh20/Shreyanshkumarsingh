@@ -1,10 +1,11 @@
-import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { PROJECTS, projectBySlug, projectHref, projectImage } from "@/lib/projects";
 import { CASE_STUDIES } from "@/lib/case-studies";
 import { NOTES, noteHref } from "@/lib/notes";
 import { EXPERIENCE_CASES } from "@/lib/experience";
 
+// Sitemap entries, served as XML by app/sitemap.xml/route.ts.
+//
 // lastModified is the date the page's *content* last changed — never the
 // build time. Google only trusts <lastmod> when it's "consistently and
 // verifiably accurate"; stamping every URL with new Date() on each deploy
@@ -42,7 +43,9 @@ function experienceImages(): string[] {
     .map((src) => (src.startsWith("http") ? src : `${SITE_URL}${src}`));
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export type SitemapEntry = { url: string; lastModified: string; images?: string[] };
+
+export function sitemapEntries(): SitemapEntry[] {
   return [
     { url: SITE_URL, lastModified: UPDATED.home, images: projectImages() },
     {

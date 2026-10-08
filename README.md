@@ -36,7 +36,8 @@ once in `lib/site.ts`.
 - **Structured data** (`lib/jsonld.ts`): one Person graph by `@id` on every
   page, plus page-specific nodes (ProfilePage, TechArticle, FAQPage on `/faq`
   only, BreadcrumbList…).
-- **Sitemap** with real content dates (`app/sitemap.ts`), **robots.txt** naming
+- **Sitemap** with real content dates (`lib/sitemap.ts`, served schema-ordered by
+  `app/sitemap.xml/route.ts` — Google rejected Next's image-before-lastmod order), **robots.txt** naming
   AI search/answer crawlers (`app/robots.txt/route.ts`), **llms.txt** and
   **llms-full.txt** (`lib/llms.ts`).
 - **Markdown for agents** (`proxy.ts` + `app/md/`): every page as markdown via
@@ -44,8 +45,11 @@ once in `lib/site.ts`.
 - **MCP server** at `/api/mcp` (read-only, `mcp-handler`), WebMCP bridge,
   `/.well-known/ai-catalog.json`, `ard.json`, `mcp/server-card.json`,
   `security.txt` (`app/api/well-known`, `lib/mcp.ts`).
-- **IndexNow**: `scripts/indexnow.mjs`, run by `.github/workflows/indexnow.yml`
-  after each successful production deploy.
+- **IndexNow**: `scripts/indexnow.mjs` submits to every engine in the official
+  registry (Bing, Yandex, Seznam, Naver, Yep, Internet Archive, Amazon) plus
+  api.indexnow.org; run by `.github/workflows/indexnow.yml` after each
+  successful production deploy (`node scripts/indexnow.mjs --all` by hand).
+  Google doesn't use IndexNow.
 - The phone number is never in HTML, JSON-LD, llms.txt or markdown — it's
   assembled client-side on click (`lib/contact.ts`, `components/site/ContactLinks.tsx`).
   The client's PDF résumé (`public/Shreyansh_Kumar_Singh_Resume.pdf`) does carry
