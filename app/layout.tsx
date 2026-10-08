@@ -4,9 +4,10 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import { SITE_URL, SITE_NAME, SUMMARY, PERSON, KEYWORDS } from "@/lib/site";
 
+// Inter as its single variable-font file (every weight 100–900) rather than
+// five static weights, each of which was a separate preloaded download.
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
   display: "swap",
 });
@@ -25,11 +26,14 @@ const beauRivage = Beau_Rivage({
   display: "swap",
 });
 
+// only a fallback behind Beau Rivage in the loader signature — the browser
+// fetches it only if it's actually needed, so don't preload it
 const italianno = Italianno({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-italianno",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

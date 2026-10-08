@@ -22,7 +22,7 @@ export default function ProjectCardArt({ project }: { project: Project }) {
           <span className="chrome-label mono">{art.chromeLabel}</span>
           <span className="chrome-hint mono">scroll ↓ full page</span>
         </div>
-        <div className="shot scrollable">
+        <div className="shot scrollable" data-lenis-prevent>
           <Image src={art.img} alt={art.alt} width={art.w} height={art.h} unoptimized />
         </div>
       </div>

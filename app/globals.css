@@ -103,6 +103,13 @@ img{max-width:100%;}
    stagger is now just a per-element `style={{ transitionDelay: "Nms" }}`. */
 .rise{opacity:0; transform:translateY(24px); transition:opacity .8s var(--ease), transform .8s var(--ease);}
 .rise.in{opacity:1; transform:none;}
+/* Above-the-fold variant: the same entrance as a CSS animation that starts
+   with the first paint, instead of a class added after hydration. JS-gated
+   reveals kept the hero text at opacity 0 until the bundle ran, which is
+   what Largest Contentful Paint measured (4.2s on mobile). It starts at .01,
+   not 0, because Chrome ignores fully transparent paints when timing LCP. */
+@keyframes rise-now{ from{opacity:.01; transform:translateY(24px);} to{opacity:1; transform:none;} }
+.rise.now{opacity:1; transform:none; animation:rise-now .8s var(--ease) both;}
 
 .foot-meta{margin-top:64px; padding-top:24px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--ash); font-size:11.5px;}
 
@@ -175,7 +182,9 @@ img{max-width:100%;}
 .hero-video{
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; opacity:.85; pointer-events:none;
-  filter:brightness(1.25) saturate(1.15) contrast(1.02);
+  /* colour grade (brightness 1.25, saturate 1.15, contrast 1.02) is baked
+     into the encoded files: a CSS filter on a playing video re-filters every
+     frame on the GPU */
 }
 .hero-video-overlay{
   position:absolute; inset:0; pointer-events:none;
@@ -593,7 +602,9 @@ img{max-width:100%;}
 .telemetry-video{
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; opacity:.85; pointer-events:none;
-  filter:brightness(1.25) saturate(1.15) contrast(1.02);
+  /* colour grade (brightness 1.25, saturate 1.15, contrast 1.02) is baked
+     into the encoded files: a CSS filter on a playing video re-filters every
+     frame on the GPU */
 }
 .telemetry-video-overlay{
   position:absolute; inset:0; pointer-events:none;
@@ -624,15 +635,17 @@ img{max-width:100%;}
     inset 0 -12px 14px rgba(0,0,0,.3);
   transition:transform .4s var(--ease), box-shadow .4s var(--ease);
 }
+/* Gloss + highlight. These were mix-blend-mode:overlay and filter:blur() —
+   38 blend groups over a playing video meant every tile was recomposited on
+   every video frame (the Telemetry scroll stutter). Plain alpha gradients
+   tuned to the same look need no blending and no filter pass. */
 .tech-box::before{
   content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-  background:linear-gradient(155deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.16) 28%, rgba(255,255,255,0) 52%, rgba(0,0,0,.22) 100%);
-  mix-blend-mode:overlay;
+  background:linear-gradient(155deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.09) 28%, rgba(255,255,255,0) 52%, rgba(0,0,0,.2) 100%);
 }
 .tech-box::after{
-  content:""; position:absolute; left:9%; top:7%; width:52%; height:26%; border-radius:50%; pointer-events:none;
-  background:radial-gradient(ellipse at center, rgba(255,255,255,.65), rgba(255,255,255,0) 72%);
-  filter:blur(1.5px);
+  content:""; position:absolute; left:7%; top:5%; width:56%; height:30%; border-radius:50%; pointer-events:none;
+  background:radial-gradient(ellipse at center, rgba(255,255,255,.55) 0%, rgba(255,255,255,.18) 45%, rgba(255,255,255,0) 75%);
 }
 .tech-box svg{display:block; width:26px; height:26px; position:relative; z-index:1;}
 .tech-mono{font-family:var(--font-jetbrains-mono),ui-monospace,monospace; font-weight:700; font-size:14.5px; letter-spacing:.02em; position:relative; z-index:1;}
@@ -658,7 +671,9 @@ img{max-width:100%;}
 .footer-video{
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; opacity:.85; pointer-events:none;
-  filter:brightness(1.25) saturate(1.15) contrast(1.02);
+  /* colour grade (brightness 1.25, saturate 1.15, contrast 1.02) is baked
+     into the encoded files: a CSS filter on a playing video re-filters every
+     frame on the GPU */
 }
 .footer-video-overlay{
   position:absolute; inset:0; pointer-events:none;
@@ -859,7 +874,9 @@ img{max-width:100%;}
     #CDE7FA;
   filter:blur(46px) saturate(1.1);
 }
-#faq .carrd-grain{ opacity:.07; }
+/* normal blend, not overlay: an overlay blend over the tilting FAQ cards made
+   the whole section recomposite on every scroll frame */
+#faq .carrd-grain{ opacity:.035; mix-blend-mode:normal; }
 /* FAQ answers change the section's height. Pin the blurred mesh to a pixel
    size measured at rest (--mesh-top/--mesh-h, set in HomeInteractions.tsx)
    so opening an answer never forces the 46px blur to re-rasterize every
@@ -887,7 +904,15 @@ img{max-width:100%;}
 #faq .faq-item:not(.open) .faq-switch::before,
 #faq .faq-item:not(.open) .faq-switch::after{ background:#96690f; }
 #faq .faq-a{ color:#3c5568; }
-#faq .faq-item{ transition:transform .12s linear, border-color .3s var(--ease), background .3s var(--ease); }
+#faq .faq-item{ transition:border-color .3s var(--ease), background .3s var(--ease); }
+/* Continuous scroll-tied tilt. Where scroll-driven animations exist
+   (Chrome/Edge 115+, Safari 26+) it runs on the compositor with no JS;
+   HomeInteractions.tsx only drives it by hand in other browsers. Tilts back
+   (+6°) near the top of the viewport and forward (−6°) near the bottom. */
+@supports (animation-timeline: view()){
+  @keyframes faq-tilt{ from{ transform:perspective(900px) rotateX(-6deg); } to{ transform:perspective(900px) rotateX(6deg); } }
+  #faq .faq-item{ animation:faq-tilt linear both; animation-timeline:view(); }
+}
 
 /* ============================================================================
    LOADER

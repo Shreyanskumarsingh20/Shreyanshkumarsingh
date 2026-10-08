@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PERSON, GITHUB_USER } from "@/lib/site";
+import BgVideo from "@/components/BgVideo";
 
 /**
  * CONTACT — the footer. Uses `.site-footer` (not a bare `footer{}` element
@@ -9,20 +10,7 @@ import { PERSON, GITHUB_USER } from "@/lib/site";
 export default function Contact() {
   return (
     <footer className="site-footer" id="contact">
-      <video
-        className="footer-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <BgVideo name="footer" className="footer-video" />
       <div className="footer-video-overlay" aria-hidden="true"></div>
       <div className="shell">
         <h2 className="rise">

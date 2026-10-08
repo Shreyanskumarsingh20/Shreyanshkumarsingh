@@ -77,7 +77,7 @@ export default function ExperiencePage() {
         <div className="exp-grid" aria-hidden="true"></div>
         <div className="exp-glow" aria-hidden="true"></div>
         <div className="shell shell--exp" style={{ position: "relative" }}>
-          <p className="exp-kicker rise mono">
+          <p className="exp-kicker rise now mono">
             <span className="trident">
               <span></span>
               <span></span>
@@ -85,12 +85,13 @@ export default function ExperiencePage() {
             </span>{" "}
             EXPERIENCE
           </p>
-          <h1 className="exp-h1 rise" style={{ transitionDelay: "60ms" }}>
+          <h1 className="exp-h1 rise now" style={{ animationDelay: "60ms" }}>
+            <span className="sr-only">Shreyansh Kumar Singh — </span>
             Four years
             <br />
             at <span className="dim">RamanByte.</span>
           </h1>
-          <p className="exp-thesis rise measure" style={{ transitionDelay: "120ms" }}>
+          <p className="exp-thesis rise now measure" style={{ animationDelay: "120ms" }}>
             I&apos;m a <b>full-stack developer</b> at RamanByte, a Pune ed-tech
             company that builds the <b>Classroom+</b> learning platform. My
             work is the whole vertical slice: <b>ASP.NET Web API and SQL
@@ -99,7 +100,7 @@ export default function ExperiencePage() {
             production for institutions that pay for it, not demos parked on
             a laptop.
           </p>
-          <div className="exp-hero-cta rise" style={{ transitionDelay: "180ms" }}>
+          <div className="exp-hero-cta rise now" style={{ animationDelay: "180ms" }}>
             <a href="#case" className="btn btn-gold cut-sm">
               <span>See the case studies</span>
             </a>
@@ -109,7 +110,7 @@ export default function ExperiencePage() {
           </div>
         </div>
 
-        <div className="exp-stats rise" style={{ transitionDelay: "240ms" }}>
+        <div className="exp-stats rise now" style={{ animationDelay: "240ms" }}>
           <div className="shell shell--exp" style={{ paddingInline: 0 }}>
             <div className="row">
               {EXP_HERO_STATS.map((s) => (

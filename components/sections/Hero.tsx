@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BgVideo from "@/components/BgVideo";
 
 /**
  * HERO — the working thesis, headline stats, and the live particle field
@@ -10,20 +11,7 @@ export default function Hero() {
   return (
     <>
       <section className="hero" id="top">
-        <video
-          className="hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        >
-          <source
-            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_171521_25968ba2-b594-4b32-aab7-f6b69398a6fa.mp4"
-            type="video/mp4"
-          />
-        </video>
+        <BgVideo name="hero" className="hero-video" />
         <div className="hero-video-overlay" aria-hidden="true"></div>
         <div className="hero-grid" aria-hidden="true"></div>
 
@@ -55,7 +43,7 @@ export default function Hero() {
         </div>
 
         <div className="shell" style={{ position: "relative" }}>
-          <div className="hero-eyebrow rise">
+          <div className="hero-eyebrow rise now">
             <span className="trident">
               <span></span>
               <span></span>
@@ -63,7 +51,7 @@ export default function Hero() {
             </span>
             <span className="label">Shreyansh Kumar Singh — AI &amp; Full-Stack Engineer · Pune</span>
           </div>
-          <h1 className="rise" style={{ transitionDelay: "60ms" }}>
+          <h1 className="rise now" style={{ animationDelay: "60ms" }}>
             {/* the name is already visible in the eyebrow above; repeating it
                 inside the h1 ties the page's one heading to the person */}
             <span className="sr-only">Shreyansh Kumar Singh, AI &amp; full-stack engineer in Pune: </span>
@@ -71,13 +59,13 @@ export default function Hero() {
             <br />
             <span className="dim">One stack.</span>
           </h1>
-          <p className="thesis measure rise" style={{ transitionDelay: "120ms" }}>
+          <p className="thesis measure rise now" style={{ animationDelay: "120ms" }}>
             I build systems that make invisible things legible — blast
             physics, attack surfaces, a thousand years of art, a bank&apos;s
             document pile — and I write the specification before I write the
             code. This page is a scroll-driven stack of the work itself.
           </p>
-          <div className="hero-cta rise" style={{ transitionDelay: "180ms" }}>
+          <div className="hero-cta rise now" style={{ animationDelay: "180ms" }}>
             <a href="#range" className="btn btn-gold cut-sm">
               <span>See the range</span>
             </a>

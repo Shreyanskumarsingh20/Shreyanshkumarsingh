@@ -26,7 +26,14 @@ export default function Loader() {
     const statusEl = document.getElementById("loaderStatus");
     const pctEl = document.getElementById("loaderPct");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const DURATION = reduce ? 300 : 3500;
+    // the full signature plays once per tab; returning to the home page in
+    // the same session gets a short version instead of the whole 3.5s again
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("loaderSeen") === "1";
+      sessionStorage.setItem("loaderSeen", "1");
+    } catch {}
+    const DURATION = reduce ? 300 : seen ? 900 : 3500;
     const lines = [
       "MOUNTING THE RANGE",
       "VERIFYING SPEC INTEGRITY",

@@ -15,7 +15,7 @@ export default function MobileNav() {
           ×
         </button>
         <p className="label">Menu</p>
-        <nav className="nav-list">
+        <nav className="nav-list" data-lenis-prevent>
           <NavLinks />
         </nav>
       </div>

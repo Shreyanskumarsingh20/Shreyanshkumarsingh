@@ -1,7 +1,7 @@
 import { SITE_URL } from "@/lib/site";
 
 // robots.txt as a route handler (not app/robots.ts) so it can carry the
-// Content-Signal line, which Next's MetadataRoute.Robots type can't express.
+// explanatory comments below, which Next's MetadataRoute.Robots can't emit.
 //
 // The goal is to be read and cited, so every crawler is allowed. AI search
 // and answer-engine agents are also named explicitly — as documentation of
@@ -44,10 +44,9 @@ export function GET() {
     "# Shreyansh Kumar Singh — www.shreyanshkumarsingh.com",
     "# Search engines, AI assistants and agents are welcome to read and cite this site.",
     "# Plain-text summaries for language models: /llms.txt and /llms-full.txt",
-    "",
-    // Cloudflare Content Signals (contentsignals.org): explicit permission
-    // for search, for use as AI answer input, and for AI training.
-    "Content-Signal: search=yes, ai-input=yes, ai-train=yes",
+    // No Content-Signal line (Cloudflare's search/ai-input/ai-train
+    // proposal): no AI vendor has committed to honouring it, and Lighthouse's
+    // robots.txt audit fails it as an unknown directive.
     "",
     group(["*"]),
     "",

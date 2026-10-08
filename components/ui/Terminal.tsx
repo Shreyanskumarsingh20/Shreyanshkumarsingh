@@ -14,7 +14,7 @@ export default function Terminal() {
           <i></i>
           <span>shreyansh@the-range — zsh</span>
         </div>
-        <div className="term-log" id="termLog">
+        <div className="term-log" id="termLog" data-lenis-prevent>
           <div className="out">
             Welcome. Type <b>help</b> to see what&apos;s here — or <b>exit</b> to close.
           </div>

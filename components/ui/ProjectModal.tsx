@@ -16,7 +16,7 @@ export default function ProjectModal() {
           <div className="pm-domain mono" id="pmDomain"></div>
           <h3 className="pm-title" id="pmTitle"></h3>
         </div>
-        <div className="pm-body">
+        <div className="pm-body" data-lenis-prevent>
           <p id="pmLine"></p>
           <div id="pmFindingsWrap">
             <div className="pm-section-label">From the research board</div>

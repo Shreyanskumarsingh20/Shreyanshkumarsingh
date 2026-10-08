@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preconnect } from "react-dom";
 import HomeTopBar from "@/components/home/HomeTopBar";
 import Loader from "@/components/home/Loader";
 import HomeInteractions from "@/components/home/HomeInteractions";
@@ -100,6 +101,8 @@ const jsonLd = graph(
 );
 
 export default function HomePage() {
+  // the "Last shipped" ticker calls the GitHub API right after hydration
+  preconnect("https://api.github.com", { crossOrigin: "anonymous" });
   return (
     <>
       <JsonLd data={jsonLd} />

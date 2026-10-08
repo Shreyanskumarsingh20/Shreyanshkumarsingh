@@ -24,7 +24,7 @@ export default function CommandPalette() {
           />
           <span className="cmdk-esc">ESC</span>
         </div>
-        <div className="cmdk-list" id="cmdkList"></div>
+        <div className="cmdk-list" id="cmdkList" data-lenis-prevent></div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { INSTRUMENTS, TECH_META } from "@/lib/telemetry";
 import type { CSSVarStyle } from "@/lib/css-vars";
+import BgVideo from "@/components/BgVideo";
 
 /**
  * TELEMETRY — the instrument rack. Each tile's glyph is either a lettermark
@@ -9,20 +10,7 @@ import type { CSSVarStyle } from "@/lib/css-vars";
 export default function Telemetry() {
   return (
     <section className="section" id="telemetry">
-      <video
-        className="telemetry-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260601_110537_3a579fa0-7bbc-4d94-9d25-0e816c7840f5.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <BgVideo name="telemetry" className="telemetry-video" />
       <div className="telemetry-video-overlay" aria-hidden="true"></div>
       <div className="shell">
         <div className="section-head">

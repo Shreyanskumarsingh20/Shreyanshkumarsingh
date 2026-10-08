@@ -59,13 +59,13 @@ export default function LetsTalkPage() {
         <div className="talk-grid" aria-hidden="true"></div>
         <div className="talk-glow" aria-hidden="true"></div>
         <div className="shell shell--talk" style={{ position: "relative" }}>
-          <p className="talk-kicker rise mono">LET&apos;S TALK</p>
-          <h1 className="talk-h1 rise" style={{ transitionDelay: "60ms" }}>
+          <p className="talk-kicker rise now mono">LET&apos;S TALK</p>
+          <h1 className="talk-h1 rise now" style={{ animationDelay: "60ms" }}>
             Not a form.
             <br />
             <span className="dim">An actual conversation.</span>
           </h1>
-          <p className="talk-thesis rise" style={{ transitionDelay: "120ms" }}>
+          <p className="talk-thesis rise now" style={{ animationDelay: "120ms" }}>
             If there&apos;s a system that needs to exist and doesn&apos;t yet
             — an idea that&apos;s still mostly chaos, a security posture
             nobody&apos;s actually tested, a pile of documents nobody&apos;s

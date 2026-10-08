@@ -34,9 +34,7 @@ export default function HomeInteractions() {
     const rafs: number[] = [];
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      document.querySelectorAll<HTMLVideoElement>(".hero-video, .footer-video, .telemetry-video").forEach((v) => v.pause());
-    }
+    // background videos load/pause themselves — see components/BgVideo.tsx
 
     // ==========================================================================
     // THE RANGE — layout() computes which card is active (for the HUD + side
@@ -54,44 +52,74 @@ export default function HomeInteractions() {
     const STACK_OFFSET = 92,
       STACK_STEP = 8; // must match .stack-card's top: formula in globals.css
 
-    function layout() {
-      if (!rangeSection || !hud || !hudLine || !hudBar || !progressEl) return;
+    // Split into a measure step (layout reads only) and an apply step (writes
+    // only) so one scroll frame never reads layout after another section has
+    // already written to the DOM — that interleaving forced a synchronous
+    // re-layout per section, per frame. The math itself is unchanged.
+    type RangeMeasure = { top: number; bottom: number; height: number; cardTops: number[]; vh: number; vw: number };
+    function measureRange(): RangeMeasure | null {
+      if (!rangeSection) return null;
       const rect = rangeSection.getBoundingClientRect();
-      const total = rect.height - window.innerHeight;
-      const inRange = rect.top < window.innerHeight * 0.5 && rect.bottom > 0;
-      const wide = window.innerWidth >= 860;
+      return {
+        top: rect.top,
+        bottom: rect.bottom,
+        height: rect.height,
+        cardTops: stackCardEls.map((card) => card.getBoundingClientRect().top),
+        vh: window.innerHeight,
+        vw: window.innerWidth,
+      };
+    }
+    let lastActive = -1;
+    function applyRange(m: RangeMeasure | null) {
+      if (!hud || !hudLine || !hudBar || !progressEl) return;
+      if (!m) {
+        hud.classList.remove("on");
+        progressEl.classList.remove("on");
+        return;
+      }
+      const total = m.height - m.vh;
+      const inRange = m.top < m.vh * 0.5 && m.bottom > 0;
+      const wide = m.vw >= 860;
       hud.classList.toggle("on", inRange && !reduceMotion && wide);
       progressEl.classList.toggle("on", inRange && !reduceMotion && wide);
 
       if (reduceMotion || !wide || total <= 0) {
         stackCardEls.forEach((card) => card.classList.remove("is-behind"));
+        lastActive = -1;
         return;
       }
 
       let active = 0;
-      stackCardEls.forEach((card, i) => {
-        if (card.getBoundingClientRect().top <= STACK_OFFSET + i * STACK_STEP + 1) active = i;
+      m.cardTops.forEach((top, i) => {
+        if (top <= STACK_OFFSET + i * STACK_STEP + 1) active = i;
       });
-      dotEls.forEach((d, i) => d.classList.toggle("on", i === active));
-      stackCardEls.forEach((card, i) => card.classList.toggle("is-behind", i < active));
-
-      const progress = Math.min(Math.max(-rect.top, 0), total) / total;
-      const p = PROJECTS[active];
-      hudLine.textContent = `PROJECT ${p.n}/0${N} — ${p.name} · ${p.domain}`;
+      if (active !== lastActive) {
+        dotEls.forEach((d, i) => d.classList.toggle("on", i === active));
+        stackCardEls.forEach((card, i) => card.classList.toggle("is-behind", i < active));
+        const p = PROJECTS[active];
+        hudLine.textContent = `PROJECT ${p.n}/0${N} — ${p.name} · ${p.domain}`;
+        lastActive = active;
+      }
+      const progress = Math.min(Math.max(-m.top, 0), total) / total;
       hudBar.style.transform = `scaleX(${progress.toFixed(3)})`;
     }
 
     // ==========================================================================
     // FAQ — continuous scroll-tied tilt
     // ==========================================================================
+    // Browsers with CSS scroll-driven animations run this tilt on the
+    // compositor (see the faq-tilt keyframes in globals.css); the JS version
+    // below is only the fallback for the rest (Firefox, at time of writing).
     const faqItems = [...document.querySelectorAll<HTMLElement>("#faq .faq-item")];
-    function updateFaqTilt() {
-      if (reduceMotion || !faqItems.length) return;
+    const cssFaqTilt = typeof CSS !== "undefined" && CSS.supports("animation-timeline: view()");
+    const faqTiltByJs = !reduceMotion && !cssFaqTilt && faqItems.length > 0;
+    function measureFaq(): DOMRect[] | null {
+      return faqTiltByJs ? faqItems.map((el) => el.getBoundingClientRect()) : null;
+    }
+    function applyFaq(rects: DOMRect[] | null) {
+      if (!rects) return;
       const vh = window.innerHeight;
       const mid = vh / 2;
-      // measure every item first, then write — interleaving the two forced a
-      // style recalc per item, per scroll frame
-      const rects = faqItems.map((el) => el.getBoundingClientRect());
       faqItems.forEach((el, i) => {
         const r = rects[i];
         if (r.bottom < -200 || r.top > vh + 200) return;
@@ -105,21 +133,48 @@ export default function HomeInteractions() {
     // ==========================================================================
     const buildStory = document.querySelector<HTMLElement>(".build-story");
     const buildSpineFill = document.getElementById("buildSpineFill");
-    function updateBuildSpine() {
-      if (!buildStory || !buildSpineFill) return;
-      const rect = buildStory.getBoundingClientRect();
+    function measureBuild(): DOMRect | null {
+      return buildStory && buildSpineFill ? buildStory.getBoundingClientRect() : null;
+    }
+    function applyBuild(rect: DOMRect | null) {
+      if (!rect || !buildSpineFill) return;
       const total = rect.height - window.innerHeight * 0.5;
       const progress = total > 0 ? Math.min(Math.max(window.innerHeight * 0.7 - rect.top, 0), total) / total : 0;
       buildSpineFill.style.transform = `scaleY(${progress.toFixed(3)})`;
     }
 
+    // Only sections within a viewport's distance of the screen do any work.
+    const near = { range: true, faq: true, build: true };
+    const nearKey = new Map<Element, keyof typeof near>();
+    if (rangeSection) nearKey.set(rangeSection, "range");
+    const faqSectionEl = document.getElementById("faq");
+    if (faqSectionEl) nearKey.set(faqSectionEl, "faq");
+    if (buildStory) nearKey.set(buildStory, "build");
+    const nearIO = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => (near[nearKey.get(e.target)!] = e.isIntersecting));
+        onScroll();
+      },
+      { rootMargin: "100% 0px" }
+    );
+    nearKey.forEach((_, el) => nearIO.observe(el));
+    cleanups.push(() => nearIO.disconnect());
+
+    function tick() {
+      // reads…
+      const r = near.range ? measureRange() : null;
+      const f = near.faq ? measureFaq() : null;
+      const b = near.build ? measureBuild() : null;
+      // …then writes
+      applyRange(r);
+      applyFaq(f);
+      applyBuild(b);
+    }
     let ticking = false;
     function onScroll() {
       if (!ticking) {
         const raf = requestAnimationFrame(() => {
-          layout();
-          updateFaqTilt();
-          updateBuildSpine();
+          tick();
           ticking = false;
         });
         rafs.push(raf);
@@ -130,9 +185,7 @@ export default function HomeInteractions() {
     window.addEventListener("resize", onScroll);
     cleanups.push(() => window.removeEventListener("scroll", onScroll));
     cleanups.push(() => window.removeEventListener("resize", onScroll));
-    layout();
-    updateFaqTilt();
-    updateBuildSpine();
+    tick();
 
     // ==========================================================================
     // REVEAL — shared IntersectionObserver. Elements already in the viewport
@@ -161,25 +214,6 @@ export default function HomeInteractions() {
     );
     riseEls.forEach((el) => io.observe(el));
     cleanups.push(() => io.disconnect());
-
-    // ==========================================================================
-    // PERF — pause offscreen background video
-    // ==========================================================================
-    const vids = document.querySelectorAll<HTMLVideoElement>(".hero-video, .telemetry-video, .footer-video");
-    let vObs: IntersectionObserver | null = null;
-    if ("IntersectionObserver" in window && vids.length) {
-      vObs = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) (entry.target as HTMLVideoElement).play().catch(() => {});
-            else (entry.target as HTMLVideoElement).pause();
-          });
-        },
-        { rootMargin: "200px" }
-      );
-      vids.forEach((v) => vObs!.observe(v));
-      cleanups.push(() => vObs!.disconnect());
-    }
 
     // ==========================================================================
     // CONSOLE EASTER EGG
@@ -818,9 +852,25 @@ export default function HomeInteractions() {
       mouse: { x: number; y: number; active: boolean };
       w = 0;
       h = 0;
+      /** canvas box cached at resize — reading getBoundingClientRect() every
+       *  frame forced a layout whenever a scroll handler had written styles */
+      box = { left: 0, top: 0, width: 0, height: 0 };
+      private fixed: boolean;
       private resizeHandler: () => void;
 
-      constructor(canvas: HTMLCanvasElement, opts: Partial<ParticleField["o"]>) {
+      /** viewport-relative box; position:fixed canvases don't move on scroll */
+      rect() {
+        const dy = this.fixed ? 0 : window.scrollY;
+        return {
+          left: this.box.left,
+          top: this.box.top - dy,
+          width: this.box.width,
+          height: this.box.height,
+        };
+      }
+
+      constructor(canvas: HTMLCanvasElement, opts: Partial<ParticleField["o"]>, fixed = false) {
+        this.fixed = fixed;
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
         this.o = Object.assign(
@@ -837,7 +887,9 @@ export default function HomeInteractions() {
           },
           opts
         );
-        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        // fill cost grows with the square of DPR; above 1.5 the extra
+        // sharpness on soft particles isn't visible
+        this.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         this.particles = [];
         this.mouse = { x: -9999, y: -9999, active: false };
         this.resizeHandler = () => this._resize();
@@ -849,6 +901,8 @@ export default function HomeInteractions() {
       }
       _resize() {
         const r = this.canvas.getBoundingClientRect();
+        const dy = this.fixed ? 0 : window.scrollY;
+        this.box = { left: r.left, top: r.top + dy, width: r.width, height: r.height };
         this.w = this.canvas.width = Math.max(1, Math.floor(r.width * this.dpr));
         this.h = this.canvas.height = Math.max(1, Math.floor(r.height * this.dpr));
         if (!this.particles.length) this._seed();
@@ -868,10 +922,11 @@ export default function HomeInteractions() {
           this.mouse.active = false;
           return;
         }
-        const rect = this.canvas.getBoundingClientRect();
+        const rect = this.rect();
         this.mouse.x = (clientX - rect.left) * this.dpr;
         this.mouse.y = (clientY! - rect.top) * this.dpr;
-        this.mouse.active = clientX >= rect.left && clientX <= rect.right && clientY! >= rect.top && clientY! <= rect.bottom;
+        this.mouse.active =
+          clientX >= rect.left && clientX <= rect.left + rect.width && clientY! >= rect.top && clientY! <= rect.top + rect.height;
       }
       step() {
         const { ctx, w, h, o, particles, mouse, dpr } = this;
@@ -898,28 +953,38 @@ export default function HomeInteractions() {
           if (p.y > h + 10) p.y = -10;
         }
         if (o.link) {
-          ctx.lineWidth = dpr;
+          // one path per opacity band instead of one stroke() per line (up
+          // to ~4,000 a frame) — four bands are indistinguishable from the
+          // continuous fade at 0–16% alpha
+          const maxD = o.link * dpr,
+            maxD2 = maxD * maxD;
+          const BANDS = 4;
+          const paths = Array.from({ length: BANDS }, () => new Path2D());
           for (let i = 0; i < particles.length; i++)
             for (let j = i + 1; j < particles.length; j++) {
               const dx = particles[i].x - particles[j].x,
                 dy = particles[i].y - particles[j].y;
-              const dist = Math.hypot(dx, dy);
-              if (dist < o.link * dpr) {
-                ctx.strokeStyle = `rgba(${o.linkColor},${(1 - dist / (o.link * dpr)) * 0.16})`;
-                ctx.beginPath();
-                ctx.moveTo(particles[i].x, particles[i].y);
-                ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.stroke();
+              const d2 = dx * dx + dy * dy;
+              if (d2 < maxD2) {
+                const band = Math.min(BANDS - 1, Math.floor((Math.sqrt(d2) / maxD) * BANDS));
+                paths[band].moveTo(particles[i].x, particles[i].y);
+                paths[band].lineTo(particles[j].x, particles[j].y);
               }
             }
+          ctx.lineWidth = dpr;
+          paths.forEach((path, band) => {
+            ctx.strokeStyle = `rgba(${o.linkColor},${((1 - (band + 0.5) / BANDS) * 0.16).toFixed(3)})`;
+            ctx.stroke(path);
+          });
         }
         ctx.globalAlpha = 0.85;
         ctx.fillStyle = `rgb(${o.color})`;
+        ctx.beginPath();
         for (const p of particles) {
-          ctx.beginPath();
+          ctx.moveTo(p.x + p.r, p.y);
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fill();
         }
+        ctx.fill();
         ctx.globalAlpha = 1;
       }
     }
@@ -933,24 +998,44 @@ export default function HomeInteractions() {
     let fieldRaf = 0;
 
     if (heroCanvas && bgCanvas) {
+      // phones get a lighter field — same look at a fraction of the cost
+      const small = window.innerWidth < 768;
       heroField = new ParticleField(heroCanvas, {
-        count: 90,
+        count: small ? 50 : 90,
         color: "255,205,90",
         speed: 0.32,
         r: [0.7, 2],
         cursorRadius: 160,
         cursorForce: 1.15,
-        link: 105,
+        link: small ? 90 : 105,
         linkColor: "255,192,0",
       });
-      bgField = new ParticleField(bgCanvas, {
-        count: 42,
-        color: "144,224,239",
-        speed: 0.14,
-        r: [0.5, 1.3],
-        cursorRadius: 120,
-        cursorForce: 0.4,
-      });
+      bgField = new ParticleField(
+        bgCanvas,
+        {
+          count: small ? 26 : 42,
+          color: "144,224,239",
+          speed: 0.14,
+          r: [0.5, 1.3],
+          cursorRadius: 120,
+          cursorForce: 0.4,
+        },
+        true
+      );
+
+      // the hero field only animates while the hero is on screen
+      let heroVisible = true;
+      const heroIO = new IntersectionObserver(([e]) => (heroVisible = e.isIntersecting));
+      heroIO.observe(heroCanvas);
+      cleanups.push(() => heroIO.disconnect());
+      // the hero canvas's cached page position shifts if content above it
+      // reflows (fonts, the loader releasing) — re-measure once things settle
+      const remeasure = () => {
+        heroField?._resize();
+        bgField?._resize();
+      };
+      window.addEventListener("load", remeasure);
+      cleanups.push(() => window.removeEventListener("load", remeasure));
 
       let cx: number | null = null,
         cy: number | null = null;
@@ -1044,7 +1129,7 @@ export default function HomeInteractions() {
 
         function drawGame(now: number) {
           if (!gameActive && !gameOver) return;
-          const rect = heroCanvas!.getBoundingClientRect(),
+          const rect = heroField!.rect(),
             dpr = heroField!.dpr;
           if (gameActive) {
             if (scoreEl) scoreEl.textContent = ((now - startTime) / 1000).toFixed(1) + "s";
@@ -1096,14 +1181,33 @@ export default function HomeInteractions() {
         }
 
         function loop(now: number) {
-          heroField!.setCursor(cx, cy);
+          if (heroVisible || gameActive || gameOver) {
+            heroField!.setCursor(cx, cy);
+            heroField!.step();
+            drawGame(now);
+          }
           bgField!.setCursor(cx, cy);
-          heroField!.step();
           bgField!.step();
-          drawGame(now);
           fieldRaf = requestAnimationFrame(loop);
         }
-        fieldRaf = requestAnimationFrame(loop);
+        // While the intro loader covers the screen the fields are invisible,
+        // so don't spend the busiest seconds of page load animating them —
+        // start when the loader releases <body>.
+        const startLoop = () => {
+          if (!fieldRaf) fieldRaf = requestAnimationFrame(loop);
+        };
+        if (document.body.classList.contains("loading")) {
+          const bodyObs = new MutationObserver(() => {
+            if (!document.body.classList.contains("loading")) {
+              bodyObs.disconnect();
+              startLoop();
+            }
+          });
+          bodyObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+          cleanups.push(() => bodyObs.disconnect());
+        } else {
+          startLoop();
+        }
       }
     }
 
