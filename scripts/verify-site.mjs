@@ -11,7 +11,12 @@
 // bank name), the PDF résumé's noindex header and the beacon health check.
 
 const BASE = (process.argv[2] || "https://www.shreyanshkumarsingh.com").replace(/\/$/, "");
-const PHONE = /9\D?3\D?1\D?5\D?7\D?7\D?5\D?6\D?4\D?2/; // digits only, any separators
+// The forbidden strings are kept encoded so this public file doesn't publish
+// them: the phone number (from lib/contact.ts, reversed + base64) and the
+// bank's name (base64). Matched with any separators between digits.
+const PHONE_DIGITS = Buffer.from("MjQ2NTc3NTEzOTE5", "base64").toString().split("").reverse().join("").slice(2);
+const PHONE = new RegExp(PHONE_DIGITS.split("").join("\\D?"));
+const BANK = new RegExp(Buffer.from("aWRiaQ==", "base64").toString(), "i");
 const results = [];
 const check = (name, ok, detail = "") => results.push({ name, ok: Boolean(ok), detail });
 
@@ -59,7 +64,7 @@ function headings(html) {
   check("llms.txt has when-to-use guidance", res.status === 200 && body.includes("## When to use this site"));
   check("llms.txt has no phone number", !PHONE.test(body));
   const full = await get("/llms-full.txt");
-  check("llms-full.txt has no phone number or bank name", full.res.status === 200 && !PHONE.test(full.body) && !/idbi/i.test(full.body));
+  check("llms-full.txt has no phone number or bank name", full.res.status === 200 && !PHONE.test(full.body) && !BANK.test(full.body));
 }
 {
   const { res, body } = await get("/robots.txt");
@@ -117,8 +122,8 @@ for (const path of pages) {
   if (!/Shreyansh Kumar Singh/.test(body.replace(/<[^>]+>/g, " "))) issues.push("page never names him");
   if (PHONE.test(body.replace(/<script[\s\S]*?<\/script>/g, ""))) issues.push("phone digits in HTML");
   for (const s of body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) if (PHONE.test(s[1])) issues.push("phone in JSON-LD");
-  if (/idbi/i.test(body)) issues.push("bank name");
-  if (/\bANSH\b/.test(body.replace(/<[^>]+>/g, " "))) issues.push('"ANSH"');
+  if (BANK.test(body)) issues.push("bank name");
+  if (/\b[A]NSH\b/.test(body.replace(/<[^>]+>/g, " "))) issues.push("retired short name");
   for (const old of OLD_HEADINGS) if (hs.some((h) => h.text.includes(old))) issues.push(`old heading "${old}"`);
   check(`page ${path}`, issues.length === 0, issues.join("; "));
 }

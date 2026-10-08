@@ -90,4 +90,6 @@ writing; the FAQ tilt uses CSS scroll-driven animations. See
 `PROJECT_BIBLE.md` for the traps (sticky + `overflow-x`, `calc(var())` in
 transition delays) that still apply.
 
-`legacy/` keeps the original three static HTML files for reference.
+Start with **`HANDOFF.md`** (status, operations, open items), then
+**`PROJECT_BIBLE.md`** (the full technical reference). The original static
+HTML files are no longer in the repo.

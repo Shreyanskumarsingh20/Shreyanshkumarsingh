@@ -65,7 +65,7 @@ the core mechanic):
   the new `layout()` only computes which card is active, for the HUD
   readout and the side progress dots (decorative, not load-bearing).
 - **Copy updated to match**, since it now describes something different:
-  title tag (`ANSH — THE RANGE`), meta description, hero H1 ("One stack"
+  title tag (the old short-name title, since retired), meta description, hero H1 ("One stack"
   instead of "One corridor"), hero CTA ("See the range"), nav link
   ("Range"), the concept-note, and the footer meta line. `README.md` was
   *not* updated to match — see the note at the top of this file.
@@ -81,7 +81,7 @@ rather than narrative:
   **5 case files**, one per source project, each fronted by a small
   hand-drawn SVG exhibit icon distilling that project's research theme
   (a cube-root growth curve for THE EVOLUTION, a verified-checkmark +
-  off-switch for NYTHERA, four linked module boxes for IDBI SARTHI, a
+  off-switch for NYTHERA, four linked module boxes for SARTHI, a
   single glowing source-node for ANTARANG, three colored marque chips for
   THE COLLECTOR'S PULSE — reusing its real TCG/Figures/Watches accent
   colors).
@@ -120,7 +120,7 @@ upgraded through a few passes:
   the live, running app, then compressed PNG → JPEG (~4.7MB → ~430KB total):
   - `assets/shots/nythera-real.jpg` — Nythera's real landing page (via
     `python run.py`, its FastAPI dashboard on `:8000`)
-  - `assets/shots/idbi-real.jpg` — IDBI SARTHI's Customer 360 dashboard,
+  - the Sarthi screenshot — SARTHI's Customer 360 dashboard,
     populated with a live synthetic customer record
   - `assets/shots/antarang-gallery.jpg` / `antarang-real.jpg` — ANTARANG's
     dual-axis World/Indian Art timeline UI, plus its particle-field intro
@@ -139,7 +139,7 @@ upgraded through a few passes:
 - Cards enlarged generally (`min(560px,84vw)` → wider), padding and type
   scale increased.
 - Per-project `accent` colors extracted from each project's *own* real
-  design tokens/CSS (not invented): e.g. IDBI SARTHI's teal `#00674D`,
+  design tokens/CSS (not invented): e.g. SARTHI's teal `#00674D`,
   ANTARANG's museum gold `#C9A45A` (from its `.plaque` component), THE
   COLLECTOR'S PULSE's ember `#F2762E`.
 
