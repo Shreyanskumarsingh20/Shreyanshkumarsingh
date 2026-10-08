@@ -20,6 +20,12 @@ test("browsers and missing headers get HTML", () => {
   assert.equal(negotiate("text/html, text/markdown;q=0.5"), "html");
 });
 
+test("plain-text-only fetchers get the markdown, not a 406", () => {
+  assert.equal(negotiate("text/plain"), "markdown");
+  assert.equal(negotiate("text/plain, application/json"), "markdown");
+  assert.equal(negotiate("text/*"), "html"); // text/* covers text/html too
+});
+
 test("nothing acceptable is a 406", () => {
   assert.equal(negotiate("application/json"), "none");
   assert.equal(negotiate("image/png, text/markdown;q=0"), "none");

@@ -30,13 +30,17 @@ export function qFor(prefs: Pref[], type: string): number {
 }
 
 /** "markdown" only when it is strictly preferred over HTML; a missing Accept
- *  header means HTML. */
+ *  header means HTML. A client that takes plain text but not HTML (some AI
+ *  fetchers send `Accept: text/plain`) gets the markdown — it is plain text —
+ *  rather than a 406; 406 is kept for clients that accept no text at all. */
 export function negotiate(accept: string | null): "markdown" | "html" | "none" {
   const prefs = parseAccept(accept);
   if (!prefs.length) return "html";
   const md = qFor(prefs, "text/markdown");
   const html = Math.max(qFor(prefs, "text/html"), qFor(prefs, "application/xhtml+xml"));
+  const plain = qFor(prefs, "text/plain");
   if (md > 0 && md > html) return "markdown";
+  if (html <= 0 && plain > 0) return "markdown";
   if (md <= 0 && html <= 0) return "none";
   return "html";
 }
