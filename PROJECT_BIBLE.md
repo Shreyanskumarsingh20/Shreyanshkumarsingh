@@ -89,7 +89,7 @@ No component library, no CSS-in-JS, no animation library besides Lenis.
 proxy.ts                    Next 16 proxy: markdown negotiation, 406, Link headers, crawler alerts
 next.config.ts              security headers + CSP, cache headers, redirects, rewrites
 app/
-  layout.tsx                <html>, fonts, root metadata, SmoothScroll, WebMCP script, <Beacon/>
+  layout.tsx                <html>, fonts, root metadata, SmoothScroll, WebMCP script, <Beacon/>, <ConsentBanner/>, <Analytics/>
   globals.css               design tokens + every original section's CSS
   pages.css                 inner pages, the one header/footer, résumé print CSS, later fixes
   page.tsx                  home page assembly + its JSON-LD
@@ -102,7 +102,7 @@ app/
   notes/rss.xml/route.ts    RSS 2.0 feed of the notes
   md/[[...slug]]/route.ts   markdown views (content from lib/markdown.ts) + markdown 404
   manifest.ts               web app manifest
-  opengraph-image.tsx       home OG card (all OG cards via lib/og.tsx)
+  opengraph-image.jpg       photo share card (+ .alt.txt) — home, about, contact, résumé
   favicon.ico icon.png apple-icon.png   SKS monogram on black
   api/mcp/route.ts          MCP server (Streamable HTTP) + WebMCP bridge script
   api/mcp/server-card/      MCP server card JSON
@@ -115,6 +115,7 @@ components/
   site/                     SiteHeader, SiteFooter, PageShell, Breadcrumbs, ContactLinks, PrintButton
   ui/                       CommandPalette, Terminal, ProjectModal, SimModal, ContactModal, Toast
   beacon/                   Beacon (client collector), TrackingOptOut (privacy switch)
+  analytics/                Analytics (GA4 + Clarity loader), ConsentBanner (+ CookieSettingsButton)
   BgVideo, ConstellationBackground, JsonLd, RevealObserver, SmoothScroll
 lib/
   site.ts                   ★ single source of truth: URL, PERSON, SUMMARY, SITE_NAME, KEYWORDS, RESUME_PDF, GITHUB_USER
@@ -133,6 +134,8 @@ lib/
   mcp.ts                    MCP server name/version, WebMCP tool list
   sitemap.ts                sitemap entries with real content dates
   negotiate.ts              Accept-header content negotiation (pure, tested)
+  consent.ts                cookie consent store + GA/Clarity IDs (opt-in analytics)
+  hot-actions.ts            what counts as a hot action (shared by beacon + GA events)
   nav.ts                    header NAV + FOOTER_NAV
   contact.ts                encoded phone + WhatsApp greeting
   github.ts                 "Last shipped" ticker (server fetch, 6 h ISR)
@@ -428,7 +431,10 @@ name). Title template: `%s — Shreyansh Kumar Singh`.
 | case studies / notes | their own titles (case studies are project-specific) |
 
 Rules: descriptions ≤ 160 characters; per-page `keywords`; a share image
-on every page (§15); canonicals are **always**
+on every page (§15); every page's `openGraph` spreads **`OG_BASE`**
+(`lib/site.ts` — `siteName` + `locale: en_IN`), because a page-level
+`openGraph` replaces the layout's instead of merging (that once dropped
+`og:site_name` site-wide; `npm run verify` now checks it); canonicals are **always**
 `https://www.shreyanshkumarsingh.com/…` (`SITE_URL` is fixed to www in
 production — never derived from `VERCEL_URL`); the apex and the
 `shreyanshkumarsingh.vercel.app` alias 308 to www.
@@ -587,6 +593,28 @@ treated as the opt-out (Imprint's reasoning, kept).
   `*.analytics.google.com`, `www.googletagmanager.com`, `*.clarity.ms`,
   `c.bing.com`.
 - `npm run verify` fails if a GA/Clarity tag ever appears in server HTML.
+- **Accounts**: GA4 property "shreyanshkumarsingh.com" (industry Jobs &
+  Education, India time zone, INR), web stream "My portfolio website",
+  stream ID `16067833946`, enhanced measurement on (page views, scrolls,
+  outbound clicks, site search, video, file downloads, form interactions),
+  email redaction active. Clarity project "SKS Portfolio".
+- **What a hit looks like** (DevTools → Network, after Accept):
+  `https://www.google-analytics.com/g/collect?v=2&tid=G-NQJCRJ7B2Z&…&gcs=G101`
+  (`G101` = analytics granted, ads denied) and
+  `https://k.clarity.ms/collect` → 204. Also loaded: `www.googletagmanager.com/gtag/js`,
+  `www.clarity.ms/tag/yui86woola`, `scripts.clarity.ms/<version>/clarity.js`,
+  `c.clarity.ms/c.gif`.
+- **Dashboard warnings that are expected**: GA's "Your Google tag wasn't
+  detected" (its checker can't click Accept — consent-gated tags are
+  invisible to it); GA's "Data collection isn't active" / "No data
+  received" and Clarity's "Almost there!" (status flags that lag real data
+  by 30 min–48 h). Confirm with GA Realtime / Tag Assistant
+  (tagassistant.google.com — click Accept inside its window) instead.
+  **Never paste the vendors' install snippets into the site**: that would
+  double-count and load them without consent.
+- **Coverage**: only visitors who accept and don't run ad/tracking blockers
+  are counted, so GA/Clarity numbers are lower than the Telegram beacon's
+  (first-party, cookie-free).
 
 ---
 
@@ -656,16 +684,21 @@ geolocation, payment, usb, interest-cohort off), `Cross-Origin-Opener-Policy:
 same-origin`.
 
 CSP on everything except `/sims/*`:
-`default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'
-'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; font-src
-'self'; connect-src 'self'; frame-src 'self'; frame-ancestors 'none';
-object-src 'none'; base-uri 'self'; form-action 'self';
-upgrade-insecure-requests` + `X-Frame-Options: DENY`.
+`default-src 'self'; script-src 'self' 'unsafe-inline'
+https://www.googletagmanager.com https://*.clarity.ms; style-src 'self'
+'unsafe-inline'; img-src 'self' data: blob: <GA + Clarity hosts>; media-src
+'self'; font-src 'self'; connect-src 'self' <GA + Clarity hosts>; frame-src
+'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self';
+form-action 'self'; upgrade-insecure-requests` + `X-Frame-Options: DENY`.
+GA + Clarity hosts = `www.googletagmanager.com`, `*.google-analytics.com`,
+`*.analytics.google.com`, `*.clarity.ms`, `c.bing.com` (§11a).
 `'unsafe-inline'` scripts are required by Next's inline bootstrap on static
 pages (nonces would force dynamic rendering). `/sims/*` keeps its own inline
 code and may be framed same-origin (`X-Frame-Options: SAMEORIGIN`).
-The browser makes **no third-party requests** (fonts, images, video all
-self-hosted; the beacon's geo lookups and Telegram calls are server-side).
+Until a visitor accepts analytics cookies, the browser makes **no
+third-party requests** (fonts, images, video all self-hosted; the beacon's
+geo lookups and Telegram calls are server-side). After Accept, only the GA
+and Clarity hosts above.
 In `next dev` the console shows React "eval() is not supported" warnings —
 dev-only, caused by the CSP; production is clean.
 
@@ -867,6 +900,11 @@ beacon rate limits exist for this; don't remove them.
 | `3552b23` | 2026-10-08 | Schema-ordered sitemap (Google), IndexNow to every engine |
 | `75d8ed0` | 2026-10-08 | Crawler sitemap reads alert bot 1 |
 | `bffb9f8` | 2026-10-08 | `Accept: text/plain` → markdown instead of 406 |
+| `9efe0f4` | 2026-10-08 | HANDOFF.md + this bible; public-repo hygiene (no phone digits, bank name or retired short name in tracked files; legacy HTML moved out) |
+| `f53e04a` | 2026-10-08 | Client's photo share card for home/about/contact/résumé; stale generated-card headlines fixed |
+| `60893dd` | 2026-10-08 | `og:site_name` + `og:locale` restored on every page (`OG_BASE`) |
+| `49719a0` | 2026-10-08 | Opt-in GA4 + Microsoft Clarity behind a cookie banner; `lib/hot-actions.ts` shared with the beacon |
+| `5f294cf` | 2026-10-08 | GA4 `G-NQJCRJ7B2Z` and Clarity `yui86woola` switched on |
 
 The original static files were moved out of the repo (they used the
 retired short name and named the bank); local copies are in
