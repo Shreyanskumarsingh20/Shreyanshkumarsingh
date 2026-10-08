@@ -12,6 +12,7 @@ import { FAQS, FAQ_GROUPS } from "@/lib/faqs";
 import { SKILL_GROUPS } from "@/lib/skills";
 import { EXPERIENCE_CASES, COMPANY_FACTS, HOW_THE_WORK_RUNS } from "@/lib/experience";
 import { ABOUT_SECTIONS, ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
+import { NOTES, noteBySlug, noteHref } from "@/lib/notes";
 import { plain } from "@/lib/jsonld";
 
 type Doc = { title: string; description: string; updated: string; body: string[] };
@@ -252,6 +253,73 @@ function project(slug: string): Doc | null {
   };
 }
 
+function notes(): Doc {
+  return {
+    title: `Notes — ${PERSON.name}`,
+    description: "Technical answers from his own projects.",
+    updated: "2026-10-08",
+    body: [`# Notes — ${PERSON.name}`, "", ...NOTES.flatMap((n) => [`## [${n.question}](${abs(noteHref(n.slug))})`, "", n.answer, ""])],
+  };
+}
+
+const FENCE = "`".repeat(3);
+
+function note(slug: string): Doc | null {
+  const n = noteBySlug(slug);
+  if (!n) return null;
+  return {
+    title: n.title,
+    description: n.description,
+    updated: n.updated,
+    body: [
+      `# ${n.title}`,
+      "",
+      `By ${PERSON.name} · ${n.published}`,
+      "",
+      `**${n.question}**`,
+      "",
+      n.answer,
+      "",
+      ...n.sections.flatMap((s) => [
+        `## ${s.h}`,
+        "",
+        ...(s.p ?? []).flatMap((t) => [t, ""]),
+        ...(s.list ? [...s.list.map((t) => `- ${t}`), ""] : []),
+        ...(s.code ? [FENCE + s.code.lang, s.code.text, FENCE, ""] : []),
+      ]),
+    ],
+  };
+}
+
+function resume(): Doc {
+  return {
+    title: `Résumé — ${PERSON.name}`,
+    description: SUMMARY,
+    updated: "2026-10-08",
+    body: [
+      `# ${PERSON.name} — Résumé`,
+      "",
+      `${PERSON.jobTitle} · ${PERSON.locality}, ${PERSON.countryName} · ${PERSON.email} · ${PERSON.linkedin}`,
+      "",
+      "## Experience",
+      "",
+      `- **${PERSON.employer.role}, ${PERSON.employer.name}, Pune** — January 2023 – present. Classroom+ LMS (admin, student, faculty apps), PIBM journal portal, Dada Udyogini marketplace apps (with DadaLoad distributed k6 load testing), Vidur Industry Connect. Details: ${abs("/experience")}`,
+      "",
+      "## Projects",
+      "",
+      ...PROJECTS.map((p) => `- [${p.name}](${abs(projectHref(p.slug))}) — ${p.line} (${p.stack.join(", ")})`),
+      "",
+      "## Skills",
+      "",
+      ...SKILL_GROUPS.map((g) => `- **${g.title}:** ${g.skills.map((s) => s.name).join("; ")}`),
+      "",
+      "## Education",
+      "",
+      `- ${PERSON.education.degree}, ${PERSON.education.school}, ${PERSON.education.start}–${PERSON.education.end}`,
+    ],
+  };
+}
+
 /** Markdown for a site path, or null if there's no such page. */
 export function markdownFor(path: string): string | null {
   const clean = path.replace(/\/+$/, "") || "/";
@@ -265,6 +333,9 @@ export function markdownFor(path: string): string | null {
   else if (clean === "/privacy") doc = privacy();
   else if (clean === "/projects") doc = projects();
   else if (clean.startsWith("/projects/")) doc = project(clean.slice("/projects/".length));
+  else if (clean === "/notes") doc = notes();
+  else if (clean.startsWith("/notes/")) doc = note(clean.slice("/notes/".length));
+  else if (clean === "/resume") doc = resume();
   if (!doc) return null;
   return [...frontmatter(clean === "/index" ? "/" : clean, doc), ...doc.body, ...footer, ""].join("\n");
 }
@@ -284,4 +355,8 @@ export function notFoundMarkdown(path: string): string {
 }
 
 /** Every path that has a markdown view (for the sitemap of .md files, tests). */
-export const MARKDOWN_PATHS = ["/", "/about", "/experience", "/skills", "/faq", "/contact", "/privacy", "/projects", ...CASE_STUDIES.map((c) => projectHref(c.slug))];
+export const MARKDOWN_PATHS = [
+  "/", "/about", "/experience", "/skills", "/faq", "/contact", "/privacy", "/resume", "/projects", "/notes",
+  ...CASE_STUDIES.map((c) => projectHref(c.slug)),
+  ...NOTES.map((n) => noteHref(n.slug)),
+];

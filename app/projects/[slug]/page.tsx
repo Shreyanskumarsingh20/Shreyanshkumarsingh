@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import { PROJECTS, projectBySlug, projectHref, projectImage } from "@/lib/projects";
 import { CASE_STUDIES, caseStudyBySlug } from "@/lib/case-studies";
 import { RESEARCH_CASES } from "@/lib/research";
+import { NOTES, noteHref } from "@/lib/notes";
 import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
 import { graph, coreNodes, breadcrumbs } from "@/lib/jsonld";
 
@@ -42,6 +43,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
   const url = `${SITE_URL}${path}`;
   const img = projectImage(p);
   const research = RESEARCH_CASES.find((r) => r.project === p.name);
+  const relatedNotes = NOTES.filter((n) => n.project === slug);
   const idx = PROJECTS.indexOf(p);
   const others = [1, 2, 3].map((k) => PROJECTS[(idx + k) % PROJECTS.length]);
   const crumbs = [
@@ -205,6 +207,24 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {relatedNotes.length > 0 && (
+          <section className="pg-section shell shell--page">
+            <h2 className="pg-h2 rise">
+              <small>NOTES FROM THIS PROJECT</small>Questions it answers
+            </h2>
+            <ul className="note-list">
+              {relatedNotes.map((n) => (
+                <li key={n.slug}>
+                  <Link href={noteHref(n.slug)}>
+                    <span className="note-q">{n.question}</span>
+                    <span className="note-a">{n.answer.split(/(?<=\.)\s/)[0]}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 

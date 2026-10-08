@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { PROJECTS, projectBySlug, projectHref, projectImage } from "@/lib/projects";
 import { CASE_STUDIES } from "@/lib/case-studies";
+import { NOTES, noteHref } from "@/lib/notes";
 import { EXPERIENCE_CASES } from "@/lib/experience";
 
 // lastModified is the date the page's *content* last changed — never the
@@ -18,6 +19,8 @@ const UPDATED = {
   contact: "2026-10-08",
   privacy: "2026-10-08",
   projects: "2026-10-08",
+  notes: "2026-10-08",
+  resume: "2026-10-08",
 } as const;
 
 function projectImages(): string[] {
@@ -56,6 +59,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       images: [`${SITE_URL}/images/shreyansh-kumar-singh-portrait.jpg`],
     },
     { url: `${SITE_URL}/privacy`, lastModified: UPDATED.privacy },
+    { url: `${SITE_URL}/resume`, lastModified: UPDATED.resume },
+    { url: `${SITE_URL}/notes`, lastModified: UPDATED.notes },
+    ...NOTES.map((n) => ({ url: `${SITE_URL}${noteHref(n.slug)}`, lastModified: n.updated })),
     { url: `${SITE_URL}/projects`, lastModified: UPDATED.projects, images: projectImages() },
     ...CASE_STUDIES.map((cs) => {
       const p = projectBySlug(cs.slug);

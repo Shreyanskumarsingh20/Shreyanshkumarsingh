@@ -5,6 +5,7 @@ import { PROJECTS, projectHref } from "@/lib/projects";
 import { CASE_STUDIES, caseStudyBySlug } from "@/lib/case-studies";
 import { FAQS } from "@/lib/faqs";
 import { SKILL_GROUPS } from "@/lib/skills";
+import { NOTES, noteHref } from "@/lib/notes";
 import { markdownFor, MARKDOWN_PATHS } from "@/lib/markdown";
 import { MCP_SERVER_NAME, MCP_SERVER_VERSION, WEBMCP_TOOLS } from "@/lib/mcp";
 
@@ -121,7 +122,7 @@ const handler = createMcpHandler(
       {
         title: "Search the portfolio",
         description:
-          "Keyword search across FAQ answers and project case studies. Returns the best-matching passages with their URLs. Good for questions like 'has he built RAG?' or 'how does Nythera avoid false positives?'.",
+          "Keyword search across FAQ answers, project case studies and technical notes. Returns the best-matching passages with their URLs. Good for questions like 'has he built RAG?' or 'how does Nythera avoid false positives?'.",
         inputSchema: z.object({
           query: z.string().min(2).max(200).describe("Words to look for"),
           limit: z.number().int().min(1).max(10).default(5).describe("Maximum results"),
@@ -136,6 +137,11 @@ const handler = createMcpHandler(
             title: c.h1,
             text: [c.tldr, ...c.problem, ...c.built.map((b) => `${b.title}. ${b.body}`), ...c.decision.body, ...c.result].join(" "),
             url: abs(projectHref(c.slug)),
+          })),
+          ...NOTES.map((n) => ({
+            title: n.title,
+            text: [n.answer, ...n.sections.flatMap((s) => [s.h, ...(s.p ?? []), ...(s.list ?? [])])].join(" "),
+            url: abs(noteHref(n.slug)),
           })),
         ];
         const scored = docs

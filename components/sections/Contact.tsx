@@ -42,9 +42,9 @@ export default function Contact() {
           <a className="btn btn-ghost" href={PERSON.github} target="_blank" rel="noopener me">
             GitHub — {GITHUB_USER}
           </a>
-          <button type="button" className="btn btn-ghost" id="printTrigger">
-            Résumé (PDF) ↓
-          </button>
+          <Link className="btn btn-ghost" href="/resume">
+            Résumé
+          </Link>
         </div>
         <div className="site-foot-cols site-foot-cols--home">
           {FOOTER_NAV.map((col) => (

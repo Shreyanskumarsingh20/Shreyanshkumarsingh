@@ -179,6 +179,21 @@
 a.pg-card{ color:inherit; text-decoration:none; display:flex; flex-direction:column; gap:8px; transition:border-color .3s var(--ease); }
 a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
 
+/* ---------- notes ---------- */
+.note-list{ list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+.note-list li{ border-bottom:1px solid var(--line); }
+.note-list a{ display:flex; flex-direction:column; gap:8px; padding:24px 0; color:inherit; text-decoration:none; }
+.note-list a:hover .note-q{ color:var(--gold); }
+.note-q{ font-size:clamp(1.05rem,2vw,1.3rem); font-weight:500; line-height:1.4; color:var(--white); transition:color .25s var(--ease); }
+.note-a{ font-size:14.5px; line-height:1.7; color:#bdbdbd; max-width:72ch; }
+.note-meta{ font-size:11.5px; color:var(--steel); }
+.note-h1{ font-size:clamp(2rem,4.6vw,3.4rem); max-width:22ch; }
+.note-body{ padding-bottom:var(--lg); }
+.note-body section{ margin-top:var(--lg); }
+.note-body h2{ font-size:1.3rem; font-weight:600; text-transform:none; margin:0 0 14px; color:var(--white); }
+.note-code{ margin:0 0 18px; padding:18px 20px; background:#0b0b0b; border:1px solid var(--line); border-radius:8px; overflow-x:auto; font-size:13px; line-height:1.6; }
+.note-code code{ font-family:var(--font-jetbrains-mono),monospace; color:#e6e6e6; white-space:pre; }
+
 /* ---------- sitewide footer (inner pages) ---------- */
 .site-foot{ position:relative; border-top:1px solid var(--line); background:rgba(8,8,8,.88); padding:var(--xl) 0 var(--lg); margin-top:var(--xl); }
 .site-foot-top{ display:grid; grid-template-columns:1fr; gap:var(--lg); }
@@ -201,7 +216,39 @@ a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
 .nf{ min-height:70vh; display:flex; align-items:center; }
 .nf-code{ font-family:var(--font-jetbrains-mono),monospace; color:var(--gold); font-size:13px; letter-spacing:.3em; }
 
+/* ---------- résumé ---------- */
+.resume{ padding-block:24px var(--xl); }
+.resume-head h1{ margin:0; font-size:clamp(2rem,5vw,3.2rem); font-weight:500; text-transform:uppercase; letter-spacing:-.01em; }
+.resume-role{ margin:8px 0 6px; font-size:15px; color:var(--gold); font-weight:600; }
+.resume-contact{ margin:0; font-size:13.5px; color:#c4c4c4; line-height:1.7; }
+.resume-contact a{ color:inherit; }
+.resume-actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top:20px; }
+.resume section{ margin-top:var(--lg); }
+.resume h2{ font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin:0 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); font-weight:600; }
+.resume h3{ font-size:1rem; font-weight:600; margin:0 0 6px; text-transform:none; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.resume h3 span{ font-weight:400; color:var(--steel); font-size:14px; }
+.resume h4{ font-size:14.5px; font-weight:600; margin:18px 0 6px; color:#e6e6e6; text-transform:none; }
+.resume p,.resume li{ font-size:14.5px; line-height:1.7; color:#c4c4c4; }
+.resume p{ margin:0 0 8px; }
+.resume ul{ margin:0; padding-left:20px; }
+.resume li{ margin-bottom:4px; }
+.resume-projects{ list-style:none; padding-left:0 !important; }
+.resume-projects li{ margin-bottom:10px; }
+.resume-projects a{ color:var(--white); }
+.resume-stack{ display:block; font-size:12.5px; color:var(--steel); }
+.resume-skills{ margin:0; }
+.resume-skills div{ display:grid; grid-template-columns:1fr; gap:2px; padding:6px 0; }
+@media(min-width:640px){ .resume-skills div{ grid-template-columns:150px 1fr; gap:16px; } }
+.resume-skills dt{ font-weight:600; font-size:14px; color:#e6e6e6; }
+.resume-skills dd{ margin:0; font-size:14px; color:#c4c4c4; line-height:1.6; }
+
 @media print{
-  .topbar,.site-menu,.site-foot,#constellation{ display:none !important; }
+  .topbar,.site-menu,.site-foot,#constellation,.crumbs,.resume-actions{ display:none !important; }
   .pg{ padding-top:0; }
+  html,body{ background:#fff !important; color:#000 !important; }
+  .resume,.resume *{ color:#000 !important; border-color:#bbb !important; }
+  .resume-role,.resume h2{ color:#1f3d6b !important; }
+  .resume a{ text-decoration:none; }
+  .resume{ padding:0; max-width:none; }
+  .resume section{ margin-top:14px; break-inside:avoid-page; }
 }
