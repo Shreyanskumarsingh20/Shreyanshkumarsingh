@@ -27,13 +27,16 @@ const AGENT_FILES = new Set([
   "/.well-known/mcp/server-card.json",
   "/.well-known/security.txt",
   "/notes/rss.xml",
+  // a search engine reading the sitemap — rare, and the only proof that
+  // Search Console's "Couldn't fetch" has actually turned into a fetch
+  "/sitemap.xml",
 ]);
 
 /**
  * Paths worth an alert at all. Assets are noise: one page view would otherwise
- * fan out into a dozen messages. robots.txt and sitemap.xml are excluded too —
- * every well-behaved crawler fetches them first, and the page fetch that
- * follows carries the same news with a path attached.
+ * fan out into a dozen messages. robots.txt is excluded too — every
+ * well-behaved crawler fetches it first, and the page fetch that follows
+ * carries the same news. sitemap.xml is reported (see AGENT_FILES).
  *
  * ⚠ Not the first filter: nearly every probe target ends in what looks like a
  * file extension (`.env`, `wp-login.php`, `dump.sql`), so callers check
@@ -43,7 +46,7 @@ export function isReportablePath(pathname: string): boolean {
   if (AGENT_FILES.has(pathname)) return true;
   if (pathname === "/api/mcp") return true; // an MCP client connecting
   if (pathname.startsWith("/_next/") || pathname.startsWith("/api/")) return false;
-  if (pathname === "/robots.txt" || pathname === "/sitemap.xml") return false;
+  if (pathname === "/robots.txt") return false;
   // the markdown twin of a page — an agent reading on purpose
   if (pathname.endsWith(".md")) return true;
   // Next's generated share cards have no extension: /about/opengraph-image-1x2y

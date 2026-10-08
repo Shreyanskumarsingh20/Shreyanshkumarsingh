@@ -44,6 +44,8 @@ test("only pages and agent files raise alerts, not assets", () => {
   assert.equal(isReportablePath("/api/mcp"), true);
   assert.equal(isReportablePath("/api/beacon"), false);
   assert.equal(isReportablePath("/robots.txt"), false);
+  assert.equal(isReportablePath("/sitemap.xml"), true);
+  assert.equal(classifyPath("/sitemap.xml").known, true);
   assert.equal(isReportablePath("/shots/nythera-real.jpg"), false);
   assert.equal(isReportablePath("/about/opengraph-image-1x2y3z"), false);
 });

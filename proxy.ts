@@ -83,7 +83,7 @@ export const config = {
     // everything except Next internals, API routes, static asset folders and
     // metadata files. /.well-known/* and llms*.txt are included for the
     // agent alerts (and passed straight through above).
-    "/((?!_next/|api/|md/|media/|images/|shots/|sims/|logo/|brand/|favicon|apple-icon|opengraph-image|manifest|robots\\.txt|sitemap\\.xml).*)",
+    "/((?!_next/|api/|md/|media/|images/|shots/|sims/|logo/|brand/|favicon|apple-icon|opengraph-image|manifest|robots\\.txt).*)",
     // MCP clients connecting — observed for the alert, then passed through
     "/api/mcp",
   ],

@@ -52,6 +52,7 @@ const MEANING: Partial<Record<CrawlerKind, string>> = {
 
 function verb(kind: CrawlerKind, pathname: string): string {
   if (pathname === "/api/mcp") return "connected to the MCP server";
+  if (pathname === "/sitemap.xml") return "read the sitemap";
   if (pathname.startsWith("/llms") || pathname.endsWith(".md")) return "read the AI-readable view";
   return kind === "live" ? "fetched a page" : kind === "social" ? "built a link preview" : "crawled a page";
 }
