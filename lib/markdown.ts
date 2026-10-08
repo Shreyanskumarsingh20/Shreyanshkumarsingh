@@ -4,11 +4,11 @@
 // pages render, so the two can't drift. The phone number is deliberately
 // never included — agents get email and the /contact page.
 
-import { SITE_URL, PERSON, SUMMARY, KNOWS_ABOUT, GITHUB_USER } from "@/lib/site";
+import { SITE_URL, PERSON, SUMMARY, KNOWS_ABOUT, GITHUB_USER, RESUME_PDF } from "@/lib/site";
 import { PROJECTS, projectBySlug, projectHref } from "@/lib/projects";
 import { CASE_STUDIES, caseStudyBySlug } from "@/lib/case-studies";
 import { RESEARCH_CASES } from "@/lib/research";
-import { FAQS, FAQ_GROUPS } from "@/lib/faqs";
+import { FAQS, FAQ_GROUPS, FAQ_GROUP_LABELS } from "@/lib/faqs";
 import { SKILL_GROUPS } from "@/lib/skills";
 import { EXPERIENCE_CASES, COMPANY_FACTS, HOW_THE_WORK_RUNS } from "@/lib/experience";
 import { ABOUT_SECTIONS, ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
@@ -41,11 +41,11 @@ const footer = [
 
 function home(): Doc {
   return {
-    title: `${PERSON.name} — Applied AI & Full-Stack Engineer, Pune`,
+    title: `${PERSON.name} — AI & Full-Stack Engineer, Pune`,
     description: SUMMARY,
     updated: "2026-10-08",
     body: [
-      `# ${PERSON.name}`,
+      `# ${PERSON.name} — ${PERSON.jobTitle}`,
       "",
       `> ${SUMMARY}`,
       "",
@@ -56,11 +56,11 @@ function home(): Doc {
       `- [Experience](${abs("/experience")}) — RamanByte, since January 2023`,
       `- [Skills](${abs("/skills")}) · [FAQ](${abs("/faq")}) · [Contact](${abs("/contact")})`,
       "",
-      "## The range — nine projects",
+      "## Projects (THE RANGE) — nine case studies",
       "",
       ...PROJECTS.map((p) => `- [${caseStudyBySlug(p.slug)?.h1 ?? p.name}](${abs(projectHref(p.slug))}) — ${p.line}`),
       "",
-      "## Research notes",
+      "## Research findings",
       "",
       ...RESEARCH_CASES.flatMap((c) => c.notes.map((n) => `- **${n.title}** (${c.project}): ${n.finding}`)),
     ],
@@ -69,13 +69,13 @@ function home(): Doc {
 
 function about(): Doc {
   return {
-    title: `About ${PERSON.name} — AI Engineer in Pune, India`,
+    title: `About ${PERSON.name} — ${PERSON.jobTitle}`,
     description: SUMMARY,
     updated: ABOUT_UPDATED,
     body: [
       `# About ${PERSON.name}`,
       "",
-      `${PERSON.name} is an AI and full-stack engineer in ${PERSON.locality}, ${PERSON.countryName}. He pairs nearly four years of production enterprise software at ${PERSON.employer.name} with independent AI work — retrieval-augmented generation, LLM agent systems and autonomous security tooling — and writes down what a system must be before building it, then attacks it as an outsider would.`,
+      `${PERSON.name} is an AI & full-stack engineer in ${PERSON.locality}, ${PERSON.countryName}. He pairs nearly four years of production enterprise software at ${PERSON.employer.name} with independent AI work — retrieval-augmented generation, LLM agent systems and autonomous security tooling — and writes down what a system must be before building it, then attacks it as an outsider would.`,
       "",
       "## Key facts",
       "",
@@ -88,7 +88,7 @@ function about(): Doc {
       `- **Profiles:** [LinkedIn](${PERSON.linkedin}) · [GitHub (${GITHUB_USER})](${PERSON.github}) · [X (${PERSON.xHandle})](${PERSON.x})`,
       "",
       ...ABOUT_SECTIONS.flatMap((s) => [`## ${s.h}`, "", ...s.p.flatMap((t) => [t, ""])]),
-      "## Timeline",
+      "## Career timeline",
       "",
       ...ABOUT_TIMELINE.map((t) => `- **${t.when} — ${t.what}.** ${t.detail}`),
     ],
@@ -101,15 +101,15 @@ function experience(): Doc {
     description: `${PERSON.name} has been a full-stack developer at RamanByte, Pune, since January 2023.`,
     updated: "2026-10-08",
     body: [
-      `# Experience — ${PERSON.employer.name}`,
+      `# Experience — ${PERSON.name}, full-stack at ${PERSON.employer.name}`,
       "",
       `${PERSON.name} has been a full-stack developer at ${PERSON.employer.name}, Pune, since January 2023, owning the whole vertical slice: ASP.NET Web API, SQL Server schema, and the Angular or Flutter client.`,
       "",
-      "## The company",
+      "## About RamanByte, the company",
       "",
       ...COMPANY_FACTS.map((f) => `- **${f.dt}:** ${plain(f.dd)}`),
       "",
-      "## How the work runs",
+      "## How projects run at RamanByte",
       "",
       ...HOW_THE_WORK_RUNS.map((b) => `${b.n}. **${b.title}** — ${plain(b.bodyHtml)}`),
       "",
@@ -129,11 +129,11 @@ function experience(): Doc {
 
 function skills(): Doc {
   return {
-    title: `Skills — ${PERSON.name}`,
+    title: `Skills — ${PERSON.name}, ${PERSON.jobTitle}`,
     description: "Every skill, linked to where it was used.",
     updated: "2026-10-08",
     body: [
-      `# Skills — ${PERSON.name}`,
+      `# Skills of ${PERSON.name} — ${PERSON.jobTitle}`,
       "",
       ...SKILL_GROUPS.flatMap((g) => [
         `## ${g.title}`,
@@ -152,14 +152,14 @@ function skills(): Doc {
 
 function faq(): Doc {
   return {
-    title: `FAQ — ${PERSON.name}`,
+    title: `FAQ — ${PERSON.name}, ${PERSON.jobTitle}`,
     description: "Direct answers about his background, work and availability.",
     updated: "2026-10-08",
     body: [
-      `# FAQ — ${PERSON.name}`,
+      `# Frequently asked questions about ${PERSON.name}`,
       "",
       ...FAQ_GROUPS.flatMap((g) => [
-        `## ${g}`,
+        `## ${FAQ_GROUP_LABELS[g]}`,
         "",
         ...FAQS.filter((f) => f.group === g).flatMap((f) => [`### ${f.q}`, "", f.a, ""]),
       ]),
@@ -169,7 +169,7 @@ function faq(): Doc {
 
 function contact(): Doc {
   return {
-    title: `Contact ${PERSON.name}`,
+    title: `Contact ${PERSON.name} — ${PERSON.jobTitle}`,
     description: "Email, phone and WhatsApp.",
     updated: "2026-10-08",
     body: [
@@ -188,13 +188,19 @@ function contact(): Doc {
 
 function privacy(): Doc {
   return {
-    title: "Privacy — shreyanshkumarsingh.com",
-    description: "No cookies, no tracking, no forms.",
+    title: `Privacy Policy — ${PERSON.name}`,
+    description: "No cookies or ads; first-party visit logging you can switch off.",
     updated: "2026-10-08",
     body: [
-      "# Privacy",
+      "# Privacy policy",
       "",
-      "This site sets no cookies, runs no tracking scripts and has no forms. It is hosted on Vercel, which processes standard request data to serve it. The home page stores one sessionStorage flag (intro animation already seen). Everything is self-hosted — the browser makes no third-party requests.",
+      "This site sets no cookies, shows no ads and has no forms. Everything is self-hosted — the browser makes no third-party requests. It is hosted on Vercel.",
+      "",
+      "## Visit logging",
+      "",
+      "Each visit is logged first-party and sent privately to Shreyansh as a Telegram message: IP address and its approximate city, country and network provider (from Vercel and ipwho.is / ipapi.co), browser, OS, screen size, language and time zone, pages viewed, scroll depth, referrer and the buttons clicked. Typed text is never recorded. Requests from crawlers and AI agents are logged from the request itself. There is no database; logs are not sold or shared.",
+      "",
+      `Opt out in your browser: ${abs("/?notrack=1")} (undo: ${abs("/?notrack=0")}), or use the switch at ${abs("/privacy")}.`,
       "",
       `Questions or removal requests: ${PERSON.email}.`,
     ],
@@ -207,7 +213,7 @@ function projects(): Doc {
     description: "Nine projects, each with a case study.",
     updated: "2026-10-08",
     body: [
-      `# Projects — ${PERSON.name}`,
+      `# Projects by ${PERSON.name} — AI & full-stack case studies`,
       "",
       ...CASE_STUDIES.flatMap((c) => [`## [${c.h1}](${abs(projectHref(c.slug))})`, "", c.tldr, ""]),
     ],
@@ -234,7 +240,7 @@ function project(slug: string): Doc | null {
       "",
       ...c.facts.map(([k, v]) => `- **${k}:** ${v}`),
       "",
-      "## The problem",
+      "## The problem it solves",
       "",
       ...c.problem.flatMap((t) => [t, ""]),
       "## What he built",
@@ -258,7 +264,7 @@ function notes(): Doc {
     title: `Notes — ${PERSON.name}`,
     description: "Technical answers from his own projects.",
     updated: "2026-10-08",
-    body: [`# Notes — ${PERSON.name}`, "", ...NOTES.flatMap((n) => [`## [${n.question}](${abs(noteHref(n.slug))})`, "", n.answer, ""])],
+    body: [`# Technical notes by ${PERSON.name} — AI & full-stack engineering`, "", ...NOTES.flatMap((n) => [`## [${n.question}](${abs(noteHref(n.slug))})`, "", n.answer, ""])],
   };
 }
 
@@ -300,6 +306,8 @@ function resume(): Doc {
       `# ${PERSON.name} — Résumé`,
       "",
       `${PERSON.jobTitle} · ${PERSON.locality}, ${PERSON.countryName} · ${PERSON.email} · ${PERSON.linkedin}`,
+      "",
+      `PDF version: ${abs(RESUME_PDF)} (phone number on request via ${abs("/contact")})`,
       "",
       "## Experience",
       "",

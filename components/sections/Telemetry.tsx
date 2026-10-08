@@ -14,9 +14,9 @@ export default function Telemetry() {
       <div className="telemetry-video-overlay" aria-hidden="true"></div>
       <div className="shell">
         <div className="section-head">
-          <h2 className="rise">Telemetry</h2>
+          <h2 className="rise">Tech stack</h2>
           <p className="rise" style={{ transitionDelay: "60ms" }}>
-            The instrument rack.
+            The languages, frameworks and AI tools I use in production.
           </p>
         </div>
         <div className="instr-grid" id="instrGrid">

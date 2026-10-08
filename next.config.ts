@@ -52,6 +52,22 @@ const nextConfig: NextConfig = {
         source: "/media/:file*",
         headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }],
       },
+      // logos, headshots and screenshots: unhashed filenames too, same 30 days
+      // (they defaulted to max-age=0, which PageSpeed flagged)
+      ...["/brand/:file*", "/images/:file*", "/shots/:path*"].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }],
+      })),
+      {
+        // the client's PDF résumé carries his phone number, which the site
+        // otherwise never publishes in machine-readable form — downloadable
+        // from /resume, but kept out of search indexes
+        source: "/Shreyansh_Kumar_Singh_Resume.pdf",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Content-Disposition", value: 'inline; filename="Shreyansh_Kumar_Singh_Resume.pdf"' },
+        ],
+      },
     ];
   },
   async rewrites() {

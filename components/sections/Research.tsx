@@ -19,10 +19,10 @@ export default function Research() {
     <section className="section" id="research">
       <div className="shell">
         <div className="section-head">
-          <h2 className="rise">Research</h2>
+          <h2 className="rise">Research findings</h2>
           <p className="rise" style={{ transitionDelay: "60ms" }}>
-            Ten findings, six case files — every note pinned under the
-            project it came out of, not floating on its own.
+            Ten technical findings from six of my AI and full-stack projects —
+            each one pinned under the project it came out of.
           </p>
         </div>
         <div className="research-filters" id="researchFilters">

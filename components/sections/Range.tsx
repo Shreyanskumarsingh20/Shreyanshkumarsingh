@@ -23,9 +23,10 @@ export default function Range() {
   return (
     <div className="range-wrap">
       <div className="range-intro shell">
-        <h2 className="rise">The Range</h2>
+        <h2 className="rise">Projects</h2>
         <p className="rise measure" style={{ transitionDelay: "60ms" }}>
-          Every repository below is real: the reference numbers are derived
+          Nine AI and full-stack projects by Shreyansh Kumar Singh — THE
+          RANGE. Every repository below is real: the reference numbers are derived
           from commit dates (<span className="mono">YYMM.CODE.serial</span>),
           not invented. Keep scrolling — each project pins to the top of the
           stack as the next rises over it.

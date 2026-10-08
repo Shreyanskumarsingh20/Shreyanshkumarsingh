@@ -46,7 +46,7 @@ export default function CaseStudy({ c }: { c: ExperienceCase }) {
           <div className="built">
             {c.built.map((item, i) => (
               <div key={item.title} className="built-item rise" style={{ transitionDelay: `${i * 60}ms` }}>
-                <h4 dangerouslySetInnerHTML={{ __html: item.title }} />
+                <h3 dangerouslySetInnerHTML={{ __html: item.title }} />
                 <p dangerouslySetInnerHTML={{ __html: item.bodyHtml }} />
               </div>
             ))}

@@ -48,6 +48,34 @@ once in `lib/site.ts`.
   after each successful production deploy.
 - The phone number is never in HTML, JSON-LD, llms.txt or markdown — it's
   assembled client-side on click (`lib/contact.ts`, `components/site/ContactLinks.tsx`).
+  The client's PDF résumé (`public/Shreyansh_Kumar_Singh_Resume.pdf`) does carry
+  it, so it is served `X-Robots-Tag: noindex`.
+- **Keywords**: every title, H1 and description works in "Shreyansh Kumar Singh"
+  and/or "AI & Full-Stack Engineer" (`lib/site.ts` `PRIMARY_KEYWORDS`).
+
+## Visit alerts (Telegram beacon)
+
+Ported from the Imprint project. Two optional bots, set as Vercel environment
+variables (Production), each a no-op when unset:
+
+| Variables | Receives |
+| --- | --- |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | everything: crawler, AI-agent and MCP-client fetches, probes, and every visit (bots included) |
+| `TELEGRAM_HUMAN_BOT_TOKEN`, `TELEGRAM_HUMAN_CHAT_ID` | real people only: arrival + end-of-visit report when the visitor scores human, and hot actions (Call, WhatsApp, Email, Show number, PDF résumé, LinkedIn/GitHub/X, contact page) |
+
+- Client: `components/beacon/Beacon.tsx` (in the root layout). Server:
+  `app/api/beacon/route.ts`; crawler alerts fire from `proxy.ts` via `waitUntil`.
+- Logic in `lib/beacon/` — `routing.ts` decides which bot gets what, `bot.ts`
+  scores human vs bot, `crawlers.ts` / `paths.ts` classify requests.
+- `GET /api/beacon` is a health check (shows which bots are configured, never
+  the tokens). Opt out per browser with `/?notrack=1`; disclosed on `/privacy`.
+- Silent on localhost unless `NEXT_PUBLIC_BEACON_DEBUG=1`.
+
+## Tests and checks
+
+- `npm test` — unit tests (`tests/*.test.ts`, Node's built-in runner).
+- `npm run verify` — end-to-end checks of every public endpoint against
+  production; `npm run verify -- http://localhost:3000` against `next start`.
 
 ## Performance notes
 

@@ -7,9 +7,9 @@ import { SITE_URL, PERSON_ID } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 const UPDATED = "2026-10-08";
-const TITLE = "Skills — Shreyansh Kumar Singh: RAG, LLM Agents, .NET, Angular";
+const TITLE = "Skills — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh's skills, each linked to real work: RAG and LLM agents, C# and ASP.NET Core, Angular, Next.js, SQL Server, Flutter, R3F.";
+  "Skills of Shreyansh Kumar Singh, AI & full-stack engineer, each linked to real work: RAG, LLM agents, C#, ASP.NET Core, Angular, Next.js, SQL Server.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Skills", path: "/skills" },
@@ -18,7 +18,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  keywords: ["Shreyansh Kumar Singh skills", "RAG", "LLM agents", "C#", "ASP.NET Core", "Angular 18 Signals", "Next.js", "React Three Fiber"],
+  keywords: ["Shreyansh Kumar Singh skills", "AI & Full-Stack Engineer skills", "RAG", "LLM agents", "C#", "ASP.NET Core", "Angular 18 Signals", "Next.js"],
   alternates: { canonical: "/skills", types: { "text/markdown": "/skills.md" } },
   openGraph: { type: "website", url: "/skills", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
@@ -54,9 +54,9 @@ export default function SkillsPage() {
       <section className="pg-hero shell shell--page">
         <p className="pg-kicker mono rise now">Skills</p>
         <h1 className="pg-h1 rise now" style={{ animationDelay: "60ms" }}>
-          What Shreyansh
+          Skills of Shreyansh Kumar Singh
           <br />
-          <span className="dim">builds with</span>
+          <span className="dim">AI &amp; full-stack engineering</span>
         </h1>
         <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
           <b>Shreyansh Kumar Singh works across applied AI and production full-stack engineering</b> — RAG pipelines and

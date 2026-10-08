@@ -22,14 +22,14 @@ import { PROJECTS, projectHref, projectImage } from "@/lib/projects";
 import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
 import { graph, coreNodes } from "@/lib/jsonld";
 
-const TITLE = "Shreyansh Kumar Singh — Applied AI & Full-Stack Engineer, Pune";
+const TITLE = "Shreyansh Kumar Singh — AI & Full-Stack Engineer, Pune";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh, AI & full-stack engineer in Pune: RAG and LLM-agent systems, an autonomous pentest agent, and production .NET + Angular since 2023.";
+  "Shreyansh Kumar Singh is an AI & full-stack engineer in Pune, India, building RAG and LLM-agent systems on production .NET, Angular and Next.js.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  keywords: ["Shreyansh Kumar Singh", "Shreyansh Kumar Singh portfolio", "AI engineer Pune", "applied AI engineer", "full-stack developer Pune", "RAG", "LLM agents"],
+  keywords: ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer", "Shreyansh Kumar Singh AI & Full-Stack Engineer", "Shreyansh Kumar Singh portfolio", "AI and full-stack engineer Pune", "applied AI engineer", "RAG", "LLM agents"],
   alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
   openGraph: {
     type: "website",
@@ -63,7 +63,7 @@ const jsonLd = graph(
   {
     "@type": "ItemList",
     "@id": `${SITE_URL}/#range`,
-    name: "THE RANGE — projects by Shreyansh Kumar Singh",
+    name: "Projects by Shreyansh Kumar Singh, AI & Full-Stack Engineer (THE RANGE)",
     numberOfItems: PROJECTS.length,
     // each item is the SoftwareSourceCode node on its case-study page
     itemListElement: PROJECTS.map((p, i) => {

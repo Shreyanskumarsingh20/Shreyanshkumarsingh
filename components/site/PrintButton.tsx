@@ -1,11 +1,11 @@
 "use client";
 
-/** "Save as PDF" — the browser's print dialog over the résumé page, which
- *  has its own print stylesheet (pages.css @media print). */
+/** The browser's print dialog over the résumé page, which has its own print
+ *  stylesheet (pages.css @media print). The PDF itself is a separate download. */
 export default function PrintButton() {
   return (
-    <button type="button" className="btn btn-gold cut-sm" onClick={() => window.print()}>
-      <span>Save as PDF ↓</span>
+    <button type="button" className="btn btn-ghost" onClick={() => window.print()}>
+      Print this page
     </button>
   );
 }

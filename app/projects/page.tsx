@@ -9,9 +9,9 @@ import { SITE_URL, PERSON_ID } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 const UPDATED = "2026-10-08";
-const TITLE = "Projects — Shreyansh Kumar Singh: AI, Security, 3D & .NET";
+const TITLE = "Projects — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Nine projects by Shreyansh Kumar Singh, each a case study: a RAG copilot for banking, an AI pentest agent, multi-agent QA, a 3D museum and more.";
+  "Nine projects by Shreyansh Kumar Singh, AI & full-stack engineer: a RAG banking copilot, an AI pentest agent, multi-agent QA, a 3D museum and more.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Projects", path: "/projects" },
@@ -58,9 +58,9 @@ export default function ProjectsPage() {
       <section className="pg-hero shell shell--page">
         <p className="pg-kicker mono rise now">Projects</p>
         <h1 className="pg-h1 rise now" style={{ animationDelay: "60ms" }}>
-          Nine projects,
+          Projects by Shreyansh Kumar Singh
           <br />
-          <span className="dim">nine domains</span>
+          <span className="dim">AI &amp; full-stack case studies</span>
         </h1>
         <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
           <b>Shreyansh Kumar Singh&apos;s independent work</b>, each written up as a case study: the problem, what he

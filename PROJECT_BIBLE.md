@@ -186,9 +186,10 @@ paragraphs as JSX for no behavioral difference.
 Real project/case-study screenshots go through `next/image` with their real
 intrinsic pixel dimensions (measured directly off the files, not guessed —
 see git history if you need to re-derive them for a new asset) so there's no
-layout shift. The `card-art` full-page screenshots use `unoptimized` (they're
-meant to scroll at native resolution inside `.shot.scrollable`, not be
-resized by the image optimizer). Sim/tri thumbnails and the phone-gallery
+layout shift. The `card-art` full-page screenshots were `unoptimized` until Oct 2026; they
+now go through the optimizer with `sizes="(min-width: 860px) 640px, 100vw"`
+(WebP, never wider than the 900px originals) — PageSpeed flagged them as the
+home page's image-delivery waste. Sim/tri thumbnails and the phone-gallery
 shots use normal optimized `next/image`.
 
 ## Known traps

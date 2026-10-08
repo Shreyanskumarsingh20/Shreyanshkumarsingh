@@ -15,14 +15,14 @@ export const ABOUT_TIMELINE: { when: string; what: string; detail: string }[] = 
 /** The About page's argument, as plain paragraphs (headline → body). */
 export const ABOUT_SECTIONS: { h: string; p: string[] }[] = [
   {
-    h: "Two halves that explain each other",
+    h: "Production work and independent AI projects",
     p: [
       "For nearly four years at RamanByte he has built the learning platform Classroom+ and client systems on top of it: a peer-reviewed journal portal, admin, student and faculty apps, and a two-app artisan marketplace launched on a fixed public date.",
       "Alongside it he has built nine independent projects across nine domains: retrieval-augmented generation, autonomous security testing, AI quality assurance, 3D, physics simulation, editorial products, enterprise architecture and scroll-driven motion. The production work taught him what fails when real users arrive; the independent work is where he applies that lesson to newer problems.",
     ],
   },
   {
-    h: "How he thinks",
+    h: "How he approaches a new problem",
     p: [
       "He starts with purpose: why the thing needs to exist and who is trying to get something done with it.",
       "He treats complexity as a chain to be made legible — interface, API, logic, database, model, and the real world it touches.",
@@ -30,7 +30,7 @@ export const ABOUT_SECTIONS: { h: string; p: string[] }[] = [
     ],
   },
   {
-    h: "AI capabilities",
+    h: "AI engineering: RAG, agents and LLMs",
     p: [
       "Retrieval-augmented generation: in Sarthi, an AI relationship-manager copilot for banking, the pipeline is split into separately testable modules for embeddings, vector storage, retrieval and generation.",
       "Agent systems: Nythera runs an LLM agent loop through a seven-phase penetration-testing workflow and confirms each finding with evidence; HallogenAI coordinates eight specialized agents to verify bug fixes against live application behavior.",
@@ -39,13 +39,13 @@ export const ABOUT_SECTIONS: { h: string; p: string[] }[] = [
     ],
   },
   {
-    h: "Engineering discipline",
+    h: "How he specifies and audits his work",
     p: [
       "Almost every repository ships with a specification and a handoff document. After shipping, he audits his own work: the Sarthi audit ranks twenty findings from P0 to P3, worst first, and was published rather than quietly patched.",
     ],
   },
   {
-    h: "What he's looking for",
+    h: "Roles he is open to",
     p: [
       "Work where AI is load-bearing and correctness matters: document understanding, agent systems, security, and products that must survive real users. Open to full-time or hybrid roles in applied AI engineering, AI-focused full-stack engineering, security tooling, and senior .NET and Angular work.",
     ],

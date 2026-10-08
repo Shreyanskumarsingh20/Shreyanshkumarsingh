@@ -294,3 +294,40 @@ a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
       linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.5) 55%, var(--black) 96%);
   }
 }
+
+/* ---------- alignment pass (8 Oct 2026) ---------- */
+/* home H1: his name on one line, the role beneath it at a smaller size, so
+   the two phrases read as name + title rather than four giant lines */
+.hero h1.hero-h1{ max-width:none; font-size:clamp(2.4rem,6.6vw,5.6rem); line-height:.98; }
+.hero-h1 .hero-role{ display:block; margin-top:.22em; font-size:.56em; line-height:1.05; color:var(--steel); letter-spacing:0; }
+/* the scroll cue sits in the flow between the tickers and the stats row —
+   absolutely positioned at the hero's bottom edge it landed on top of the
+   stats */
+.hero .scroll-cue{ position:relative; left:auto; bottom:auto; transform:none; width:max-content; margin:40px auto 0; animation-name:cue-bob-flow; }
+@keyframes cue-bob-flow{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(6px); } }
+.hero .hero-stats{ margin-top:22px; }
+/* stats row: the numbers line up with the headline's left edge, the
+   dividers sit in the gutter between cells */
+.hero-stats .shell{ --cell-pad:clamp(14px,2vw,24px); }
+.hero-stats .row{ margin-inline:calc(-1 * var(--cell-pad)); }
+.hero-stats .cell{ padding-inline:var(--cell-pad); }
+/* THE BUILD: the outlined chapter number sat underneath its heading
+   (negative margin); give each its own line */
+.build-no{ margin-bottom:10px; }
+.build-chapter h3{ margin-top:0; }
+.build-close-a{ text-wrap:balance; }
+.build-close-final{ text-wrap:balance; }
+/* inner pages: the closing button row is the last thing before the footer —
+   give it the same breathing room a section has */
+.pg > .shell > .pg-cta:last-child,
+.pg > .shell--page > .pg-cta:last-child{ margin-bottom:var(--xl); }
+/* the footer on inner pages uses the same 1180px column as the page above
+   it, so its headline and links line up with the content */
+.site-footer .shell.shell--page{ --shell-max:1180px; }
+.site-footer h2 .foot-h2-role{ display:block; margin-top:.3em; font-size:.5em; color:var(--steel); letter-spacing:.02em; }
+
+/* privacy: the visit-logging switch */
+.optout{ margin:8px 0 28px; padding:22px 24px; border:1px solid var(--line); border-radius:8px; background:rgba(255,255,255,.02); }
+.optout-k{ margin:0 0 10px !important; font-size:11px !important; letter-spacing:.2em; text-transform:uppercase; color:var(--gold) !important; }
+.optout-state{ margin:0 0 16px !important; color:#e2e2e2 !important; }
+.optout-note{ margin:16px 0 0 !important; font-size:13.5px !important; color:var(--steel) !important; }

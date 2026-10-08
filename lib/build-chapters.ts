@@ -49,7 +49,7 @@ export const BUILD_CHAPTERS: BuildChapter[] = [
   {
     no: "01",
     effect: "rise-3d",
-    title: "It starts with a “why”",
+    title: "Start with why the feature should exist",
     lines: [
       "Before I write a single line of code, I ask:",
       "Why does this need to exist?",
@@ -59,7 +59,7 @@ export const BUILD_CHAPTERS: BuildChapter[] = [
   {
     no: "02",
     effect: "rise-flip",
-    title: "Then I find the human",
+    title: "Design for the person using it",
     lines: [
       "Behind every click… there's a person trying to get something done.",
       "So I don't design for screens.",
@@ -69,7 +69,7 @@ export const BUILD_CHAPTERS: BuildChapter[] = [
   {
     no: "03",
     effect: "rise-pop",
-    title: "I turn chaos into systems",
+    title: "Turn a complex idea into one clear system",
     lines: ["An idea looks simple. Until you open the door."],
     pipeline: ["UI", "API", "Logic", "Database", "AI", "Reality"],
     emph: "My job is to make all that complexity feel like one simple experience.",
@@ -77,7 +77,7 @@ export const BUILD_CHAPTERS: BuildChapter[] = [
   {
     no: "04",
     effect: "rise-3d",
-    title: "Then I try to break it",
+    title: "Stress-test it before real users do",
     lines: [
       "What if the API dies? What if the user taps twice?",
       "What if 100,000 people arrive tomorrow? What if everything goes wrong?",
@@ -87,7 +87,7 @@ export const BUILD_CHAPTERS: BuildChapter[] = [
   {
     no: "05",
     effect: "rise-flip",
-    title: "I make software learn",
+    title: "Use AI so the software understands context",
     lines: [
       "Software used to wait for instructions.",
       "Now it can understand them.",
@@ -98,7 +98,7 @@ export const BUILD_CHAPTERS: BuildChapter[] = [
   {
     no: "06",
     effect: "rise-pop",
-    title: "Build. Break. Rebuild.",
+    title: "Ship it, learn from real use, improve it",
     lines: [
       "Nothing I build is ever really finished.",
       "Every bug teaches. Every user teaches. Every failure teaches.",

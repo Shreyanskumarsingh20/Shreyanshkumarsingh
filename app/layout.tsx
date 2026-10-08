@@ -4,6 +4,7 @@ import "./globals.css";
 import "./pages.css";
 import Script from "next/script";
 import SmoothScroll from "@/components/SmoothScroll";
+import Beacon from "@/components/beacon/Beacon";
 import { SITE_URL, SITE_NAME, SUMMARY, PERSON, KEYWORDS } from "@/lib/site";
 
 // Inter as its single variable-font file (every weight 100–900) rather than
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
   // set NEXT_PUBLIC_SITE_URL at deploy time — see lib/site.ts
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Shreyansh Kumar Singh — Applied AI & Full-Stack Engineer, Pune",
+    default: "Shreyansh Kumar Singh — AI & Full-Stack Engineer, Pune",
     template: "%s — Shreyansh Kumar Singh",
   },
   description: SUMMARY,
@@ -110,6 +111,8 @@ export default function RootLayout({
             browser supports document.modelContext; a no-op elsewhere.
             Loaded last so it never competes with the page. */}
         <Script src="/api/mcp?webmcp-script" strategy="lazyOnload" />
+        {/* first-party visit log → Telegram (see /privacy, lib/beacon) */}
+        <Beacon />
       </body>
     </html>
   );

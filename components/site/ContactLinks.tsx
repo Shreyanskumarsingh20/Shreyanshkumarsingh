@@ -31,7 +31,7 @@ export default function ContactLinks({
 
   return (
     <div className={`contact-links contact-links--${variant}`}>
-      <button type="button" className="contact-link" onClick={call}>
+      <button type="button" className="contact-link" data-hot="call" onClick={call}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" fill="currentColor" />
         </svg>
@@ -40,7 +40,7 @@ export default function ContactLinks({
           <small>Mobile · India</small>
         </span>
       </button>
-      <button type="button" className="contact-link contact-link--wa" onClick={whatsapp}>
+      <button type="button" className="contact-link contact-link--wa" data-hot="whatsapp" onClick={whatsapp}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z" fill="currentColor" />
         </svg>
@@ -49,7 +49,7 @@ export default function ContactLinks({
           <small>Message directly</small>
         </span>
       </button>
-      <a className="contact-link" href={`mailto:${PERSON.email}`}>
+      <a className="contact-link" data-hot="email" href={`mailto:${PERSON.email}`}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3 5h18c.6 0 1 .4 1 1v12c0 .6-.4 1-1 1H3a1 1 0 0 1-1-1V6c0-.6.4-1 1-1zm1 2.3V17h16V7.3l-8 5.3-8-5.3zM5.2 7 12 11.5 18.8 7H5.2z" fill="currentColor" />
         </svg>
@@ -63,7 +63,7 @@ export default function ContactLinks({
           {revealed ? (
             <span className="mono">{revealed}</span>
           ) : (
-            <button type="button" onClick={() => setRevealed(formatPhone(decodePhone()))}>
+            <button type="button" data-hot="show-number" onClick={() => setRevealed(formatPhone(decodePhone()))}>
               Show phone number
             </button>
           )}

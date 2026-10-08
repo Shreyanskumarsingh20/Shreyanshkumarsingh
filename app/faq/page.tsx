@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
-import { FAQS, FAQ_GROUPS } from "@/lib/faqs";
+import { FAQS, FAQ_GROUPS, FAQ_GROUP_LABELS } from "@/lib/faqs";
 import { SITE_URL, PERSON_ID } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
@@ -13,7 +13,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "FAQ — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Direct answers about Shreyansh Kumar Singh: who he is, his AI projects, RamanByte experience, education, tech stack and availability.";
+  "Direct answers about Shreyansh Kumar Singh, AI & full-stack engineer: who he is, his AI projects, RamanByte experience, education and availability.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "FAQ", path: "/faq" },
@@ -22,7 +22,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  keywords: ["Shreyansh Kumar Singh", "FAQ", "AI engineer Pune", "hire AI engineer"],
+  keywords: ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer", "Shreyansh Kumar Singh FAQ", "AI engineer Pune", "hire AI engineer"],
   alternates: { canonical: "/faq", types: { "text/markdown": "/faq.md" } },
   openGraph: { type: "website", url: "/faq", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
@@ -55,9 +55,9 @@ export default function FaqPage() {
       <section className="pg-hero shell shell--page">
         <p className="pg-kicker mono rise now">FAQ</p>
         <h1 className="pg-h1 rise now" style={{ animationDelay: "60ms" }}>
-          Questions about
+          Questions about Shreyansh Kumar Singh
           <br />
-          <span className="dim">Shreyansh Kumar Singh</span>
+          <span className="dim">AI &amp; Full-Stack Engineer</span>
         </h1>
         <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
           Direct answers for recruiters, founders and collaborators — each one leads with the answer. For anything not
@@ -68,7 +68,7 @@ export default function FaqPage() {
       <section className="shell shell--page">
         {FAQ_GROUPS.map((g) => (
           <div className="faq-page-group" key={g}>
-            <h2>{g}</h2>
+            <h2>{FAQ_GROUP_LABELS[g]}</h2>
             {FAQS.filter((f) => f.group === g).map((f) => (
               <details className="faq-d" id={f.id} key={f.id} open={f.id === "who-is-shreyansh-kumar-singh"}>
                 <summary>{f.q}</summary>

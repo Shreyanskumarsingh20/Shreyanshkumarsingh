@@ -30,8 +30,8 @@ export const FOOTER_NAV: { heading: string; links: NavLink[] }[] = [
     links: [
       { label: "Projects — nine case studies", href: "/projects" },
       { label: "Notes — technical articles", href: "/notes" },
-      { label: "The Range", href: "/#range" },
-      { label: "Research board", href: "/#research" },
+      { label: "Project stack (THE RANGE)", href: "/#range" },
+      { label: "Research findings", href: "/#research" },
     ],
   },
   {

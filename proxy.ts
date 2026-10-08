@@ -1,4 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import { crawlerAlert } from "@/lib/beacon/crawler-alert";
+import { negotiate } from "@/lib/negotiate";
 
 // Markdown for agents (Next 16 "proxy", formerly middleware).
 //
@@ -12,40 +14,33 @@ import { NextResponse, type NextRequest } from "next/server";
 //
 // The markdown itself comes from app/md/[[...slug]]/route.ts, which builds
 // it from the same data the pages render (lib/markdown.ts).
-
-type Pref = { type: string; q: number };
-
-function parseAccept(header: string | null): Pref[] {
-  if (!header) return [];
-  return header
-    .split(",")
-    .map((part) => {
-      const [type, ...params] = part.trim().toLowerCase().split(";");
-      const qp = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
-      const q = qp ? Number.parseFloat(qp.slice(2)) : 1;
-      return { type: type.trim(), q: Number.isFinite(q) ? q : 1 };
-    })
-    .filter((p) => p.type);
-}
-
-/** q for a media type, by RFC 9110 specificity: exact > type/* > *\/* */
-function qFor(prefs: Pref[], type: string): number {
-  const [major] = type.split("/");
-  const exact = prefs.find((p) => p.type === type);
-  if (exact) return exact.q;
-  const group = prefs.find((p) => p.type === `${major}/*`);
-  if (group) return group.q;
-  const any = prefs.find((p) => p.type === "*/*");
-  return any ? any.q : 0;
-}
+//
+// It also fires the Telegram crawler/agent alerts (lib/beacon/crawler-alert.ts)
+// via waitUntil, so an alert never adds latency to a response. That's why the
+// matcher includes llms*.txt, /.well-known/* and /api/mcp — those requests
+// are only observed here, then passed straight through.
 
 function mdTarget(pathname: string) {
   const p = pathname === "/" ? "" : pathname.replace(/\/+$/, "");
   return `/md${p}`;
 }
 
-export function proxy(request: NextRequest) {
+export function proxy(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl;
+
+  // Telemetry first, and never allowed to break a request: a synchronous throw
+  // here (a malformed URL, an odd header) loses one alert, not the page.
+  try {
+    const alert = crawlerAlert(request);
+    if (alert) event.waitUntil(alert);
+  } catch {
+    // deliberately silent — this runs on every request
+  }
+
+  // observed for the alert only; their own routes handle them
+  if (pathname.startsWith("/api/") || pathname.startsWith("/.well-known/") || pathname.startsWith("/llms")) {
+    return NextResponse.next();
+  }
 
   // explicit markdown URLs: /about.md, /projects/x.md, /index.md
   if (pathname.endsWith(".md")) {
@@ -56,22 +51,17 @@ export function proxy(request: NextRequest) {
   // other files (images, scripts, .txt, .xml…) pass straight through
   if (/\.[a-z0-9]+$/i.test(pathname)) return NextResponse.next();
 
-  const accept = request.headers.get("accept");
-  const prefs = parseAccept(accept);
-  if (prefs.length) {
-    const md = qFor(prefs, "text/markdown");
-    const html = Math.max(qFor(prefs, "text/html"), qFor(prefs, "application/xhtml+xml"));
-    if (md > 0 && md > html) {
-      const res = NextResponse.rewrite(new URL(mdTarget(pathname), request.url));
-      res.headers.set("Vary", "Accept");
-      return res;
-    }
-    if (md <= 0 && html <= 0) {
-      return new NextResponse("Not Acceptable. This site serves text/html and text/markdown.\n", {
-        status: 406,
-        headers: { "Content-Type": "text/plain; charset=utf-8", Vary: "Accept" },
-      });
-    }
+  const want = negotiate(request.headers.get("accept"));
+  if (want === "markdown") {
+    const res = NextResponse.rewrite(new URL(mdTarget(pathname), request.url));
+    res.headers.set("Vary", "Accept");
+    return res;
+  }
+  if (want === "none") {
+    return new NextResponse("Not Acceptable. This site serves text/html and text/markdown.\n", {
+      status: 406,
+      headers: { "Content-Type": "text/plain; charset=utf-8", Vary: "Accept" },
+    });
   }
 
   const res = NextResponse.next();
@@ -90,8 +80,11 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // everything except Next internals, API routes, well-known files,
-    // static asset folders and metadata files
-    "/((?!_next/|api/|md/|\\.well-known/|media/|images/|shots/|sims/|logo/|favicon|apple-icon|opengraph-image|manifest|robots\\.txt|sitemap\\.xml|llms).*)",
+    // everything except Next internals, API routes, static asset folders and
+    // metadata files. /.well-known/* and llms*.txt are included for the
+    // agent alerts (and passed straight through above).
+    "/((?!_next/|api/|md/|media/|images/|shots/|sims/|logo/|brand/|favicon|apple-icon|opengraph-image|manifest|robots\\.txt|sitemap\\.xml).*)",
+    // MCP clients connecting — observed for the alert, then passed through
+    "/api/mcp",
   ],
 };

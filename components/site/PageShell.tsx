@@ -27,7 +27,7 @@ export default function PageShell({
         {crumbs && <Breadcrumbs items={crumbs} />}
         {children}
       </main>
-      <SiteFooter />
+      <SiteFooter page />
       <RevealObserver />
     </>
   );

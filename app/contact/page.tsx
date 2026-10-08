@@ -11,9 +11,9 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 // are assembled client-side from lib/contact.ts — see ContactLinks.
 
 const UPDATED = "2026-10-08";
-const TITLE = "Contact Shreyansh Kumar Singh — Call, WhatsApp or Email";
+const TITLE = "Contact Shreyansh Kumar Singh — AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Contact Shreyansh Kumar Singh, AI and full-stack engineer in Pune — call, WhatsApp or email. Open to full-time or hybrid roles.";
+  "Contact Shreyansh Kumar Singh, AI & full-stack engineer in Pune, by call, WhatsApp or email. Open to full-time or hybrid roles.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Contact", path: "/contact" },
@@ -22,7 +22,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  keywords: ["contact Shreyansh Kumar Singh", "hire AI engineer Pune", "WhatsApp", "email"],
+  keywords: ["contact Shreyansh Kumar Singh", "hire an AI & Full-Stack Engineer", "hire AI engineer Pune", "Shreyansh Kumar Singh email"],
   alternates: { canonical: "/contact", types: { "text/markdown": "/contact.md" } },
   openGraph: { type: "website", url: "/contact", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
@@ -51,9 +51,9 @@ export default function ContactPage() {
           <div>
             <p className="pg-kicker mono rise now">Contact</p>
             <h1 className="pg-h1 rise now" style={{ animationDelay: "60ms" }}>
-              Contact Shreyansh
+              Contact Shreyansh Kumar Singh
               <br />
-              <span className="dim">An actual conversation.</span>
+              <span className="dim">AI &amp; Full-Stack Engineer</span>
             </h1>
             <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
               <b>Call, WhatsApp or email Shreyansh Kumar Singh directly</b> — he reads everything himself, no inbox
@@ -79,7 +79,7 @@ export default function ContactPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>WHERE TO START</small>The three questions he asks first
+          <small>WHERE TO START</small>What to include in your first message
         </h2>
         <div className="talk-prompts">
           <div className="talk-prompt rise">
@@ -108,34 +108,34 @@ export default function ContactPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>WHAT THIS IS GOOD FOR</small>Good reasons to get in touch
+          <small>WHAT TO CONTACT HIM ABOUT</small>Work he can help with
         </h2>
         <div className="pg-cards">
           <div className="pg-card rise">
-            <h3>Hiring for applied AI or full-stack</h3>
+            <h3>Hiring an AI or full-stack engineer</h3>
             <p>
               Full-time or hybrid roles: applied AI engineering (RAG, LLM agents), full-stack engineering on AI products,
               AI security tooling, or senior .NET and Angular work. See <Link href="/experience">his experience</Link>.
             </p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "60ms" }}>
-            <h3>AI that has to understand, not just search</h3>
+            <h3>RAG and document AI</h3>
             <p>A pile of documents or a workflow that needs real context, not a keyword match — the RAG work behind Sarthi and BookVerse AI.</p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "120ms" }}>
-            <h3>Security you actually want tested</h3>
+            <h3>Security testing with proof</h3>
             <p>You suspect something&apos;s exposed and want it proven, not assumed — the discipline behind Nythera&apos;s validated-only findings.</p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "180ms" }}>
-            <h3>Bugs verified by evidence, not vibes</h3>
+            <h3>Automated QA and bug-fix verification</h3>
             <p>An agent that checks whether something is actually fixed against live application behavior — the approach behind HallogenAI.</p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "240ms" }}>
-            <h3>Something that needs to be walkable</h3>
+            <h3>3D experiences on the web</h3>
             <p>3D on the web, not a slideshow pretending to be one — the React Three Fiber gallery work behind Antarang.</p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "300ms" }}>
-            <h3>Systems built to survive the second client</h3>
+            <h3>Enterprise .NET and Angular systems</h3>
             <p>Clean Architecture, not a prototype held together with hope — the enterprise half of the range, behind VaultIQ.</p>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function ContactPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>DETAILS</small>Everything in one place
+          <small>DETAILS</small>Contact details
         </h2>
         <dl className="pg-facts">
           <div>

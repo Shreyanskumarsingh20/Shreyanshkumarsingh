@@ -23,7 +23,9 @@ export default function ProjectCardArt({ project }: { project: Project }) {
           <span className="chrome-hint mono">scroll ↓ full page</span>
         </div>
         <div className="shot scrollable" data-lenis-prevent>
-          <Image src={art.img} alt={art.alt} width={art.w} height={art.h} unoptimized />
+          {/* optimized (WebP, sized to the card) — these full-page captures
+              were the "improve image delivery" weight on the home page */}
+          <Image src={art.img} alt={art.alt} width={art.w} height={art.h} sizes="(min-width: 860px) 640px, 100vw" />
         </div>
       </div>
     );

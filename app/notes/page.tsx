@@ -7,9 +7,9 @@ import { SITE_URL, PERSON_ID } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 const UPDATED = "2026-10-08";
-const TITLE = "Notes — Shreyansh Kumar Singh on RAG, AI Agents & Security";
+const TITLE = "Notes — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Technical notes by Shreyansh Kumar Singh, answered from his own projects: RAG structure, pentest false positives, AI bug-fix checks, distributed k6.";
+  "Technical notes by Shreyansh Kumar Singh, AI & full-stack engineer, from his own projects: RAG, pentest false positives, AI bug-fix checks, k6.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Notes", path: "/notes" },
@@ -55,9 +55,9 @@ export default function NotesPage() {
       <section className="pg-hero shell shell--page">
         <p className="pg-kicker mono rise now">Notes</p>
         <h1 className="pg-h1 rise now" style={{ animationDelay: "60ms" }}>
-          Questions his
+          Technical notes by Shreyansh Kumar Singh
           <br />
-          <span className="dim">projects answer</span>
+          <span className="dim">AI &amp; full-stack engineering</span>
         </h1>
         <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
           <b>Short technical notes by Shreyansh Kumar Singh</b> — each answers one question first-hand, from a system he

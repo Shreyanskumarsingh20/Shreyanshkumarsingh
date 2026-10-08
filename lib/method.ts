@@ -21,8 +21,8 @@ export type MethodAct = {
 export const METHOD_ACTS: MethodAct[] = [
   {
     tone: "spec",
-    chapter: "Act I — before the code exists",
-    title: "The discipline",
+    chapter: "Step 1 — before the code exists",
+    title: "Write the specification first",
     narrative:
       "The shape of the thing gets written down first — what it is, what it looks like, where every number came from — so it can be picked up cold by anyone, including a future me.",
     art: `<svg class="method-art" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two stacked specification documents, sealed off with a checkmark and a measurement annotation">
@@ -47,19 +47,19 @@ export const METHOD_ACTS: MethodAct[] = [
     beats: [
       {
         n: "01",
-        title: "Write the bible before the code",
+        title: "Write the project spec before the code",
         body: "Almost every repository ships a PROJECT_BIBLE.md and HANDOFF.md alongside the source, written to be picked up cold.",
         ev: "PROJECT_BIBLE · HANDOFF · AGENTS · CLAUDE — across 5 repositories",
       },
       {
         n: "02",
-        title: "Design as a token system, in writing",
+        title: "Document the design system before building components",
         body: "The visual language gets its own document with named surfaces and roles before a component exists. Reference the token, never hardcode a hex.",
         ev: "DESIGN_SYSTEM.md — every colour tokenised",
       },
       {
         n: "03",
-        title: "Every number traces to a source",
+        title: "Trace every number to a published source",
         body: "Blast, thermal and fallout curves cite a published model. ANTARANG uses only verified Wikimedia data.",
         ev: "Model tables in README.md",
       },
@@ -67,8 +67,8 @@ export const METHOD_ACTS: MethodAct[] = [
   },
   {
     tone: "audit",
-    chapter: "Act II — after it ships",
-    title: "The scrutiny",
+    chapter: "Step 2 — after it ships",
+    title: "Audit and stress-test the result",
     narrative:
       "Then it gets turned on itself — attacked like an outsider, run without its safety nets, and judged on whether the tool actually fit the job or just felt familiar.",
     art: `<svg class="method-art" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A hexagonal system diagram with a flagged critical node under a magnifying glass">
@@ -91,19 +91,19 @@ export const METHOD_ACTS: MethodAct[] = [
     beats: [
       {
         n: "04",
-        title: "Audit your own work like an adversary",
+        title: "Security-audit my own code like an attacker",
         body: "SARTHI ships a full static self-review, graded P0 to P3, most damaging finding written first.",
         ev: "QA_AUDIT.md",
       },
       {
         n: "05",
-        title: "Degrade honestly",
+        title: "Fail gracefully when a service is missing",
         body: "BookVerse runs fully without an API key and says so with a badge. Nythera's internal mode is off by default.",
         ev: "Preview-mode fallback · internal mode default-off",
       },
       {
         n: "06",
-        title: "Choose the tool for the problem",
+        title: "Choose the right tool for each problem",
         body: "Vanilla canvas physics. Python security tooling. R3F galleries. Next.js RAG. ASP.NET Clean Architecture. A canvas frame-sequence scrubbed to scroll instead of a video element. The range is deliberate.",
         ev: "9 repositories · TS · JS · Python · C# · WebGL",
       },

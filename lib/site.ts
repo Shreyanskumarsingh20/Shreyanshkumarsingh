@@ -59,23 +59,32 @@ export const SAME_AS: string[] = [PERSON.linkedin, PERSON.github, PERSON.x];
 
 // The one-line answer an answer engine should quote when asked "who is …".
 export const SUMMARY =
-  "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India, building AI-native systems — RAG pipelines, LLM agent loops, autonomous security tooling — backed by four years shipping production .NET, SQL Server and Angular software at RamanByte.";
+  "Shreyansh Kumar Singh is an AI & full-stack engineer in Pune, India. He builds AI-native systems — RAG pipelines, LLM agent loops and autonomous security tooling — on nearly four years of shipping production .NET, SQL Server and Angular software at RamanByte.";
 
-export const SITE_NAME = "Shreyansh Kumar Singh — THE RANGE";
+/** The two phrases the site is built to rank and be cited for. Every page
+ *  title, H1 and description works at least one of them in naturally. */
+export const PRIMARY_KEYWORDS = ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer"] as const;
+
+// The site's brand is his name and role. THE RANGE is the portfolio's
+// concept name and only ever appears next to his name, never instead of it
+// (is-agentic's brand check searched "THE RANGE — Shreyansh Kumar Singh
+// developer portfolio", which is not what anyone types).
+export const SITE_NAME = "Shreyansh Kumar Singh — AI & Full-Stack Engineer";
 
 export const KEYWORDS = [
   "Shreyansh Kumar Singh",
+  "AI & Full-Stack Engineer",
+  "Shreyansh Kumar Singh AI & Full-Stack Engineer",
+  "AI and full-stack engineer",
   "Shreyansh Kumar Singh AI engineer",
+  "Shreyansh Kumar Singh full-stack developer",
   "Shreyansh Kumar Singh portfolio",
-  "Applied AI engineer",
-  "AI engineer Pune",
-  "RAG pipeline",
+  "AI & full-stack engineer Pune",
+  "applied AI engineer",
+  "RAG pipeline engineer",
   "LLM agents",
-  "full-stack developer",
-  "ASP.NET Core",
-  "Angular",
-  "Next.js",
-  "React Three Fiber",
+  "ASP.NET Core and Angular developer",
+  "Next.js developer",
 ];
 
 export const KNOWS_ABOUT = [
@@ -98,6 +107,10 @@ export const KNOWS_ABOUT = [
   "React Three Fiber",
   "k6 load testing",
 ];
+
+/** The client's own PDF résumé (corrected 8 Oct 2026). It carries his phone
+ *  number, so next.config.ts serves it with X-Robots-Tag: noindex. */
+export const RESUME_PDF = "/Shreyansh_Kumar_Singh_Resume.pdf";
 
 export const PERSON_ID = `${SITE_URL}/#person`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;

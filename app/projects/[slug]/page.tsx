@@ -143,7 +143,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
 
         <section className="pg-section shell shell--page">
           <h2 className="pg-h2 rise">
-            <small>01 — THE PROBLEM</small>What needed to exist
+            <small>01</small>The problem it solves
           </h2>
           <div className="pg-prose">
             {cs.problem.map((t) => (
@@ -154,7 +154,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
 
         <section className="pg-section shell shell--page">
           <h2 className="pg-h2 rise">
-            <small>02 — WHAT HE BUILT</small>The build
+            <small>02</small>What he built
           </h2>
           <div className="pg-cards">
             {cs.built.map((b, i) => (
@@ -180,7 +180,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
 
         <section className="pg-section shell shell--page">
           <h2 className="pg-h2 rise">
-            <small>04 — THE RESULT</small>What it delivers
+            <small>04</small>The result
           </h2>
           <div className="pg-prose">
             {cs.result.map((t) => (
@@ -192,7 +192,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
         {research && (
           <section className="pg-section shell shell--page">
             <h2 className="pg-h2 rise">
-              <small>FROM THE RESEARCH BOARD</small>Findings
+              <small>RESEARCH</small>Research findings from this project
             </h2>
             <div className="pg-cards">
               {research.notes.map((n) => (
@@ -213,7 +213,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
         {relatedNotes.length > 0 && (
           <section className="pg-section shell shell--page">
             <h2 className="pg-h2 rise">
-              <small>NOTES FROM THIS PROJECT</small>Questions it answers
+              <small>NOTES</small>Questions this project answers
             </h2>
             <ul className="note-list">
               {relatedNotes.map((n) => (
@@ -230,7 +230,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
 
         <section className="pg-section shell shell--page">
           <h2 className="pg-h2 rise">
-            <small>STACK</small>Built with
+            <small>STACK</small>Tech stack
           </h2>
           <ul className="cs-stack">
             {p.stack.map((s) => (
@@ -242,7 +242,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>MORE OF THE RANGE</small>Other projects
+          <small>MORE OF THE RANGE</small>More projects by Shreyansh Kumar Singh
         </h2>
         <div className="pg-cards cs-others">
           {others.map((o) => (

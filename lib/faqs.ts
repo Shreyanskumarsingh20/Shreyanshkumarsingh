@@ -115,3 +115,10 @@ export const FAQS: Faq[] = [
 ];
 
 export const FAQ_GROUPS: Faq["group"][] = ["About", "Work", "Hiring"];
+
+/** Section headings for each group on /faq and in its markdown view. */
+export const FAQ_GROUP_LABELS: Record<Faq["group"], string> = {
+  About: "About Shreyansh Kumar Singh",
+  Work: "His AI and full-stack work",
+  Hiring: "Hiring and availability",
+};

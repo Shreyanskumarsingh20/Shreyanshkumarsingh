@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { preload } from "react-dom";
 import BgVideo from "@/components/BgVideo";
 import { getLastShipped, relativeDays } from "@/lib/github";
 
@@ -10,6 +11,9 @@ import { getLastShipped, relativeDays } from "@/lib/github";
  */
 export default async function Hero() {
   const shipped = await getLastShipped();
+  // the hero poster is the largest thing painted above the fold — fetch it
+  // with the HTML instead of after the <video> element is parsed
+  preload("/media/hero-poster.webp", { as: "image", fetchPriority: "high" });
   return (
     <>
       <section className="hero" id="top">
@@ -51,28 +55,27 @@ export default async function Hero() {
               <span></span>
               <span></span>
             </span>
-            <span className="label">Shreyansh Kumar Singh — AI &amp; Full-Stack Engineer · Pune</span>
+            <span className="label">Pune, India · Open to full-time or hybrid roles</span>
           </div>
-          <h1 className="rise now" style={{ animationDelay: "60ms" }}>
-            {/* the name is already visible in the eyebrow above; repeating it
-                inside the h1 ties the page's one heading to the person */}
-            <span className="sr-only">Shreyansh Kumar Singh, AI &amp; full-stack engineer in Pune: </span>
-            Nine repositories.
-            <br />
-            <span className="dim">One stack.</span>
+          {/* the page's one H1 is exactly the two phrases the site ranks for:
+              his name, and what he does */}
+          <h1 className="hero-h1 rise now" style={{ animationDelay: "60ms" }}>
+            Shreyansh Kumar Singh
+            <span className="hero-role">AI &amp; Full-Stack Engineer</span>
           </h1>
           <p className="thesis measure rise now" style={{ animationDelay: "120ms" }}>
-            I build systems that make invisible things legible — blast
-            physics, attack surfaces, a thousand years of art, a bank&apos;s
-            document pile — and I write the specification before I write the
-            code. This page is a scroll-driven stack of the work itself.
+            I build AI products that hold up in production — RAG pipelines,
+            LLM agents and autonomous security tools — on nearly four years of
+            shipping .NET, SQL Server and Angular software at RamanByte. Below
+            are nine of my projects, each with screenshots and a written case
+            study.
           </p>
           <div className="hero-cta rise now" style={{ animationDelay: "180ms" }}>
             <a href="#range" className="btn btn-gold cut-sm">
-              <span>See the range</span>
+              <span>View my projects</span>
             </a>
-            <a href="#research" className="btn btn-ghost">
-              The research
+            <a href="/about" className="btn btn-ghost">
+              About me
             </a>
           </div>
           <div className="hero-tickers">
@@ -92,8 +95,12 @@ export default async function Hero() {
           </div>
         </div>
 
+        <div className="scroll-cue" aria-hidden="true">
+          <span className="line"></span>SCROLL
+        </div>
+
         <div className="hero-stats">
-          <div className="shell" style={{ paddingInline: 0 }}>
+          <div className="shell">
             <div className="row">
               <div className="cell">
                 <div className="v mono">9</div>
@@ -105,25 +112,21 @@ export default async function Hero() {
               </div>
               <div className="cell">
                 <div className="v mono">0</div>
-                <div className="k label">Dependencies in THE EVOLUTION</div>
+                <div className="k label">Dependencies in my physics simulators</div>
               </div>
               <div className="cell">
                 <div className="v mono">P0</div>
-                <div className="k label">Severity found in own code</div>
+                <div className="k label">Top-severity flaw caught in my own audit</div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="scroll-cue" aria-hidden="true">
-          <span className="line"></span>SCROLL
         </div>
       </section>
 
       <div className="concept-note">
         <div className="shell">
           <p>
-            <strong>The concept —</strong> every project below is real,
+            <strong>How this page works —</strong> every project below is real,
             screenshotted live off a running server, not mocked up. Scroll
             and each one pins to the top of the stack as the next rises to
             cover it — like flipping through a stack of case files. No

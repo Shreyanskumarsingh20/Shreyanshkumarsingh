@@ -12,9 +12,9 @@ import { ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 // profile (LinkedIn, GitHub, X) should link back to.
 
 const UPDATED = ABOUT_UPDATED;
-const TITLE = "About Shreyansh Kumar Singh — AI Engineer in Pune, India";
+const TITLE = "About Shreyansh Kumar Singh — AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India: RAG pipelines, LLM agents and security tooling, plus production .NET and Angular.";
+  "Shreyansh Kumar Singh is an AI & full-stack engineer in Pune, India: RAG pipelines, LLM agents and security tooling, plus production .NET and Angular.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "About", path: "/about" },
@@ -23,7 +23,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  keywords: ["Shreyansh Kumar Singh", "who is Shreyansh Kumar Singh", "AI engineer Pune", "RamanByte", "AKTU computer science"],
+  keywords: ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer", "who is Shreyansh Kumar Singh", "AI and full-stack engineer Pune", "RamanByte", "AKTU computer science"],
   alternates: { canonical: "/about", types: { "text/markdown": "/about.md" } },
   openGraph: {
     type: "profile",
@@ -98,10 +98,10 @@ export default function AboutPage() {
             <h1 className="pg-h1 rise now" style={{ animationDelay: "60ms" }}>
               Shreyansh Kumar Singh
               <br />
-              <span className="dim">AI &amp; full-stack engineer</span>
+              <span className="dim">AI &amp; Full-Stack Engineer</span>
             </h1>
             <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
-              <b>Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India.</b> He pairs nearly four years of
+              <b>Shreyansh Kumar Singh is an AI &amp; full-stack engineer in Pune, India.</b> He pairs nearly four years of
               production enterprise software at RamanByte with a body of independent AI work — retrieval-augmented
               generation, LLM agent systems and autonomous security tooling. His distinguishing habit: he writes down what
               a system must be before he builds it, then attacks it as an outsider would once it exists.
@@ -137,7 +137,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>01</small>Two halves that explain each other
+          <small>01</small>Production work and independent AI projects
         </h2>
         <div className="pg-prose">
           <p>
@@ -166,7 +166,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>02</small>How he thinks
+          <small>02</small>How he approaches a new problem
         </h2>
         <div className="pg-prose">
           <p>
@@ -187,7 +187,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>03</small>AI capabilities
+          <small>03</small>AI engineering: RAG, agents and LLMs
         </h2>
         <div className="pg-prose">
           <p>
@@ -224,11 +224,11 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>04</small>Technical depth
+          <small>04</small>Full-stack engineering skills
         </h2>
         <div className="pg-cards">
           <div className="pg-card rise">
-            <h3>Enterprise full-stack</h3>
+            <h3>Enterprise full-stack (.NET and Angular)</h3>
             <p>
               Designs ASP.NET Web API endpoints and SQL Server schemas first, gives every response a typed Angular model,
               and builds validated reactive forms on top. Shipped Angular 16–18, ASP.NET Core 8, EF Core, PostgreSQL,
@@ -236,14 +236,14 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "60ms" }}>
-            <h3>Modern web</h3>
+            <h3>Modern web (Next.js and React)</h3>
             <p>
               Next.js and React 19 with TypeScript and Tailwind; GSAP, Lenis and Canvas 2D for motion. This portfolio uses
               plain CSS sticky positioning in place of a parallax library — choosing the simplest tool that works.
             </p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "120ms" }}>
-            <h3>3D and simulation</h3>
+            <h3>3D and simulation on the web</h3>
             <p>
               A walkable 3D museum in React Three Fiber and four zero-dependency physics simulators. In the museum,
               throttling a focus check to about ten times a second improved perceived smoothness more than any frame-rate
@@ -251,7 +251,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="pg-card rise" style={{ transitionDelay: "180ms" }}>
-            <h3>Security</h3>
+            <h3>Security testing</h3>
             <p>
               Works from OWASP Top 10, CWE mapping and the PTES workflow. The standard is strict: a finding without
               physical evidence is discarded, not downgraded.
@@ -265,7 +265,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>05</small>Engineering discipline
+          <small>05</small>How he specifies and audits his work
         </h2>
         <div className="pg-prose">
           <p>
@@ -283,7 +283,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>06</small>As a colleague
+          <small>06</small>What he is like to work with
         </h2>
         <div className="pg-prose">
           <p>
@@ -311,7 +311,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>07</small>Timeline
+          <small>07</small>Career timeline
         </h2>
         <ol className="pg-timeline">
           {TIMELINE.map((t) => (
@@ -326,7 +326,7 @@ export default function AboutPage() {
 
       <section className="pg-section shell shell--page">
         <h2 className="pg-h2 rise">
-          <small>08</small>What he&apos;s looking for
+          <small>08</small>Roles he is open to
         </h2>
         <div className="pg-prose">
           <p>

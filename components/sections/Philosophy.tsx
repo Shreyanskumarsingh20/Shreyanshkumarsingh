@@ -8,10 +8,10 @@ export default function Philosophy() {
       <div className="shell">
         <div className="carrd-panel">
           <div className="section-head">
-            <h2 className="rise">Philosophy</h2>
+            <h2 className="rise">Engineering principles</h2>
             <p className="rise" style={{ transitionDelay: "60ms" }}>
-              The philosophy behind every system, workflow and decision above
-              — six operational beliefs, not motivational statements.
+              Six working principles behind every system, workflow and
+              decision above — how I approach AI and full-stack engineering.
             </p>
           </div>
           <div className="belief-grid" id="beliefGrid">

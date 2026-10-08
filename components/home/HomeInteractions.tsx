@@ -299,12 +299,12 @@ export default function HomeInteractions() {
     // COMMAND PALETTE
     // ==========================================================================
     const SECTIONS_NAV = [
-      { label: "Range", href: "#range" },
-      { label: "Research", href: "#research" },
-      { label: "Method", href: "#method" },
-      { label: "Philosophy", href: "#philosophy" },
+      { label: "Projects", href: "#range" },
+      { label: "Research findings", href: "#research" },
+      { label: "Engineering method", href: "#method" },
+      { label: "Engineering principles", href: "#philosophy" },
       { label: "FAQ", href: "#faq" },
-      { label: "Telemetry", href: "#telemetry" },
+      { label: "Tech stack", href: "#telemetry" },
       { label: "Contact", href: "#contact" },
     ];
     function scrollToHash(hash: string) {
@@ -1168,22 +1168,40 @@ export default function HomeInteractions() {
           fieldRaf = requestAnimationFrame(loop);
         }
         // While the intro loader covers the screen the fields are invisible,
-        // so don't spend the busiest seconds of page load animating them —
-        // start when the loader releases <body>.
+        // so don't spend the busiest seconds of page load animating them.
+        // Once the loader releases <body>, paint one still frame and start
+        // the loop on the visitor's first input (or after the page has sat
+        // idle a few seconds): two full-viewport canvases redrawing every
+        // frame during hydration were most of the desktop main-thread time.
         const startLoop = () => {
           if (!fieldRaf) fieldRaf = requestAnimationFrame(loop);
         };
+        const WAKE_EVENTS = ["pointermove", "pointerdown", "wheel", "scroll", "touchstart", "keydown"] as const;
+        let wakeTimer = 0;
+        const wake = () => {
+          WAKE_EVENTS.forEach((ev) => window.removeEventListener(ev, wake));
+          clearTimeout(wakeTimer);
+          startLoop();
+        };
+        const armLoop = () => {
+          heroField!.step();
+          bgField!.step();
+          WAKE_EVENTS.forEach((ev) => window.addEventListener(ev, wake, { passive: true }));
+          wakeTimer = window.setTimeout(wake, 7000);
+          timers.push(wakeTimer);
+        };
+        cleanups.push(() => WAKE_EVENTS.forEach((ev) => window.removeEventListener(ev, wake)));
         if (document.body.classList.contains("loading")) {
           const bodyObs = new MutationObserver(() => {
             if (!document.body.classList.contains("loading")) {
               bodyObs.disconnect();
-              startLoop();
+              armLoop();
             }
           });
           bodyObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
           cleanups.push(() => bodyObs.disconnect());
         } else {
-          startLoop();
+          armLoop();
         }
       }
     }

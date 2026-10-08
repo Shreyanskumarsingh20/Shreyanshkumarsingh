@@ -14,9 +14,9 @@ export default function NotFound() {
         <div>
           <p className="nf-code">404</p>
           <h1 className="pg-h1">
-            Nothing here.
+            Page not found
             <br />
-            <span className="dim">The rest of the site is.</span>
+            <span className="dim">Try one of these pages instead</span>
           </h1>
           <p className="pg-lede">
             This page doesn&apos;t exist — it may have moved. Try one of these, or the{" "}

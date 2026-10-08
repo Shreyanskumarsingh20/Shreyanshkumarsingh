@@ -3,8 +3,8 @@ import { PERSON, SUMMARY } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${PERSON.name} — THE RANGE`,
-    short_name: "THE RANGE",
+    name: `${PERSON.name} — AI & Full-Stack Engineer`,
+    short_name: "SKS",
     description: SUMMARY,
     start_url: "/",
     display: "standalone",

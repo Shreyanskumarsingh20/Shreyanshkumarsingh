@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --test \"tests/*.test.ts\"",
+    "verify": "node scripts/verify-site.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.3.1",

@@ -17,10 +17,10 @@ import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
 import { graph, coreNodes, employmentRole, breadcrumbs, plain } from "@/lib/jsonld";
 
 const DESCRIPTION =
-  "Shreyansh Kumar Singh, full-stack developer at RamanByte, Pune since January 2023: ASP.NET Core, SQL Server, Angular and Flutter apps in production.";
+  "Shreyansh Kumar Singh, AI & full-stack engineer, at RamanByte Pune since January 2023: ASP.NET Core, SQL Server, Angular and Flutter in production.";
 
 export const metadata: Metadata = {
-  title: { absolute: "Experience — Shreyansh Kumar Singh, Full-Stack .NET & Angular at RamanByte" },
+  title: { absolute: "Experience — Shreyansh Kumar Singh, AI & Full-Stack Engineer" },
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh experience", "RamanByte", "ASP.NET Core developer", "Angular developer Pune", "Flutter developer", "SQL Server", "Classroom+"],
   alternates: { canonical: "/experience", types: { "text/markdown": "/experience.md" } },
@@ -91,10 +91,9 @@ export default function ExperiencePage() {
             EXPERIENCE
           </p>
           <h1 className="exp-h1 rise now" style={{ animationDelay: "60ms" }}>
-            <span className="sr-only">Shreyansh Kumar Singh — </span>
-            Four years
+            Shreyansh Kumar Singh
             <br />
-            at <span className="dim">RamanByte.</span>
+            <span className="dim">Full-stack at RamanByte</span>
           </h1>
           <p className="exp-thesis rise now measure" style={{ animationDelay: "120ms" }}>
             I&apos;m a <b>full-stack developer</b> at RamanByte, a Pune ed-tech
@@ -110,7 +109,7 @@ export default function ExperiencePage() {
               <span>See the case studies</span>
             </a>
             <Link href="/#range" className="btn btn-ghost">
-              The personal range
+              Independent projects
             </Link>
           </div>
         </div>
@@ -166,7 +165,7 @@ export default function ExperiencePage() {
 
       {/* ============================================================ HOW THE WORK RUNS */}
       <section className="exp-method shell shell--exp">
-        <h2 className="rise">How the work runs</h2>
+        <h2 className="rise">How projects run at RamanByte</h2>
         <div className="beats">
           {HOW_THE_WORK_RUNS.map((b, i) => (
             <div key={b.n} className="beat rise" style={{ transitionDelay: `${i * 60}ms` }}>
@@ -185,25 +184,27 @@ export default function ExperiencePage() {
 
       {/* ============================================================ ALSO AT RAMANBYTE */}
       <section className="more shell shell--exp">
-        <h2 className="rise">Also at RamanByte</h2>
+        <h2 className="rise">More RamanByte projects</h2>
         <p className="more-note rise">
-          Six written up. The rest of the four years is still being pulled
-          together from backups.
+          Six case studies are written up so far. More RamanByte work is
+          being documented and can be discussed on request.
         </p>
         <div className="more-grid" style={{ gridTemplateColumns: "1fr", maxWidth: 420 }}>
           <div className="slot rise">
             <span className="plus">+</span>
             <span className="no mono">07</span>
-            <h3>Next case study</h3>
-            <p>Another RamanByte build. Drop the repo or the link and this fills in.</p>
-            <span className="drop">drop repo → E:\Project-Backups\journal\</span>
+            <h3>Next case study in progress</h3>
+            <p>Another RamanByte build is being written up. Ask about it directly.</p>
+            <Link className="drop" href="/contact">
+              Contact Shreyansh →
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ============================================================ TECH */}
       <section className="tech shell shell--exp">
-        <h2 className="rise">The stack, across the four years</h2>
+        <h2 className="rise">Tech stack used at RamanByte</h2>
         <div className="tech-grid">
           {EXP_TECH_GROUPS.map((g, i) => (
             <div className="tech-group rise" style={{ transitionDelay: `${i * 60}ms` }} key={g.label}>
@@ -238,7 +239,7 @@ export default function ExperiencePage() {
       </section>
 
       </main>
-      <SiteFooter />
+      <SiteFooter page />
 
       <RevealObserver />
     </>

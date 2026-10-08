@@ -9,17 +9,19 @@ import ContactLinks from "@/components/site/ContactLinks";
  * only downloads when the footer is about to scroll into view (BgVideo), so
  * pages pay for a ~55 KB poster until then. A layered scrim keeps every line
  * of text legible over the brightest frames.
+ *
+ * `page` narrows it to the inner pages' 1180px column so its headline and
+ * links line up with the content above; the home page keeps the wide shell.
  */
-export default function SiteFooter() {
+export default function SiteFooter({ page = false }: { page?: boolean }) {
   return (
     <footer className="site-footer" id="contact">
       <BgVideo name="footer" className="footer-video" />
       <div className="footer-video-overlay" aria-hidden="true"></div>
-      <div className="shell">
+      <div className={page ? "shell shell--page" : "shell"}>
         <h2 className="rise">
-          Let&apos;s build the next
-          <br />
-          legible system.
+          Work with Shreyansh Kumar Singh
+          <span className="foot-h2-role">AI &amp; Full-Stack Engineer, Pune</span>
         </h2>
         <p className="measure rise foot-lede" style={{ transitionDelay: "60ms" }}>
           Call, WhatsApp or email Shreyansh directly — he reads everything himself. Based in Pune, India, and open to

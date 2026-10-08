@@ -9,9 +9,10 @@ export default function Method() {
     <section className="section" id="method">
       <div className="shell">
         <div className="section-head">
-          <h2 className="rise">Method</h2>
+          <h2 className="rise">Engineering method</h2>
           <p className="rise" style={{ transitionDelay: "60ms" }}>
-            How the work gets made — in two acts.
+            How I build: write the specification before the code, then audit
+            the result after it ships.
           </p>
         </div>
         <div className="method-story" id="methodStory">

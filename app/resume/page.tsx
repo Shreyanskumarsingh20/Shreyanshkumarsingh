@@ -3,19 +3,20 @@ import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import PrintButton from "@/components/site/PrintButton";
-import { PERSON, PERSON_ID, GITHUB_USER, SITE_URL } from "@/lib/site";
+import { PERSON, PERSON_ID, GITHUB_USER, SITE_URL, RESUME_PDF } from "@/lib/site";
 import { PROJECTS, projectHref } from "@/lib/projects";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 // HTML résumé — the same document on screen and in print (Print → Save as
-// PDF). Facts: the client's résumé and brief, restricted to what's been
-// confirmed (RamanByte only; Sarthi without the bank's name; no phone here —
-// it's on /contact). Swap in the PDF download once the corrected file lands.
+// PDF), plus the client's own PDF (public/Shreyansh_Kumar_Singh_Resume.pdf,
+// the corrected 8 Oct 2026 version). Facts: restricted to what's been
+// confirmed (RamanByte only; Sarthi without the bank's name; no phone in the
+// HTML — it's on /contact and in the PDF, which is served noindex).
 
 const UPDATED = "2026-10-08";
 const TITLE = "Résumé — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Résumé of Shreyansh Kumar Singh: full-stack & AI engineer at RamanByte since 2023 — ASP.NET Core, Angular, Flutter, SQL Server — plus RAG projects.";
+  "Résumé of Shreyansh Kumar Singh, AI & full-stack engineer at RamanByte since 2023: ASP.NET Core, Angular, Flutter, SQL Server, RAG. PDF download.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Résumé", path: "/resume" },
@@ -87,13 +88,16 @@ export default function ResumePage() {
       <div className="resume shell shell--page">
         <header className="resume-head">
           <h1>{PERSON.name}</h1>
-          <p className="resume-role">Full-Stack &amp; AI Engineer · ASP.NET Core · Angular · Flutter · SQL Server · LLM / RAG</p>
+          <p className="resume-role">AI &amp; Full-Stack Engineer · ASP.NET Core · Angular · Flutter · SQL Server · LLM / RAG</p>
           <p className="resume-contact">
             {PERSON.locality}, {PERSON.region}, India · <a href={`mailto:${PERSON.email}`}>{PERSON.email}</a> ·{" "}
             <a href={PERSON.linkedin}>LinkedIn</a> · <a href={PERSON.github}>GitHub ({GITHUB_USER})</a> ·{" "}
             <a href={SITE_URL}>shreyanshkumarsingh.com</a>
           </p>
           <div className="resume-actions">
+            <a className="btn btn-gold cut-sm" href={RESUME_PDF} download data-hot="resume-pdf">
+              <span>Download PDF résumé ↓</span>
+            </a>
             <PrintButton />
             <Link className="btn btn-ghost" href="/contact">
               Phone &amp; WhatsApp →

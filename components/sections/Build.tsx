@@ -13,12 +13,12 @@ export default function Build() {
       <div className="build-grid" aria-hidden="true"></div>
       <div className="shell" style={{ position: "relative" }}>
         <div className="build-intro">
-          <p className="build-kicker rise mono">THE BUILD</p>
+          <p className="build-kicker rise mono">HOW I WORK</p>
           <h2 className="build-headline rise">
-            I don&apos;t just write code.
+            How I build software,
             <br />
             <span className="dim">
-              I build things that <em>think, adapt, and solve.</em>
+              from the first question <em>to production.</em>
             </span>
           </h2>
         </div>
@@ -90,26 +90,23 @@ export default function Build() {
         </div>
 
         <div className="build-close rise">
-          <p className="build-close-q rise mono">SO, WHAT DO I ACTUALLY DO?</p>
+          <p className="build-close-q rise mono">IN SHORT</p>
           <p className="build-close-a rise">
-            I take an idea
-            <br />
-            and turn it into something real.
-            <br />
-            Something people can use. Something that can scale. Something
-            that can survive reality.
+            I take an idea and turn it into software people can use — software
+            that scales and survives real traffic, real data and real users.
           </p>
-          <h3 className="build-close-final">
+          {/* a closing statement, not a section heading — so a <p> */}
+          <p className="build-close-final">
             <span className="wipe-line-wrap">
-              <span className="wipe-line">I don&apos;t just build software.</span>
+              <span className="wipe-line">AI-powered, full-stack software</span>
             </span>
             <br />
             <span className="wipe-line-wrap">
               <span className="wipe-line" style={{ animationDelay: ".55s" }}>
-                I build what comes next.
+                that holds up in production.
               </span>
             </span>
-          </h3>
+          </p>
         </div>
       </div>
     </section>
