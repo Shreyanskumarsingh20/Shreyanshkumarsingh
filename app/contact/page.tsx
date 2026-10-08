@@ -22,7 +22,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  alternates: { canonical: "/contact" },
+  alternates: { canonical: "/contact", types: { "text/markdown": "/contact.md" } },
   openGraph: { type: "website", url: "/contact", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };

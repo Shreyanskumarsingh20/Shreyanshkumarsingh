@@ -20,7 +20,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  alternates: { canonical: "/privacy" },
+  alternates: { canonical: "/privacy", types: { "text/markdown": "/privacy.md" } },
   openGraph: { type: "website", url: "/privacy", title: TITLE, description: DESCRIPTION },
 };
 

@@ -22,7 +22,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: { absolute: "Experience — Shreyansh Kumar Singh, Full-Stack .NET & Angular at RamanByte" },
   description: DESCRIPTION,
-  alternates: { canonical: "/experience" },
+  alternates: { canonical: "/experience", types: { "text/markdown": "/experience.md" } },
   openGraph: {
     type: "profile",
     url: "/experience",

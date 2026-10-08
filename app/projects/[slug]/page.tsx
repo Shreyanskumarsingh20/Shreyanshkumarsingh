@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: { absolute: cs.title },
     description: cs.description,
     keywords: cs.keywords,
-    alternates: { canonical: path },
+    alternates: { canonical: path, types: { "text/markdown": `${path}.md` } },
     openGraph: { type: "article", url: path, title: cs.title, description: cs.description, modifiedTime: cs.updated },
     twitter: { card: "summary_large_image", title: cs.title, description: cs.description },
   };

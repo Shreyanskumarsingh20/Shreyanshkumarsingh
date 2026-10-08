@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      // /.well-known/* is generated from site constants (app/api/well-known)
+      { source: "/.well-known/:file*", destination: "/api/well-known/:file*" },
+    ];
+  },
   async redirects() {
     return [
       // The production *.vercel.app alias served a full duplicate of the

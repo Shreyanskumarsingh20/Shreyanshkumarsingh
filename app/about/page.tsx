@@ -5,12 +5,13 @@ import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import { PERSON, SITE_URL, PERSON_ID, GITHUB_USER } from "@/lib/site";
 import { graph, coreNodes, pageNode, employmentRole, PERSON_IMAGE } from "@/lib/jsonld";
+import { ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 
 // The "entity home": the one page that says who Shreyansh Kumar Singh is,
 // carries the ProfilePage → Person markup, and is what every external
 // profile (LinkedIn, GitHub, X) should link back to.
 
-const UPDATED = "2026-10-08";
+const UPDATED = ABOUT_UPDATED;
 const TITLE = "About Shreyansh Kumar Singh — AI Engineer in Pune, India";
 const DESCRIPTION =
   "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India: RAG pipelines, LLM agents and security tooling, on top of production .NET, SQL Server and Angular work at RamanByte since 2023.";
@@ -22,7 +23,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  alternates: { canonical: "/about" },
+  alternates: { canonical: "/about", types: { "text/markdown": "/about.md" } },
   openGraph: {
     type: "profile",
     url: "/about",
@@ -82,14 +83,7 @@ const FACTS: [string, React.ReactNode][] = [
   ],
 ];
 
-const TIMELINE: { when: string; what: string; detail: string }[] = [
-  { when: "2017 – 2021", what: "B.Tech, Computer Science", detail: "Dr. A.P.J. Abdul Kalam Technical University." },
-  { when: "Jan 2023", what: "Joins RamanByte, Pune", detail: "Full-stack developer on Classroom+: ASP.NET Web API, SQL Server, Angular and Flutter." },
-  { when: "Oct 2023 – Mar 2024", what: "A Journal of Management (PIBM)", detail: "Rebuilt a hardcoded template into the live submission portal for a peer-reviewed journal (ISSN 2455-8796) — 93 commits." },
-  { when: "At RamanByte", what: "Classroom+ admin, student and faculty apps; Dada Udyogini", detail: "Production apps for institutions, and a two-app Flutter marketplace launched on a fixed public date, load-tested beforehand with DadaLoad across 10 machines." },
-  { when: "2026", what: "The range", detail: "Sarthi, Nythera, HallogenAI, BookVerse AI, Antarang, The Collector's Pulse, The Evolution, VaultIQ and Revuelto — each with a written specification, most with an audit." },
-  { when: "Aug – Sep 2026", what: "Vidur Industry Connect", detail: "Admin dashboard, request lifecycle, near-duplicate guard and citizen profile suite on a multi-tenant Flutter + ASP.NET Core platform." },
-];
+const TIMELINE = ABOUT_TIMELINE;
 
 export default function AboutPage() {
   return (
