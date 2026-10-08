@@ -1,13 +1,15 @@
+import Link from "next/link";
 import { FAQS } from "@/lib/faqs";
 
 /**
- * FAQ — each row is a switch that flips independently on click, and the
- * whole list rides a continuous scroll-tied tilt (updateFaqTilt in
- * HomeInteractions.tsx) rather than a one-time entrance. Click handling and
- * aria-expanded toggling are wired up there too, matching the original
- * script's per-item click listeners.
+ * FAQ teaser — each row is a switch that flips independently on click, and
+ * the list rides a continuous scroll-tied tilt (CSS view timeline, with a JS
+ * fallback in HomeInteractions.tsx, which also wires the clicks). Only the
+ * `home` questions show here; the full set lives at /faq, the one URL that
+ * owns these answers (and their FAQPage markup).
  */
 export default function Faq() {
+  const teaser = FAQS.filter((f) => f.home);
   return (
     <section className="section carrd-zone" id="faq">
       <div className="carrd-mesh" aria-hidden="true"></div>
@@ -23,7 +25,7 @@ export default function Faq() {
             </p>
           </div>
           <div className="faq-list" id="faqList">
-            {FAQS.map((f, i) => (
+            {teaser.map((f, i) => (
               <div key={f.q} className="faq-item rise" style={{ transitionDelay: `${i * 60}ms` }}>
                 <button className="faq-q" type="button" aria-expanded="false">
                   <span>{f.q}</span>
@@ -37,6 +39,9 @@ export default function Faq() {
               </div>
             ))}
           </div>
+          <p className="faq-more rise">
+            <Link href="/faq">All {FAQS.length} questions — experience, education, availability, stack →</Link>
+          </p>
         </div>
       </div>
     </section>

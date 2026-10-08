@@ -29,3 +29,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# original headshot uploads (optimized copies live in public/images)
+/public/headshots/

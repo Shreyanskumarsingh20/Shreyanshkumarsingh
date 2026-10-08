@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import SimpleTopBar from "@/components/SimpleTopBar";
+import SiteHeader from "@/components/site/SiteHeader";
+import SiteFooter from "@/components/site/SiteFooter";
 import ConstellationBackground from "@/components/ConstellationBackground";
 import RevealObserver from "@/components/RevealObserver";
 import CaseStudy from "@/components/experience/CaseStudy";
@@ -13,13 +14,13 @@ import {
 } from "@/lib/experience";
 import JsonLd from "@/components/JsonLd";
 import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
-import { graph, personNode, websiteNode, breadcrumbs, plain } from "@/lib/jsonld";
+import { graph, coreNodes, employmentRole, breadcrumbs, plain } from "@/lib/jsonld";
 
 const DESCRIPTION =
-  "Shreyansh Kumar Singh — about four years as a full-stack developer at RamanByte, Pune: ASP.NET Web API and SQL Server back ends bound into Angular front ends, shipped to production for real institutions.";
+  "Shreyansh Kumar Singh has been a full-stack developer at RamanByte, Pune, since January 2023: ASP.NET Web API and SQL Server back ends, Angular and Flutter front ends, shipped to production for real institutions.";
 
 export const metadata: Metadata = {
-  title: "Experience — Full-Stack .NET & Angular at RamanByte",
+  title: { absolute: "Experience — Shreyansh Kumar Singh, Full-Stack .NET & Angular at RamanByte" },
   description: DESCRIPTION,
   alternates: { canonical: "/experience" },
   openGraph: {
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     url: "/experience",
     title: "Experience — Shreyansh Kumar Singh",
     description:
-      "About four years at RamanByte — full-stack .NET + Angular, shipped to production. Case study: PIBM's A Journal of Management.",
+      "At RamanByte since January 2023 — full-stack .NET + Angular, shipped to production. Case studies: PIBM's A Journal of Management, Classroom+, Dada Udyogini, Vidur.",
   },
   twitter: {
     card: "summary_large_image",
@@ -38,13 +39,15 @@ export const metadata: Metadata = {
 
 const jsonLd = graph(
   {
-    "@type": "ProfilePage",
+    "@type": "WebPage",
     "@id": `${SITE_URL}/experience#page`,
     url: `${SITE_URL}/experience`,
     name: "Experience — Shreyansh Kumar Singh",
     description: DESCRIPTION,
     isPartOf: { "@id": WEBSITE_ID },
-    mainEntity: { "@id": PERSON_ID },
+    about: { "@id": PERSON_ID },
+    author: { "@id": PERSON_ID },
+    dateModified: "2026-10-08",
     breadcrumb: breadcrumbs([
       { name: "Home", path: "/" },
       { name: "Experience", path: "/experience" },
@@ -61,8 +64,8 @@ const jsonLd = graph(
       ...(c.sideLink ? { url: c.sideLink.href } : {}),
     })),
   },
-  personNode,
-  websiteNode,
+  ...coreNodes,
+  { ...employmentRole, "@id": `${SITE_URL}/experience#role`, member: { "@id": PERSON_ID } },
 );
 
 export default function ExperiencePage() {
@@ -70,7 +73,8 @@ export default function ExperiencePage() {
     <>
       <JsonLd data={jsonLd} />
       <ConstellationBackground />
-      <SimpleTopBar backHref="/" backLabel="← Back" backLabelTail=" to the portfolio" variant="exp" />
+      <SiteHeader current="/experience" />
+      <main id="main">
 
       {/* ============================================================ HERO */}
       <section className="exp-hero">
@@ -223,8 +227,8 @@ export default function ExperiencePage() {
           Full-stack developer — RamanByte
         </p>
         <div className="exp-sign-cta rise" style={{ transitionDelay: "120ms" }}>
-          <Link className="btn btn-gold cut-sm" href="/lets-talk">
-            <span>Let&apos;s talk →</span>
+          <Link className="btn btn-gold cut-sm" href="/contact">
+            <span>Contact Shreyansh →</span>
           </Link>
           <Link className="btn btn-ghost" href="/">
             Back to the portfolio
@@ -232,12 +236,8 @@ export default function ExperiencePage() {
         </div>
       </section>
 
-      <footer className="simple-footer shell shell--exp">
-        <div className="foot-meta">
-          <span>EXPERIENCE — four years at RamanByte, told through the work</span>
-          <span className="mono">v1 · {new Date().getFullYear()}</span>
-        </div>
-      </footer>
+      </main>
+      <SiteFooter />
 
       <RevealObserver />
     </>

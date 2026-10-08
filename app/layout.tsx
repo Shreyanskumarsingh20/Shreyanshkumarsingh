@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Beau_Rivage, Italianno } from "next/font/google";
 import "./globals.css";
+import "./pages.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import { SITE_URL, SITE_NAME, SUMMARY, PERSON, KEYWORDS } from "@/lib/site";
 

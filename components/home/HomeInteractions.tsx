@@ -398,7 +398,7 @@ export default function HomeInteractions() {
         group: "Actions",
         label: "Let's talk",
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- see above
-        action: () => (window.location.href = "/lets-talk"),
+        action: () => (window.location.href = "/contact"),
         key: "↗",
       },
       { group: "Actions", label: "Copy email", key: "", action: copyEmail },

@@ -21,9 +21,8 @@ import ContactModal from "@/components/ui/ContactModal";
 import Toast from "@/components/ui/Toast";
 import JsonLd from "@/components/JsonLd";
 import { PROJECTS, type Project } from "@/lib/projects";
-import { FAQS } from "@/lib/faqs";
 import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
-import { graph, personNode, websiteNode } from "@/lib/jsonld";
+import { graph, coreNodes } from "@/lib/jsonld";
 
 function projectImage(p: Project): string {
   const a = p.art;
@@ -57,18 +56,20 @@ export const metadata: Metadata = {
 
 const jsonLd = graph(
   {
-    "@type": "ProfilePage",
-    "@id": `${SITE_URL}/#profile`,
+    // /about is the ProfilePage ("entity home"); the home page is the
+    // portfolio about him
+    "@type": "WebPage",
+    "@id": `${SITE_URL}/#page`,
     url: SITE_URL,
     name: TITLE,
     description: DESCRIPTION,
     isPartOf: { "@id": WEBSITE_ID },
-    mainEntity: { "@id": PERSON_ID },
     about: { "@id": PERSON_ID },
+    author: { "@id": PERSON_ID },
+    primaryImageOfPage: `${SITE_URL}/opengraph-image`,
     inLanguage: "en",
   },
-  personNode,
-  websiteNode,
+  ...coreNodes,
   {
     "@type": "ItemList",
     "@id": `${SITE_URL}/#range`,
@@ -87,15 +88,6 @@ const jsonLd = graph(
         image: `${SITE_URL}${projectImage(p)}`,
         ...(p.url ? { codeRepository: p.url, url: p.url } : {}),
       },
-    })),
-  },
-  {
-    "@type": "FAQPage",
-    "@id": `${SITE_URL}/#faq`,
-    mainEntity: FAQS.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   },
 );

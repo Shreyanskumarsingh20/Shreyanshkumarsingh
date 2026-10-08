@@ -48,6 +48,8 @@ export type ProjectArt =
 
 export type Project = {
   n: string;
+  /** URL slug for /projects/[slug] */
+  slug: string;
   name: string;
   ref: string;
   domain: string;
@@ -66,6 +68,7 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     n: "01",
+    slug: "collectors-pulse-ai-newsroom",
     name: "THE COLLECTOR'S PULSE",
     ref: "2606.EDT.06",
     domain: "EDITORIAL",
@@ -90,6 +93,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "02",
+    slug: "nythera-ai-penetration-testing-agent",
     name: "NYTHERA",
     ref: "2607.SEC.02",
     domain: "SECURITY",
@@ -114,6 +118,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "03",
+    slug: "sarthi-rag-banking-copilot",
     name: "SARTHI",
     ref: "2607.AI.03",
     domain: "APPLIED AI",
@@ -141,6 +146,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "04",
+    slug: "antarang-3d-art-museum-react-three-fiber",
     name: "ANTARANG",
     ref: "2607.SPT.04",
     domain: "SPATIAL",
@@ -169,6 +175,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "05",
+    slug: "bookverse-ai-book-summaries",
     name: "BOOKVERSE AI",
     ref: "2607.PRD.05",
     domain: "PRODUCT",
@@ -193,6 +200,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "06",
+    slug: "the-evolution-physics-simulators",
     name: "THE EVOLUTION",
     ref: "2607.SIM.01",
     domain: "SIMULATION",
@@ -247,6 +255,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "07",
+    slug: "vaultiq-dotnet-angular-clean-architecture",
     name: "VAULTIQ",
     ref: "2606.PLT.07",
     domain: "PLATFORM",
@@ -271,6 +280,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "08",
+    slug: "hallogenai-multi-agent-bug-fix-verification",
     name: "HALLOGENAI",
     ref: "2607.VER.08",
     domain: "VERIFICATION",
@@ -302,6 +312,7 @@ export const PROJECTS: Project[] = [
   },
   {
     n: "09",
+    slug: "revuelto-scroll-canvas-animation",
     name: "REVUELTO: ASSEMBLED",
     ref: "2609.MOT.09",
     domain: "MOTION",
@@ -347,3 +358,9 @@ export const PROJECTS: Project[] = [
     },
   },
 ];
+
+export const projectBySlug = (slug: string) => PROJECTS.find((p) => p.slug === slug);
+
+/** Link target for a project — its card on the home page until the
+ *  /projects/[slug] case-study pages exist. */
+export const projectHref = (slug: string) => `/#project-${projectBySlug(slug)?.n ?? ""}`;

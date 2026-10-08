@@ -1,0 +1,172 @@
+/* ============================================================================
+   INNER PAGES — about, contact, faq, skills, privacy, projects, notes, 404.
+   Same tokens and type scale as the rest of the site (globals.css :root);
+   kept in their own file so the original page CSS stays as it was.
+   ========================================================================= */
+
+.shell--page{ --shell-max:1040px; }
+.pg{ position:relative; padding-top:112px; }
+
+/* ---------- site top bar (inner pages) ---------- */
+.topbar--site{ width:min(calc(100% - 32px), 1180px); }
+.topbar-nav--site{ align-items:center; }
+.topbar-nav--site a[aria-current="page"]{ color:var(--white); }
+.site-menu{ position:relative; }
+@media(min-width:980px){ .site-menu{ display:none; } }
+.site-menu summary{
+  list-style:none; cursor:pointer; width:44px; height:44px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:5px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
+}
+.site-menu summary::-webkit-details-marker{ display:none; }
+.site-menu summary span{ width:18px; height:2px; background:var(--white); display:block; }
+.site-menu[open] summary{ border-color:var(--gold); }
+.site-menu-list{
+  position:absolute; right:0; top:54px; min-width:220px; display:flex; flex-direction:column;
+  padding:10px; border-radius:14px; background:rgba(10,10,10,.96); border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.9);
+}
+.site-menu-list a{
+  padding:12px 14px; font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--steel); text-decoration:none; border-radius:8px;
+}
+.site-menu-list a:hover,.site-menu-list a[aria-current="page"]{ color:var(--white); background:rgba(255,255,255,.04); }
+
+/* ---------- breadcrumbs ---------- */
+.crumbs ol{ list-style:none; display:flex; flex-wrap:wrap; gap:8px; margin:0 0 8px; padding:0; font-size:12px; color:var(--ash); }
+.crumbs li+li::before{ content:"/"; margin-right:8px; color:var(--graphite); }
+.crumbs a{ color:var(--steel); text-decoration:none; }
+.crumbs a:hover{ color:var(--gold); }
+
+/* ---------- page hero ---------- */
+.pg-hero{ padding-block:40px var(--xl); }
+.pg-kicker{ font-size:11px; letter-spacing:.3em; color:var(--gold); margin:0 0 18px; text-transform:uppercase; }
+.pg-h1{ font-size:clamp(2.3rem,6vw,4.4rem); font-weight:400; text-transform:uppercase; line-height:1; letter-spacing:-.012em; margin:0 0 22px; }
+.pg-h1 .dim{ color:var(--steel); }
+.pg-lede{ font-size:clamp(16px,1.7vw,18.5px); line-height:1.75; color:#cfcfcf; max-width:62ch; margin:0; }
+.pg-lede b{ color:var(--white); font-weight:600; }
+.pg-meta{ margin-top:18px; font-size:12px; color:var(--ash); }
+
+/* ---------- sections + prose ---------- */
+.pg-section{ padding-block:var(--xl); border-top:1px solid var(--line); }
+.pg-h2{ font-size:clamp(1.5rem,3vw,2.2rem); font-weight:400; text-transform:uppercase; margin:0 0 var(--md); line-height:1.1; }
+.pg-h2 small{ display:block; font-size:11px; letter-spacing:.24em; color:var(--gold); margin-bottom:12px; font-family:var(--font-jetbrains-mono),monospace; }
+.pg-prose{ max-width:68ch; }
+.pg-prose p,.pg-prose li{ font-size:15.5px; line-height:1.8; color:#c4c4c4; }
+.pg-prose p{ margin:0 0 18px; }
+.pg-prose b,.pg-prose strong{ color:var(--white); font-weight:600; }
+.pg-prose h3{ font-size:1.05rem; font-weight:600; color:var(--white); margin:30px 0 10px; text-transform:none; }
+.pg-prose ul{ padding-left:20px; margin:0 0 18px; }
+.pg-prose li{ margin-bottom:8px; }
+.pg-prose a,.pg-link{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; }
+.pg-prose a:hover,.pg-link:hover{ color:#ffd24d; }
+
+/* key facts — a definition list that reads well to people and parsers */
+.pg-facts{ display:grid; grid-template-columns:1fr; gap:0; margin:0; border-top:1px solid var(--line); }
+.pg-facts > div{ display:grid; grid-template-columns:1fr; gap:4px; padding:16px 0; border-bottom:1px solid var(--line); }
+@media(min-width:640px){ .pg-facts > div{ grid-template-columns:200px 1fr; gap:24px; } }
+.pg-facts dt{ font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--steel); font-weight:600; padding-top:3px; }
+.pg-facts dd{ margin:0; font-size:15px; line-height:1.65; color:#dcdcdc; }
+.pg-facts dd a{ color:var(--gold); }
+
+/* card grid */
+.pg-cards{ display:grid; grid-template-columns:1fr; gap:16px; }
+@media(min-width:720px){ .pg-cards{ grid-template-columns:repeat(2,1fr); } }
+.pg-card{ padding:24px; border:1px solid var(--line); border-radius:6px; background:rgba(255,255,255,.02); }
+.pg-card h3{ margin:0 0 10px; font-size:1rem; font-weight:600; color:var(--white); text-transform:none; }
+.pg-card p{ margin:0; font-size:14px; line-height:1.7; color:#bdbdbd; }
+.pg-card a{ color:var(--gold); }
+
+/* two-column hero with photo */
+.pg-split{ display:grid; grid-template-columns:1fr; gap:var(--lg); align-items:center; }
+@media(min-width:900px){ .pg-split{ grid-template-columns:1.15fr .85fr; } }
+.pg-photo{ position:relative; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,.08); background:var(--iron); }
+.pg-photo img{ display:block; width:100%; height:auto; }
+.pg-photo figcaption{ position:absolute; left:0; right:0; bottom:0; padding:28px 16px 12px; font-size:11.5px; color:#e6e6e6;
+  background:linear-gradient(180deg, transparent, rgba(0,0,0,.78)); }
+.pg-photo--wide{ margin-top:var(--lg); }
+
+/* timeline */
+.pg-timeline{ list-style:none; margin:0; padding:0; border-left:1px solid var(--line); }
+.pg-timeline li{ position:relative; padding:0 0 26px 26px; }
+.pg-timeline li::before{ content:""; position:absolute; left:-5px; top:6px; width:9px; height:9px; border-radius:50%; background:var(--gold); }
+.pg-timeline .when{ display:block; font-family:var(--font-jetbrains-mono),monospace; font-size:12px; color:var(--gold); margin-bottom:4px; }
+.pg-timeline b{ display:block; color:var(--white); font-weight:600; font-size:15px; }
+.pg-timeline span.what{ display:block; font-size:14px; line-height:1.65; color:#bdbdbd; margin-top:4px; }
+
+.pg-cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:var(--md); }
+
+/* ---------- contact links (Call / WhatsApp / Email) ---------- */
+.contact-links{ display:flex; flex-wrap:wrap; gap:12px; margin:24px 0; }
+.contact-links--stack{ flex-direction:column; }
+.contact-link{
+  display:flex; align-items:center; gap:14px; min-height:60px; padding:12px 20px 12px 16px;
+  border:1px solid rgba(255,255,255,.14); border-radius:10px; background:rgba(10,10,10,.72);
+  color:var(--white); text-decoration:none; font-family:inherit; text-align:left; cursor:pointer;
+  transition:border-color .25s var(--ease), background .25s var(--ease);
+}
+.contact-link:hover{ border-color:var(--gold); background:rgba(28,22,2,.85); }
+.contact-link svg{ width:22px; height:22px; flex:none; color:var(--gold); }
+.contact-link--wa svg{ color:#25D366; }
+.contact-link b{ display:block; font-size:14px; font-weight:600; letter-spacing:.02em; }
+.contact-link small{ display:block; font-size:12px; color:#bcbcbc; margin-top:2px; word-break:break-all; }
+.contact-reveal{ width:100%; margin:4px 0 0; font-size:13px; color:var(--steel); }
+.contact-reveal button{ background:none; border:0; padding:6px 0; color:var(--gold); font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.contact-reveal .mono{ font-size:16px; color:var(--white); letter-spacing:.04em; }
+
+/* ---------- FAQ page (details/summary: answers are in the HTML, no JS) ---------- */
+.faq-page-group{ margin-bottom:var(--lg); }
+.faq-page-group h2{ font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin:0 0 14px; font-family:var(--font-jetbrains-mono),monospace; font-weight:500; }
+.faq-d{ border-top:1px solid var(--line); }
+.faq-d:last-child{ border-bottom:1px solid var(--line); }
+.faq-d summary{
+  list-style:none; cursor:pointer; display:flex; justify-content:space-between; gap:20px; align-items:center;
+  padding:20px 0; font-size:clamp(1rem,1.8vw,1.15rem); color:var(--white); font-weight:500;
+}
+.faq-d summary::-webkit-details-marker{ display:none; }
+.faq-d summary::after{ content:"+"; flex:none; width:30px; height:30px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.18); border-radius:50%; color:var(--gold); font-size:18px; }
+.faq-d[open] summary::after{ content:"−"; border-color:var(--gold); }
+.faq-d .faq-d-a{ padding:0 0 22px; max-width:70ch; font-size:15px; line-height:1.8; color:#c4c4c4; }
+.faq-d .faq-d-a p{ margin:0; }
+
+/* home FAQ teaser link */
+.faq-more{ margin:22px 0 0; font-size:14px; }
+#faq .faq-more a{ color:#6b4a00; font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+
+/* ---------- skills ---------- */
+.skill-group{ padding:28px 0; border-top:1px solid var(--line); display:grid; grid-template-columns:1fr; gap:16px; }
+@media(min-width:820px){ .skill-group{ grid-template-columns:240px 1fr; gap:32px; } }
+.skill-group h2{ font-size:1rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin:0; color:var(--white); }
+.skill-group h2 small{ display:block; margin-top:8px; font-size:13px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--ash); line-height:1.6; }
+.skill-list{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr; gap:10px; }
+@media(min-width:620px){ .skill-list{ grid-template-columns:repeat(2,1fr); } }
+.skill-list li{ padding:12px 14px; border:1px solid var(--line); border-radius:6px; background:rgba(255,255,255,.02); }
+.skill-list b{ display:block; font-size:14px; font-weight:600; color:var(--white); }
+.skill-list span{ display:block; margin-top:3px; font-size:12.5px; line-height:1.55; color:#adadad; }
+.skill-list a{ color:var(--gold); }
+
+/* ---------- sitewide footer (inner pages) ---------- */
+.site-foot{ position:relative; border-top:1px solid var(--line); background:rgba(8,8,8,.88); padding:var(--xl) 0 var(--lg); margin-top:var(--xl); }
+.site-foot-top{ display:grid; grid-template-columns:1fr; gap:var(--lg); }
+@media(min-width:980px){ .site-foot-top{ grid-template-columns:1fr 1.3fr; } }
+.site-foot-name{ margin:0; font-size:clamp(1.4rem,3vw,2rem); text-transform:uppercase; font-weight:400; }
+.site-foot-role{ margin:8px 0 0; font-size:13.5px; color:#bdbdbd; }
+.site-foot-cols{ display:grid; grid-template-columns:repeat(2,1fr); gap:28px 20px; }
+@media(min-width:720px){ .site-foot-cols{ grid-template-columns:repeat(4,1fr); } }
+.site-foot-cols nav{ display:flex; flex-direction:column; gap:10px; }
+.site-foot-cols a{ font-size:13.5px; color:#cfcfcf; text-decoration:none; padding:3px 0; }
+.site-foot-cols a:hover{ color:var(--gold); }
+.site-foot-h{ margin:0 0 4px; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); font-weight:600; }
+.site-foot-cols--home{ margin-top:var(--lg); padding-top:var(--md); border-top:1px solid rgba(255,255,255,.08); }
+
+/* home footer: text over the video gets a readable shadow */
+.site-footer .foot-lede{ color:#d6d6d6; text-shadow:0 1px 3px rgba(0,0,0,.9), 0 2px 14px rgba(0,0,0,.7); }
+.site-footer h2{ text-shadow:0 2px 18px rgba(0,0,0,.6); }
+
+/* ---------- 404 ---------- */
+.nf{ min-height:70vh; display:flex; align-items:center; }
+.nf-code{ font-family:var(--font-jetbrains-mono),monospace; color:var(--gold); font-size:13px; letter-spacing:.3em; }
+
+@media print{
+  .topbar,.site-menu,.site-foot,#constellation{ display:none !important; }
+  .pg{ padding-top:0; }
+}

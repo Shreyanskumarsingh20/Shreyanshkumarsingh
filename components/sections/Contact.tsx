@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { PERSON, GITHUB_USER } from "@/lib/site";
+import { FOOTER_NAV } from "@/lib/nav";
 import BgVideo from "@/components/BgVideo";
+import ContactLinks from "@/components/site/ContactLinks";
 
 /**
- * CONTACT — the footer. Uses `.site-footer` (not a bare `footer{}` element
- * selector) since the plain-footer variant on /experience and /lets-talk
- * needed different padding and no video background — see globals.css.
+ * CONTACT — the home page's footer. Uses `.site-footer` (not a bare
+ * `footer{}` element selector) since the inner pages use the plain
+ * SiteFooter instead — see globals.css. Carries the same call / WhatsApp /
+ * email actions and the same sitewide links as SiteFooter.
  */
 export default function Contact() {
   return (
@@ -18,33 +21,46 @@ export default function Contact() {
           <br />
           legible system.
         </h2>
-        <p className="measure rise" style={{ transitionDelay: "60ms", color: "var(--ash)" }}>
-          Email and source, below. This page — like everything referenced in
-          it — is source-visible: this repository, Next.js App Router, no
-          hidden build step.
+        <p className="measure rise foot-lede" style={{ transitionDelay: "60ms" }}>
+          Call, WhatsApp or email — I read everything myself. Based in Pune,
+          open to full-time or hybrid roles.
         </p>
-        <div className="foot-links rise" style={{ transitionDelay: "120ms" }}>
-          <Link className="btn btn-gold cut-sm" href="/lets-talk">
-            <span>Let&apos;s talk →</span>
+        <div className="rise" style={{ transitionDelay: "100ms" }}>
+          <ContactLinks />
+        </div>
+        <div className="foot-links rise" style={{ transitionDelay: "140ms" }}>
+          <Link className="btn btn-gold cut-sm" href="/contact">
+            <span>Contact page →</span>
           </Link>
+          {/* opens the contact modal (wired in HomeInteractions.tsx) */}
           <button type="button" className="btn btn-ghost" id="contactTrigger">
             Email
           </button>
-          <a
-            className="btn btn-ghost"
-            href={PERSON.github}
-            target="_blank"
-            rel="noopener"
-          >
+          <a className="btn btn-ghost" href={PERSON.linkedin} target="_blank" rel="noopener me">
+            LinkedIn
+          </a>
+          <a className="btn btn-ghost" href={PERSON.github} target="_blank" rel="noopener me">
             GitHub — {GITHUB_USER}
           </a>
           <button type="button" className="btn btn-ghost" id="printTrigger">
             Résumé (PDF) ↓
           </button>
         </div>
+        <div className="site-foot-cols site-foot-cols--home">
+          {FOOTER_NAV.map((col) => (
+            <nav key={col.heading} aria-label={col.heading}>
+              <p className="site-foot-h">{col.heading}</p>
+              {col.links.map((l) => (
+                <Link key={l.href} href={l.href}>
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+          ))}
+        </div>
         <div className="foot-meta">
-          <span>THE RANGE — a scroll-driven stack of the work above</span>
-          <span className="mono">v1 · {new Date().getFullYear()}</span>
+          <span>© {new Date().getFullYear()} Shreyansh Kumar Singh — THE RANGE</span>
+          <span className="mono">AI &amp; full-stack engineer · Pune, India</span>
         </div>
       </div>
     </footer>

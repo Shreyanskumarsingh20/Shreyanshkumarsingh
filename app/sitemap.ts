@@ -9,9 +9,13 @@ import { EXPERIENCE_CASES } from "@/lib/experience";
 // teaches it to ignore the field. changefreq/priority are omitted because
 // Google ignores both. Bump a date here when that page's content changes.
 const UPDATED = {
-  home: "2026-10-07",
-  experience: "2026-10-07",
-  letsTalk: "2026-10-07",
+  home: "2026-10-08",
+  about: "2026-10-08",
+  experience: "2026-10-08",
+  skills: "2026-10-08",
+  faq: "2026-10-08",
+  contact: "2026-10-08",
+  privacy: "2026-10-08",
 } as const;
 
 function projectImages(): string[] {
@@ -36,7 +40,19 @@ function experienceImages(): string[] {
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE_URL, lastModified: UPDATED.home, images: projectImages() },
+    {
+      url: `${SITE_URL}/about`,
+      lastModified: UPDATED.about,
+      images: [`${SITE_URL}/images/shreyansh-kumar-singh.jpg`, `${SITE_URL}/images/shreyansh-kumar-singh-desk.jpg`],
+    },
     { url: `${SITE_URL}/experience`, lastModified: UPDATED.experience, images: experienceImages() },
-    { url: `${SITE_URL}/lets-talk`, lastModified: UPDATED.letsTalk },
+    { url: `${SITE_URL}/skills`, lastModified: UPDATED.skills },
+    { url: `${SITE_URL}/faq`, lastModified: UPDATED.faq },
+    {
+      url: `${SITE_URL}/contact`,
+      lastModified: UPDATED.contact,
+      images: [`${SITE_URL}/images/shreyansh-kumar-singh-portrait.jpg`],
+    },
+    { url: `${SITE_URL}/privacy`, lastModified: UPDATED.privacy },
   ];
 }
