@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
         destination: `${PRODUCTION_URL}/:path*`,
         permanent: true,
       },
+      // /contact replaced /lets-talk as the one contact page
+      { source: "/lets-talk", destination: "/contact", permanent: true },
     ];
   },
 };
