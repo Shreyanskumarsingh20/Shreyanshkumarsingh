@@ -1,24 +1,19 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-// Shared 1200×630 social card in the site's black + gold palette. Each
-// route's opengraph-image.tsx passes its own kicker/headline.
+// Shared 1200×630 social card in the site's black + gold palette, carrying
+// the SKS monogram and wordmark. Each route's opengraph-image.tsx passes its
+// own kicker/headline. Rendered at build time, so reading the logo files
+// from disk is fine.
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
 
 const GOLD = "#FFC000";
 
-function Bars({ scale = 1 }: { scale?: number }) {
-  const bar = (h: number) => (
-    <div style={{ width: 18 * scale, height: h * scale, background: GOLD }} />
-  );
-  return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 12 * scale }}>
-      {bar(54)}
-      {bar(84)}
-      {bar(66)}
-    </div>
-  );
+function dataUri(file: string) {
+  return `data:image/png;base64,${readFileSync(join(process.cwd(), "public", "brand", file)).toString("base64")}`;
 }
 
 export function renderOg({
@@ -30,6 +25,8 @@ export function renderOg({
   headline: string;
   sub: string;
 }) {
+  const mark = dataUri("sks-mark-og.png");
+  const wordmark = dataUri("sks-wordmark-og.png");
   return new ImageResponse(
     (
       <div
@@ -39,7 +36,7 @@ export function renderOg({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "72px 80px",
+          padding: "64px 80px",
           background: "#000",
           backgroundImage:
             "linear-gradient(rgba(255,192,0,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,192,0,0.07) 1px, transparent 1px)",
@@ -48,44 +45,22 @@ export function renderOg({
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <Bars scale={0.6} />
-          <div style={{ fontSize: 26, letterSpacing: 6, color: GOLD }}>{kicker}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={mark} width={56} height={55} alt="" />
+          <div style={{ fontSize: 24, letterSpacing: 6, color: GOLD }}>{kicker}</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>
-            {headline}
-          </div>
-          <div style={{ fontSize: 32, color: "rgba(255,255,255,0.7)", lineHeight: 1.3 }}>
-            {sub}
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+          <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>{headline}</div>
+          <div style={{ fontSize: 30, color: "rgba(255,255,255,0.72)", lineHeight: 1.3 }}>{sub}</div>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 24 }}>
-          <div style={{ color: "#fff" }}>Shreyansh Kumar Singh</div>
-          <div style={{ color: "rgba(255,255,255,0.55)" }}>AI &amp; Full-Stack Engineer · Pune, India</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={wordmark} width={304} height={120} alt="" style={{ height: 64, width: 162 }} />
+          <div style={{ fontSize: 22, color: "rgba(255,255,255,0.6)" }}>AI &amp; Full-Stack Engineer · Pune, India</div>
         </div>
       </div>
     ),
     OG_SIZE,
-  );
-}
-
-export function renderIcon(size: number) {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#000",
-        }}
-      >
-        <Bars scale={size / 150} />
-      </div>
-    ),
-    { width: size, height: size },
   );
 }

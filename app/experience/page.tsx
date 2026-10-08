@@ -17,11 +17,12 @@ import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
 import { graph, coreNodes, employmentRole, breadcrumbs, plain } from "@/lib/jsonld";
 
 const DESCRIPTION =
-  "Shreyansh Kumar Singh has been a full-stack developer at RamanByte, Pune, since January 2023: ASP.NET Web API and SQL Server back ends, Angular and Flutter front ends, shipped to production for real institutions.";
+  "Shreyansh Kumar Singh, full-stack developer at RamanByte, Pune since January 2023: ASP.NET Core, SQL Server, Angular and Flutter apps in production.";
 
 export const metadata: Metadata = {
   title: { absolute: "Experience — Shreyansh Kumar Singh, Full-Stack .NET & Angular at RamanByte" },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh experience", "RamanByte", "ASP.NET Core developer", "Angular developer Pune", "Flutter developer", "SQL Server", "Classroom+"],
   alternates: { canonical: "/experience", types: { "text/markdown": "/experience.md" } },
   openGraph: {
     type: "profile",

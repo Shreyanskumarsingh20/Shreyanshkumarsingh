@@ -28,7 +28,7 @@ export const NOTES: Note[] = [
     slug: "ai-pentest-agent-false-positives",
     title: "How Autonomous Pentest Tools Avoid False Positives",
     description:
-      "An autonomous penetration-testing tool avoids false positives by reporting only findings it can prove with physical evidence. How Nythera validates SQLi, XSS, command injection, LFI, SSTI and redirects.",
+      "Autonomous pentest tools avoid false positives by reporting only what they can prove. How Nythera validates SQLi, XSS, command injection and more.",
     question: "How do autonomous penetration-testing tools avoid reporting false positives?",
     answer:
       "By refusing to report anything they can't prove. A finding should only reach the report when the scanner has captured physical evidence of exploitation — a database error signature, an unencoded reflection of a unique payload, real command output, a known file signature, or a template expression that actually evaluated — and anything without that evidence should be discarded, not downgraded to 'possible'.",
@@ -81,7 +81,7 @@ export const NOTES: Note[] = [
     slug: "ai-app-security-self-audit-p0-p3",
     title: "An Honest Security Self-Audit of an AI App, P0 to P3",
     description:
-      "What an honest security self-audit of an AI application looks like: findings graded P0 to P3, worst first, with prompt injection, missing auth and unmetered LLM endpoints at the top — and fixes published alongside.",
+      "An honest security self-audit of an AI app, graded P0 to P3: missing auth, prompt injection via chat history and unmetered LLM endpoints first.",
     question: "What does an honest security self-audit of an AI application look like, and how should findings be ranked P0 to P3?",
     answer:
       "Review your own system as an outsider would, write every finding down graded by consequence — P0 for security and data exposure, P1 for crashes, P2 for correctness and scale, P3 for polish — lead with the worst, and keep the document next to the fixes. For AI apps, the P0s are usually the same three: no authentication, prompt injection through user-controlled message history, and an unmetered paid model endpoint.",
@@ -129,7 +129,7 @@ export const NOTES: Note[] = [
     slug: "ai-agent-bug-fix-verification",
     title: "How an AI Agent Can Verify a Bug Is Actually Fixed",
     description:
-      "An AI agent verifies a bug fix by reproducing the original bug against the running application and checking the observed behavior — not by reading the commit. How HallogenAI's eight agents do it.",
+      "An AI agent verifies a bug fix by reproducing the bug against the running app and checking the evidence — not the commit. How HallogenAI does it.",
     question: "How can an AI agent verify that a bug is actually fixed rather than trusting the commit log?",
     answer:
       "Make it re-run the bug, not read the diff: the agent reproduces the reported steps against the live QA environment, captures what the application actually does, and marks the bug fixed only if that evidence shows the defect is gone. If the evidence can't be produced, the result is 'not verified' — never 'probably fixed'.",
@@ -170,7 +170,7 @@ export const NOTES: Note[] = [
     slug: "modular-rag-pipeline-architecture",
     title: "How to Structure a RAG Pipeline You Can Test Stage by Stage",
     description:
-      "Structure a RAG pipeline as separate embedding, storage, retrieval and generation stages with fixed contracts, so each can be tested and replaced on its own. Lessons from Sarthi, a RAG copilot for banking.",
+      "Structure a RAG pipeline as embedding, storage, retrieval and generation stages with fixed contracts, so each can be tested and replaced alone.",
     question: "How should a RAG pipeline be structured so each stage can be tested and replaced independently?",
     answer:
       "Split it into four stages with explicit contracts — embedding (text in, vectors out), storage (vectors and their source passages), retrieval (question in, ranked passages out) and generation (question plus passages in, cited answer out) — and test each stage against its own fixed inputs. Then a weak stage shows up on its own scorecard instead of hiding behind a fluent final answer.",
@@ -213,7 +213,7 @@ export const NOTES: Note[] = [
     slug: "blast-radius-cube-root-scaling",
     title: "Why Blast Radius Scales With the Cube Root of Yield",
     description:
-      "Blast damage radius scales with the cube root of explosive yield because blast energy fills a volume. The Hopkinson–Cranz law, verified in AEON: 1,000× the yield reaches only 10× further.",
+      "Blast radius scales with the cube root of yield because blast energy fills a volume — 1,000× the yield reaches only 10× further. Hopkinson–Cranz.",
     question: "Why does blast damage radius scale with the cube root of yield?",
     answer:
       "Because a blast's energy spreads through a volume, and volume grows with the cube of distance: to get the same overpressure at a larger distance R, you need energy proportional to R³, so R grows as the cube root of the energy. That's Hopkinson–Cranz scaling — a thousand times the yield moves any given overpressure contour only about ten times further out.",
@@ -252,7 +252,7 @@ export const NOTES: Note[] = [
     slug: "react-three-fiber-raycast-throttling",
     title: "Reduce Jitter in React Three Fiber Without Raising FPS",
     description:
-      "Perceived jitter in a React Three Fiber scene often comes from per-frame work like raycasting, not low frame rate. Throttling a focus raycast to ~10 times a second fixed it in Antarang's walkable 3D museum.",
+      "Jitter in a React Three Fiber scene often comes from per-frame work, not low FPS. Throttling a focus raycast to ~10/s fixed it in Antarang.",
     question: "How do you reduce jitter in a React Three Fiber scene without raising the frame rate?",
     answer:
       "Find the per-frame work that changes what's on screen and run it less often. In Antarang's walkable 3D museum, the centre-screen raycast that decides which artwork you're focused on ran every frame; throttling it to about ten times a second made the gallery feel smoother than any frame-rate tuning did.",
@@ -305,7 +305,7 @@ useFrame((state, delta) => {
     slug: "canvas-image-sequence-vs-video-scroll-animation",
     title: "Canvas Image Sequence vs Video for Scroll Animation",
     description:
-      "For scroll-scrubbed product animation, a canvas image sequence beats a video element: exact frames in both directions without seek stutter. Trade-offs and numbers from Revuelto: Assembled (110 frames, 5.5 MB).",
+      "For scroll-scrubbed animation, a canvas image sequence beats a video element: exact frames both ways, no seek stutter. Lessons from Revuelto.",
     question: "Is a canvas image sequence better than a video element for scroll-driven product animation in Next.js?",
     answer:
       "For animation scrubbed directly by the scroll bar, yes: a canvas image sequence maps each scroll position to one exact, already-decoded frame and draws it instantly in either direction, while seeking a compressed video — especially backwards — waits on the decoder and stutters. Use video when the clip plays on its own; use a frame sequence when the user's scroll is the playhead.",
@@ -341,7 +341,7 @@ useFrame((state, delta) => {
     slug: "distributed-k6-load-testing",
     title: "Load-Testing a Mobile Backend With k6 Across Machines",
     description:
-      "How to load-test a mobile app's backend with k6 across several machines before a fixed launch date: DadaLoad's controller-and-agents design, a scripted buyer journey, and how to aggregate results correctly.",
+      "Load-testing a mobile backend with k6 across machines before a fixed launch date: DadaLoad's controller-and-agents design and correct aggregation.",
     question: "How do you load-test a mobile app's backend with k6 across several machines before a fixed launch date?",
     answer:
       "Run k6 as an agent on each machine, coordinate them from one controller that splits the target request rate and starts them together, script the real user journey rather than single endpoints, and merge the raw results instead of averaging per-machine summaries. For the Dada Udyogini launch, Shreyansh designed DadaLoad to do exactly that across up to ten Windows machines.",

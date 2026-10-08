@@ -38,7 +38,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "sarthi-rag-banking-copilot",
     title: "Sarthi — RAG Relationship-Manager Copilot for Banking",
     description:
-      "Sarthi is an AI relationship-manager copilot for banking built by Shreyansh Kumar Singh: a Customer 360 dashboard, LLM chat grounded in policy documents, and a published P0–P3 security self-audit.",
+      "Sarthi, by Shreyansh Kumar Singh: an AI relationship-manager copilot for banking — RAG, grounded chat, and a published P0–P3 security self-audit.",
     h1: "Sarthi: an AI relationship-manager copilot for banking",
     question: "How should a RAG copilot for banking be structured — and audited?",
     tldr:
@@ -91,7 +91,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "nythera-ai-penetration-testing-agent",
     title: "Nythera — Autonomous Pentest Agent That Validates Findings",
     description:
-      "Nythera is an open-source autonomous web penetration-testing platform by Shreyansh Kumar Singh. It validates every finding with evidence before reporting it, across nine vulnerability classes and a seven-phase workflow.",
+      "Nythera: an open-source autonomous pentest platform by Shreyansh Kumar Singh that validates every finding with evidence before reporting it.",
     h1: "Nythera: autonomous penetration testing that proves every finding",
     question: "How do autonomous penetration-testing tools avoid reporting false positives?",
     tldr:
@@ -140,7 +140,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "hallogenai-multi-agent-bug-fix-verification",
     title: "HallogenAI — Multi-Agent QA That Verifies Bug Fixes",
     description:
-      "HallogenAI, by Shreyansh Kumar Singh, uses eight specialized AI agents to re-verify reported bugs against live application behavior, marking a bug fixed only on captured evidence — never on a commit.",
+      "HallogenAI, by Shreyansh Kumar Singh: eight AI agents that re-verify bugs against the live app and mark them fixed only on captured evidence.",
     h1: "HallogenAI: verifying bug fixes by evidence, not by commit",
     question: "How can an AI agent verify that a bug is actually fixed rather than trusting the commit log?",
     tldr:
@@ -181,7 +181,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "bookverse-ai-book-summaries",
     title: "BookVerse AI — Book Summaries That Run Without an API Key",
     description:
-      "BookVerse AI by Shreyansh Kumar Singh turns any book into a study guide — summary, timeline, mind map, character map and a grounded tutor — and keeps working with no API key through graceful fallbacks.",
+      "BookVerse AI by Shreyansh Kumar Singh turns any book into a study guide and tutor — and keeps working with no API key via graceful fallbacks.",
     h1: "BookVerse AI: step inside any book — even with no API key",
     question: "How can an AI book-summary app keep working when no API key is available?",
     tldr:
@@ -229,7 +229,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "antarang-3d-art-museum-react-three-fiber",
     title: "Antarang — Walkable 3D Art Museum in React Three Fiber",
     description:
-      "Antarang, by Shreyansh Kumar Singh, is a browser-based walkable 3D museum built with React Three Fiber that places Indian art history on the world art timeline, using verified Wikimedia data only.",
+      "Antarang: a walkable 3D museum in React Three Fiber by Shreyansh Kumar Singh, placing Indian art on the world timeline with verified Wikimedia data.",
     h1: "Antarang: a walkable 3D museum of Indian and world art",
     question: "How do you build a walkable 3D museum on the web with React Three Fiber?",
     tldr:
@@ -277,7 +277,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "the-evolution-physics-simulators",
     title: "The Evolution — Four Zero-Dependency Physics Simulators",
     description:
-      "The Evolution by Shreyansh Kumar Singh: four physics simulators, one HTML file each, with no build step or dependencies — including AEON, a weapons-consequence model where every zone comes from a published effects model.",
+      "The Evolution by Shreyansh Kumar Singh: four zero-dependency physics simulators, one HTML file each — including AEON, built on published models.",
     h1: "The Evolution: four physics simulators, one HTML file each",
     question: "Why does blast damage radius scale with the cube root of yield?",
     tldr:
@@ -324,7 +324,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "collectors-pulse-ai-newsroom",
     title: "The Collector's Pulse — AI-Curated Newsroom in Next.js",
     description:
-      "The Collector's Pulse by Shreyansh Kumar Singh: a daily AI-curated newsroom for trading cards, anime figures and luxury watches, built in Next.js 16 with Gemini, Supabase and a written design system.",
+      "The Collector's Pulse by Shreyansh Kumar Singh: an AI-curated daily newsroom for cards, figures and watches — Next.js 16, Gemini and Supabase.",
     h1: "The Collector's Pulse: an AI-curated newsroom for collectors",
     question: "How do you build an AI-curated news site that stays fresh and doesn't break?",
     tldr:
@@ -370,7 +370,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "vaultiq-dotnet-angular-clean-architecture",
     title: "VaultIQ — ASP.NET Core 8 + Angular 18 Clean Architecture",
     description:
-      "VaultIQ by Shreyansh Kumar Singh: an AI startup-idea generator built with ASP.NET Core 8 in four-layer Clean Architecture and an Angular 18 front end using standalone components and Signals.",
+      "VaultIQ by Shreyansh Kumar Singh: an AI startup-idea generator on ASP.NET Core 8 Clean Architecture with an Angular 18 Signals front end.",
     h1: "VaultIQ: ASP.NET Core 8 and Angular 18 in Clean Architecture",
     question: "What does a Clean Architecture project with ASP.NET Core 8 and Angular 18 Signals look like?",
     tldr:
@@ -412,7 +412,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     slug: "revuelto-scroll-canvas-animation",
     title: "Revuelto: Assembled — Scroll-Driven Canvas Animation",
     description:
-      "Revuelto: Assembled by Shreyansh Kumar Singh: a Lamborghini Revuelto that assembles frame by frame as you scroll — 110 WebP frames scrubbed on a canvas, on a 5.5 MB page, in Next.js 16.",
+      "Revuelto: Assembled by Shreyansh Kumar Singh — a car that assembles as you scroll: 110 WebP frames scrubbed on a canvas, on a 5.5 MB page.",
     h1: "Revuelto: Assembled — a car that builds itself as you scroll",
     question: "Is a canvas image sequence better than a video element for scroll-driven product animation?",
     tldr:

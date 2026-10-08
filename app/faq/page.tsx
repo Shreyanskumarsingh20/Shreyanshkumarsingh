@@ -13,7 +13,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "FAQ — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Answers about Shreyansh Kumar Singh: who he is, where he's based, his AI systems (Sarthi, Nythera, HallogenAI), his RamanByte experience, education, tech stack and availability.";
+  "Direct answers about Shreyansh Kumar Singh: who he is, his AI projects, RamanByte experience, education, tech stack and availability.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "FAQ", path: "/faq" },
@@ -22,6 +22,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh", "FAQ", "AI engineer Pune", "hire AI engineer"],
   alternates: { canonical: "/faq", types: { "text/markdown": "/faq.md" } },
   openGraph: { type: "website", url: "/faq", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },

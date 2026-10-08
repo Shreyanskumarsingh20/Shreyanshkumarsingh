@@ -228,32 +228,7 @@ export default function HomeInteractions() {
       "color:#969696;font-size:11px;font-family:monospace;"
     );
 
-    // ==========================================================================
-    // LIVE GITHUB TICKER
-    // ==========================================================================
-    (function ghTicker() {
-      const el = document.getElementById("ghTicker");
-      if (!el) return;
-      const repos = PROJECTS.filter((p) => p.url).map((p) => p.url!.replace("https://github.com/", ""));
-      Promise.all(
-        repos.map((r) =>
-          fetch("https://api.github.com/repos/" + r)
-            .then((res) => (res.ok ? res.json() : null))
-            .catch(() => null)
-        )
-      )
-        .then((results) => {
-          const valid = results.filter((r) => r && r.pushed_at);
-          if (!valid.length) return;
-          valid.sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
-          const latest = valid[0];
-          const days = Math.floor((Date.now() - new Date(latest.pushed_at).getTime()) / 86400000);
-          const when = days <= 0 ? "today" : days === 1 ? "1 day ago" : days + " days ago";
-          el.innerHTML = `<i></i>Last shipped — <b>${when}</b> · ${latest.name}`;
-          el.classList.add("on");
-        })
-        .catch(() => {});
-    })();
+    // the "Last shipped" ticker is rendered on the server (lib/github.ts)
 
     // ==========================================================================
     // "CURRENTLY BUILDING" STATUS CHIP

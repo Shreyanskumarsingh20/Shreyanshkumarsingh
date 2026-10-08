@@ -15,7 +15,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Résumé — Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 const DESCRIPTION =
-  "Résumé of Shreyansh Kumar Singh, AI and full-stack engineer in Pune: RamanByte since January 2023 (ASP.NET Core, Angular, Flutter, SQL Server), RAG and LLM-agent projects, B.Tech Computer Science.";
+  "Résumé of Shreyansh Kumar Singh: full-stack & AI engineer at RamanByte since 2023 — ASP.NET Core, Angular, Flutter, SQL Server — plus RAG projects.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Résumé", path: "/resume" },
@@ -24,6 +24,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh resume", "Shreyansh Kumar Singh CV", "full-stack AI engineer resume", "Pune"],
   alternates: { canonical: "/resume", types: { "text/markdown": "/resume.md" } },
   openGraph: { type: "profile", url: "/resume", title: TITLE, description: DESCRIPTION },
 };

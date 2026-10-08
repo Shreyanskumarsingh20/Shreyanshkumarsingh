@@ -4,39 +4,39 @@
    kept in their own file so the original page CSS stays as it was.
    ========================================================================= */
 
-.shell--page{ --shell-max:1040px; }
+/* same content width as /experience and the header, so every page lines up */
+.shell--page{ --shell-max:1180px; }
 .pg{ position:relative; padding-top:112px; }
 
-/* ---------- site top bar (inner pages) ---------- */
-.topbar--site{ width:min(calc(100% - 32px), 1180px); }
-.topbar-nav--site{ align-items:center; }
+/* ---------- the one top bar (every page) ---------- */
+.topbar--site{ width:min(calc(100% - 32px), 1240px); }
+.topbar--site .topbar-id{ gap:12px; }
+.topbar-mark{ width:33px; height:32px; flex:none; display:block; }
+.topbar--site .topbar-right{ gap:16px; }
+/* seven links + the name need ~1080px; below that the menu takes over */
+.topbar--site .topbar-nav{ display:none; align-items:center; gap:22px; }
+@media(min-width:1080px){ .topbar--site .topbar-nav{ display:flex; } }
 .topbar-nav--site a[aria-current="page"]{ color:var(--white); }
 .site-menu{ position:relative; }
-@media(min-width:980px){ .site-menu{ display:none; } }
+@media(min-width:1080px){ .site-menu{ display:none; } }
 .site-menu summary{
   list-style:none; cursor:pointer; width:44px; height:44px; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:5px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
+  align-items:center; justify-content:center; gap:5px; border-radius:10px; border:1px solid rgba(255,255,255,.12);
 }
 .site-menu summary::-webkit-details-marker{ display:none; }
 .site-menu summary span{ width:18px; height:2px; background:var(--white); display:block; }
 .site-menu[open] summary{ border-color:var(--gold); }
 .site-menu-list{
-  position:absolute; right:0; top:54px; min-width:220px; display:flex; flex-direction:column;
-  padding:10px; border-radius:14px; background:rgba(10,10,10,.96); border:1px solid rgba(255,255,255,.1);
+  position:absolute; right:0; top:54px; min-width:230px; display:flex; flex-direction:column;
+  padding:10px; border-radius:14px; background:rgba(10,10,10,.97); border:1px solid rgba(255,255,255,.12);
   box-shadow:0 24px 60px -20px rgba(0,0,0,.9);
 }
 .site-menu-list a{
-  padding:12px 14px; font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
-  color:var(--steel); text-decoration:none; border-radius:8px;
+  padding:13px 14px; font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  color:#cfcfcf; text-decoration:none; border-radius:8px;
 }
-.site-menu-list a:hover,.site-menu-list a[aria-current="page"]{ color:var(--white); background:rgba(255,255,255,.04); }
-
-/* home top bar: nine links + the ⌘K trigger need ~1240px; below that the
-   hamburger (same links, MobileNav overlay) takes over */
-@media(min-width:980px) and (max-width:1239.98px){
-  .topbar--wide .topbar-nav{ display:none; }
-  .topbar--wide .nav-toggle{ display:flex; }
-}
+.site-menu-list a:hover,.site-menu-list a[aria-current="page"]{ color:var(--white); background:rgba(255,255,255,.05); }
+@media(max-width:480px){ .topbar-mark{ width:28px; height:27px; } }
 
 /* ---------- breadcrumbs ---------- */
 .crumbs ol{ list-style:none; display:flex; flex-wrap:wrap; gap:8px; margin:0 0 8px; padding:0; font-size:12px; color:var(--ash); }
@@ -54,7 +54,10 @@
 .pg-meta{ margin-top:18px; font-size:12px; color:var(--ash); }
 
 /* ---------- sections + prose ---------- */
-.pg-section{ padding-block:var(--xl); border-top:1px solid var(--line); }
+/* the divider is drawn inside the gutters, so it lines up with the text
+   instead of running out to the container's padding edge */
+.pg-section{ padding-block:var(--xl); position:relative; }
+.pg-section::before{ content:""; position:absolute; top:0; left:var(--gutter); right:var(--gutter); border-top:1px solid var(--line); }
 .pg-h2{ font-size:clamp(1.5rem,3vw,2.2rem); font-weight:400; text-transform:uppercase; margin:0 0 var(--md); line-height:1.1; }
 .pg-h2 small{ display:block; font-size:11px; letter-spacing:.24em; color:var(--gold); margin-bottom:12px; font-family:var(--font-jetbrains-mono),monospace; }
 .pg-prose{ max-width:68ch; }
@@ -91,6 +94,7 @@
 .pg-photo figcaption{ position:absolute; left:0; right:0; bottom:0; padding:28px 16px 12px; font-size:11.5px; color:#e6e6e6;
   background:linear-gradient(180deg, transparent, rgba(0,0,0,.78)); }
 .pg-photo--wide{ margin-top:var(--lg); }
+@media(max-width:899.98px){ .pg-split .pg-photo{ max-width:340px !important; margin-inline:auto; width:100%; } }
 
 /* timeline */
 .pg-timeline{ list-style:none; margin:0; padding:0; border-left:1px solid var(--line); }
@@ -194,23 +198,30 @@ a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
 .note-code{ margin:0 0 18px; padding:18px 20px; background:#0b0b0b; border:1px solid var(--line); border-radius:8px; overflow-x:auto; font-size:13px; line-height:1.6; }
 .note-code code{ font-family:var(--font-jetbrains-mono),monospace; color:#e6e6e6; white-space:pre; }
 
-/* ---------- sitewide footer (inner pages) ---------- */
-.site-foot{ position:relative; border-top:1px solid var(--line); background:rgba(8,8,8,.88); padding:var(--xl) 0 var(--lg); margin-top:var(--xl); }
-.site-foot-top{ display:grid; grid-template-columns:1fr; gap:var(--lg); }
-@media(min-width:980px){ .site-foot-top{ grid-template-columns:1fr 1.3fr; } }
-.site-foot-name{ margin:0; font-size:clamp(1.4rem,3vw,2rem); text-transform:uppercase; font-weight:400; }
-.site-foot-role{ margin:8px 0 0; font-size:13.5px; color:#bdbdbd; }
-.site-foot-cols{ display:grid; grid-template-columns:repeat(2,1fr); gap:28px 20px; }
-@media(min-width:720px){ .site-foot-cols{ grid-template-columns:repeat(4,1fr); } }
-.site-foot-cols nav{ display:flex; flex-direction:column; gap:10px; }
-.site-foot-cols a{ font-size:13.5px; color:#cfcfcf; text-decoration:none; padding:3px 0; }
+/* ---------- the one footer (every page) ---------- */
+/* stronger scrim than the original so text and links stay legible over the
+   brightest video frames; the lower half (links) sits on near-solid iron */
+.site-footer .footer-video-overlay{
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(12,35,64,.28) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.5) 0%, rgba(0,0,0,.6) 35%, rgba(12,12,12,.88) 62%, var(--iron) 88%);
+}
+.site-footer h2{ text-shadow:0 2px 18px rgba(0,0,0,.7); }
+.site-footer .foot-lede{ color:#e2e2e2; text-shadow:0 1px 3px rgba(0,0,0,.9), 0 2px 14px rgba(0,0,0,.7); }
+.site-foot-cols{
+  display:grid; grid-template-columns:repeat(2,1fr); gap:28px 20px;
+  margin-top:var(--lg); padding-top:var(--md); border-top:1px solid rgba(255,255,255,.12);
+}
+@media(min-width:760px){ .site-foot-cols{ grid-template-columns:repeat(4,1fr); } }
+.site-foot-cols nav{ display:flex; flex-direction:column; gap:6px; }
+.site-foot-cols a{ font-size:14px; color:#e4e4e4; text-decoration:none; padding:5px 0; }
 .site-foot-cols a:hover{ color:var(--gold); }
-.site-foot-h{ margin:0 0 4px; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); font-weight:600; }
-.site-foot-cols--home{ margin-top:var(--lg); padding-top:var(--md); border-top:1px solid rgba(255,255,255,.08); }
-
-/* home footer: text over the video gets a readable shadow */
-.site-footer .foot-lede{ color:#d6d6d6; text-shadow:0 1px 3px rgba(0,0,0,.9), 0 2px 14px rgba(0,0,0,.7); }
-.site-footer h2{ text-shadow:0 2px 18px rgba(0,0,0,.6); }
+.site-foot-h{ margin:0 0 6px; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); font-weight:600; }
+.foot-brand{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-top:var(--lg); }
+.foot-brand img{ height:64px; width:auto; display:block; }
+.foot-brand p{ margin:0; font-size:13px; color:#cfcfcf; }
+.site-footer .foot-meta{ margin-top:var(--md); color:#b5b5b5; border-top-color:rgba(255,255,255,.12); }
+.site-footer .contact-link{ background:rgba(8,8,8,.82); }
 
 /* ---------- 404 ---------- */
 .nf{ min-height:70vh; display:flex; align-items:center; }
@@ -251,4 +262,35 @@ a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
   .resume a{ text-decoration:none; }
   .resume{ padding:0; max-width:none; }
   .resume section{ margin-top:14px; break-inside:avoid-page; }
+}
+
+/* ---------- layout consistency fixes ---------- */
+/* footer headline: one or two lines, never a lone word */
+.site-footer h2{ max-width:24ch; }
+/* the ⌘K palette is a keyboard feature — hide its trigger on phones */
+@media(max-width:759.98px){ .cmdk-trigger{ display:none !important; } }
+/* Range card actions on narrow screens: an even two-column grid, with the
+   repository button / source note spanning the full width */
+@media(max-width:859.98px){
+  .stack-actions{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .stack-actions > .btn{ justify-content:center; padding:0 12px; min-height:48px; }
+  .stack-actions > :first-child{ grid-column:1 / -1; }
+  .stack-actions > .badge{ justify-self:start; }
+}
+/* "Not yet public" / "Source on request" — a quiet label, not a button */
+.stack-actions .badge{
+  display:inline-flex; align-items:center; min-height:48px; padding:0 18px;
+  border:1px dashed rgba(255,255,255,.22); background:transparent;
+  font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#cfcfcf;
+}
+
+/* home hero: keep the thesis and tickers legible over the bright video */
+.hero .thesis{ color:#e0e0e0; text-shadow:0 1px 3px rgba(0,0,0,.85), 0 2px 16px rgba(0,0,0,.6); }
+.hero .hero-eyebrow .label,.hero .gh-ticker{ text-shadow:0 1px 3px rgba(0,0,0,.85); }
+@media(max-width:759.98px){
+  .hero .hero-video-overlay{
+    background:
+      radial-gradient(80% 60% at 50% 0%, rgba(12,35,64,.3) 0%, transparent 60%),
+      linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.5) 55%, var(--black) 96%);
+  }
 }

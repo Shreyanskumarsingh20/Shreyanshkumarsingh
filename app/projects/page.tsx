@@ -11,7 +11,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Projects — Shreyansh Kumar Singh: AI, Security, 3D & .NET";
 const DESCRIPTION =
-  "Nine projects by Shreyansh Kumar Singh, each with a case study: a RAG copilot for banking, an autonomous pentest agent, multi-agent QA, a 3D museum, physics simulators and more.";
+  "Nine projects by Shreyansh Kumar Singh, each a case study: a RAG copilot for banking, an AI pentest agent, multi-agent QA, a 3D museum and more.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Projects", path: "/projects" },
@@ -20,6 +20,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh projects", "RAG copilot", "AI pentest agent", "multi-agent QA", "React Three Fiber museum", "case studies"],
   alternates: { canonical: "/projects", types: { "text/markdown": "/projects.md" } },
   openGraph: { type: "website", url: "/projects", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },

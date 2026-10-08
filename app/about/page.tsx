@@ -14,7 +14,7 @@ import { ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 const UPDATED = ABOUT_UPDATED;
 const TITLE = "About Shreyansh Kumar Singh — AI Engineer in Pune, India";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India: RAG pipelines, LLM agents and security tooling, on top of production .NET, SQL Server and Angular work at RamanByte since 2023.";
+  "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India: RAG pipelines, LLM agents and security tooling, plus production .NET and Angular.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "About", path: "/about" },
@@ -23,6 +23,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh", "who is Shreyansh Kumar Singh", "AI engineer Pune", "RamanByte", "AKTU computer science"],
   alternates: { canonical: "/about", types: { "text/markdown": "/about.md" } },
   openGraph: {
     type: "profile",

@@ -9,7 +9,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Skills — Shreyansh Kumar Singh: RAG, LLM Agents, .NET, Angular";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh's skills, each linked to where he used it: RAG pipelines and LLM agents, C# and ASP.NET Core, Angular 16–18, Next.js, SQL Server, Flutter, React Three Fiber, security and k6.";
+  "Shreyansh Kumar Singh's skills, each linked to real work: RAG and LLM agents, C# and ASP.NET Core, Angular, Next.js, SQL Server, Flutter, R3F.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Skills", path: "/skills" },
@@ -18,6 +18,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh skills", "RAG", "LLM agents", "C#", "ASP.NET Core", "Angular 18 Signals", "Next.js", "React Three Fiber"],
   alternates: { canonical: "/skills", types: { "text/markdown": "/skills.md" } },
   openGraph: { type: "website", url: "/skills", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },

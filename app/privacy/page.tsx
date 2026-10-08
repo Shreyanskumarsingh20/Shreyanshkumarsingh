@@ -11,7 +11,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Privacy — shreyanshkumarsingh.com";
 const DESCRIPTION =
-  "How shreyanshkumarsingh.com, the portfolio of Shreyansh Kumar Singh, handles visitor data: no cookies, no tracking, no forms — and what happens when you get in touch.";
+  "How shreyanshkumarsingh.com handles visitor data: no cookies, no tracking, no forms — and what happens when you get in touch.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Privacy", path: "/privacy" },
@@ -61,11 +61,6 @@ export default function PrivacyPage() {
               <b>One browser setting.</b> The home page remembers, for the current tab only (sessionStorage), that
               you&apos;ve already seen the intro animation, so it plays short the next time. It never leaves your
               browser and is gone when you close the tab.
-            </li>
-            <li>
-              <b>One outside request.</b> The home page&apos;s &quot;last shipped&quot; ticker asks GitHub&apos;s public
-              API (api.github.com) when the public repositories were last updated. That request goes from your browser to
-              GitHub, which receives your IP address as with any web request.
             </li>
             <li>
               <b>Everything else is self-hosted</b> — fonts, images, videos and the physics simulators load from this

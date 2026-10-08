@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { preconnect } from "react-dom";
-import HomeTopBar from "@/components/home/HomeTopBar";
+import SiteHeader from "@/components/site/SiteHeader";
 import Loader from "@/components/home/Loader";
 import HomeInteractions from "@/components/home/HomeInteractions";
 import Hero from "@/components/sections/Hero";
@@ -11,8 +10,7 @@ import Method from "@/components/sections/Method";
 import Philosophy from "@/components/sections/Philosophy";
 import Faq from "@/components/sections/Faq";
 import Telemetry from "@/components/sections/Telemetry";
-import Contact from "@/components/sections/Contact";
-import MobileNav from "@/components/ui/MobileNav";
+import SiteFooter from "@/components/site/SiteFooter";
 import CommandPalette from "@/components/ui/CommandPalette";
 import Terminal from "@/components/ui/Terminal";
 import ProjectModal from "@/components/ui/ProjectModal";
@@ -26,11 +24,12 @@ import { graph, coreNodes } from "@/lib/jsonld";
 
 const TITLE = "Shreyansh Kumar Singh — Applied AI & Full-Stack Engineer, Pune";
 const DESCRIPTION =
-  "Shreyansh Kumar Singh is an AI and full-stack engineer in Pune, India: a RAG copilot for banking, an autonomous pentest agent, a 3D museum, and four years of production .NET and Angular.";
+  "Shreyansh Kumar Singh, AI & full-stack engineer in Pune: RAG and LLM-agent systems, an autonomous pentest agent, and production .NET + Angular since 2023.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["Shreyansh Kumar Singh", "Shreyansh Kumar Singh portfolio", "AI engineer Pune", "applied AI engineer", "full-stack developer Pune", "RAG", "LLM agents"],
   alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
   openGraph: {
     type: "website",
@@ -90,8 +89,6 @@ const jsonLd = graph(
 );
 
 export default function HomePage() {
-  // the "Last shipped" ticker calls the GitHub API right after hydration
-  preconnect("https://api.github.com", { crossOrigin: "anonymous" });
   return (
     <>
       <JsonLd data={jsonLd} />
@@ -102,7 +99,7 @@ export default function HomePage() {
 
       <Loader />
 
-      <HomeTopBar />
+      <SiteHeader withPalette />
 
       <div className="hud mono" id="hud">
         <div id="hudLine">DEPTH — / —</div>
@@ -121,9 +118,8 @@ export default function HomePage() {
         <Faq />
         <Telemetry />
       </main>
-      <Contact />
+      <SiteFooter />
 
-      <MobileNav />
       <CommandPalette />
       <Terminal />
       <ProjectModal />

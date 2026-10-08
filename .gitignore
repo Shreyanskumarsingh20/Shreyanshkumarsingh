@@ -32,3 +32,6 @@ next-env.d.ts
 
 # original headshot uploads (optimized copies live in public/images)
 /public/headshots/
+
+# original logo uploads (web-sized copies live in public/brand)
+/public/logo/

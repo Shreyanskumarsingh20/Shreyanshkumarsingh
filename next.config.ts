@@ -1,9 +1,51 @@
 import type { NextConfig } from "next";
 import { PRODUCTION_URL, VERCEL_PRODUCTION_HOST } from "./lib/site";
 
+// Content Security Policy. 'unsafe-inline' for scripts is required by Next's
+// inline bootstrap/RSC payload scripts on statically rendered pages (the
+// nonce alternative forces every page to render dynamically). Everything is
+// otherwise locked to this origin.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "media-src 'self'",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "frame-src 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const SECURITY_HEADERS = [
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      {
+        // the vendored single-file simulators under /sims keep their own
+        // inline code, and are framed by the home page (same origin)
+        source: "/((?!sims/).*)",
+        headers: [
+          { key: "Content-Security-Policy", value: CSP },
+          { key: "X-Frame-Options", value: "DENY" },
+        ],
+      },
+      {
+        source: "/sims/:file*",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      },
       {
         // self-hosted background videos + posters; filenames aren't hashed,
         // so cache for 30 days rather than forever

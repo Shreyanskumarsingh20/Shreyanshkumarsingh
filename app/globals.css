@@ -921,7 +921,7 @@ body.loading{ overflow:hidden; }
 .loader{
   position:fixed; inset:0; z-index:300; background:var(--black);
   display:flex; align-items:center; justify-content:center;
-  transition:opacity .8s var(--ease), visibility 0s linear .8s;
+  transition:opacity .5s var(--ease), visibility 0s linear .5s;
 }
 .loader.hide{ opacity:0; visibility:hidden; pointer-events:none; }
 .loader-grid{
@@ -965,24 +965,18 @@ body.loading{ overflow:hidden; }
 
 .loader-stage{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:16px; padding:0 24px; max-width:100%; }
 .loader-sig-wrap{ position:relative; display:inline-flex; max-width:100%; }
-.loader-sig-text{
-  font-family:var(--font-beau-rivage), var(--font-italianno), cursive; font-weight:400; line-height:1.3;
-  /* the signature is one unbreakable line ≈7.7em wide (padding included), so
-     the second term caps the size at whatever fits the screen with ~32px to
-     spare each side — below ~630px the old 3.4rem floor ran the surname off
-     the right edge of a phone */
-  font-size:min(clamp(3.4rem, 12vw, 7.6rem), calc((100vw - 64px) / 7.7)); white-space:nowrap; padding:0 .15em;
-  background:linear-gradient(115deg, #90e0ef 0%, #ffffff 50%, #d8f4fb 100%);
-  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
-  filter:drop-shadow(0 0 20px rgba(144,224,239,.4));
+/* the SKS wordmark, "signed" in left to right by the pen sweep */
+.loader-logo{
+  display:block; height:min(128px, 24vw); width:auto; max-width:calc(100vw - 64px); object-fit:contain;
+  filter:drop-shadow(0 0 20px rgba(144,224,239,.35));
   clip-path:inset(0 100% 0 0);
-  animation:sig-write 2.3s var(--ease) forwards .2s;
+  animation:sig-write .85s var(--ease) forwards .1s;
 }
 @keyframes sig-write{ to{ clip-path:inset(0 0% 0 0); } }
 .loader-pen{
   position:absolute; top:22%; bottom:30%; left:0; width:3px; border-radius:2px;
   background:var(--cyan); box-shadow:0 0 14px 2px rgba(144,224,239,.85);
-  opacity:0; animation:sig-pen 2.3s var(--ease) forwards .2s;
+  opacity:0; animation:sig-pen .85s var(--ease) forwards .1s;
 }
 @keyframes sig-pen{
   0%{ opacity:1; left:0%; }
@@ -991,16 +985,16 @@ body.loading{ overflow:hidden; }
 }
 .loader-status{
   font-size:10px; letter-spacing:.14em; color:var(--steel); min-height:12px;
-  opacity:0; animation:loader-in .5s var(--ease) forwards 2.6s;
+  opacity:0; animation:loader-in .4s var(--ease) forwards .45s;
 }
 @keyframes loader-in{ to{ opacity:1; transform:none; } }
 .loader-pct{
   font-size:26px; font-weight:600; letter-spacing:.03em; color:var(--cyan); min-width:3.4ch; text-align:center;
   text-shadow:0 0 16px rgba(144,224,239,.5);
-  opacity:0; animation:loader-in .5s var(--ease) forwards 2.6s;
+  opacity:0; animation:loader-in .4s var(--ease) forwards .45s;
 }
 .loader-bar{ width:150px; height:2px; background:var(--charcoal); overflow:hidden; }
-.loader-bar i{ display:block; height:100%; width:100%; background:var(--cyan); transform:scaleX(0); transform-origin:left center; animation:loader-bar 3s var(--ease) forwards; }
+.loader-bar i{ display:block; height:100%; width:100%; background:var(--cyan); transform:scaleX(0); transform-origin:left center; animation:loader-bar 1.25s var(--ease) forwards; }
 @keyframes loader-bar{ to{ transform:scaleX(1); } }
 
 @media(prefers-reduced-motion: reduce){
@@ -1008,7 +1002,7 @@ body.loading{ overflow:hidden; }
   .loader-circuit{ animation:none; }
   .loader-breathe{ animation:none; transform:scale(1); opacity:.7; }
   .loader-nodes i{ animation:none; opacity:.6; }
-  .loader-sig-text{ clip-path:inset(0 0% 0 0); animation:none; }
+  .loader-logo{ clip-path:inset(0 0% 0 0); animation:none; }
   .loader-pen{ display:none; }
   .loader-status,.loader-pct{ opacity:1; transform:none; animation:none; }
   .loader-bar i{ animation:none; transform:none; }

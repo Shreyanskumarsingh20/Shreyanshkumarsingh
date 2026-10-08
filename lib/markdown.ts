@@ -194,7 +194,7 @@ function privacy(): Doc {
     body: [
       "# Privacy",
       "",
-      "This site sets no cookies, runs no tracking scripts and has no forms. It is hosted on Vercel, which processes standard request data to serve it. The home page stores one sessionStorage flag (intro animation already seen) and asks GitHub's public API when the public repositories were last updated. Everything else is self-hosted.",
+      "This site sets no cookies, runs no tracking scripts and has no forms. It is hosted on Vercel, which processes standard request data to serve it. The home page stores one sessionStorage flag (intro animation already seen). Everything is self-hosted — the browser makes no third-party requests.",
       "",
       `Questions or removal requests: ${PERSON.email}.`,
     ],

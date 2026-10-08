@@ -3,7 +3,7 @@
 import { useLayoutEffect, useState } from "react";
 
 /**
- * The opening loader — your name signed live in Beau Rivage, a circuit-line
+ * The opening loader — the SKS wordmark signed in by a pen sweep, a circuit-line
  * field breathing behind it, a fixed timer (not a real asset-load race) so
  * the reveal is always the same crafted length. Purely presentational;
  * nothing below depends on it, and it always self-releases.
@@ -26,14 +26,14 @@ export default function Loader() {
     const statusEl = document.getElementById("loaderStatus");
     const pctEl = document.getElementById("loaderPct");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // the full signature plays once per tab; returning to the home page in
-    // the same session gets a short version instead of the whole 3.5s again
+    // the full reveal (1.4s) plays once per tab; returning to the home page in
+    // the same session gets a 0.5s version
     let seen = false;
     try {
       seen = sessionStorage.getItem("loaderSeen") === "1";
       sessionStorage.setItem("loaderSeen", "1");
     } catch {}
-    const DURATION = reduce ? 300 : seen ? 900 : 3500;
+    const DURATION = reduce ? 200 : seen ? 500 : 1400;
     const lines = [
       "MOUNTING THE RANGE",
       "VERIFYING SPEC INTEGRITY",
@@ -46,7 +46,7 @@ export default function Loader() {
         ? window.setInterval(() => {
             li = (li + 1) % lines.length;
             statusEl.textContent = lines[li];
-          }, 620)
+          }, 340)
         : null;
     const start = Date.now();
     const pctTick =
@@ -66,7 +66,7 @@ export default function Loader() {
       // unmount through React rather than detaching the node by hand —
       // a manual removeChild leaves React holding a stale node, and it
       // throws NotFoundError when the page later unmounts on navigation
-      removeT = window.setTimeout(() => setDone(true), 900);
+      removeT = window.setTimeout(() => setDone(true), 600);
     }
     let removeT: number | undefined;
     const t = setTimeout(finish, DURATION);
@@ -96,9 +96,15 @@ export default function Loader() {
       </div>
       <div className="loader-stage">
         <div className="loader-sig-wrap">
-          <span className="loader-sig-text" aria-hidden="true">
-            Shreyansh Kumar Singh
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="loader-logo"
+            src="/brand/sks-wordmark-white.webp"
+            width={507}
+            height={200}
+            alt="Shreyansh Kumar Singh"
+            fetchPriority="high"
+          />
           <span className="loader-pen" aria-hidden="true"></span>
         </div>
         <div className="loader-status mono" id="loaderStatus">

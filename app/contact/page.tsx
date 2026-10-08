@@ -13,7 +13,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Contact Shreyansh Kumar Singh — Call, WhatsApp or Email";
 const DESCRIPTION =
-  "Contact Shreyansh Kumar Singh, AI and full-stack engineer in Pune, India — call, WhatsApp or email directly. Open to full-time or hybrid roles in applied AI and full-stack engineering.";
+  "Contact Shreyansh Kumar Singh, AI and full-stack engineer in Pune — call, WhatsApp or email. Open to full-time or hybrid roles.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Contact", path: "/contact" },
@@ -22,6 +22,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["contact Shreyansh Kumar Singh", "hire AI engineer Pune", "WhatsApp", "email"],
   alternates: { canonical: "/contact", types: { "text/markdown": "/contact.md" } },
   openGraph: { type: "website", url: "/contact", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },

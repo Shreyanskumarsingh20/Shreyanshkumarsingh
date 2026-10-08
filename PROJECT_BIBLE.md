@@ -254,8 +254,26 @@ scroll-jacking or per-frame transform math based on it.
 
 ## Deploying
 
-`metadataBase` in `app/layout.tsx` is currently a placeholder
-(`https://ansh-the-range.example.com`) — same TODO the original
-`index.html` carried ("og:url and og:image are relative — point them at the
-real domain once this is deployed"). Update it to the real production domain
-before shipping, so Open Graph/Twitter card images resolve to absolute URLs.
+Pushes to `main` deploy to production on Vercel. `SITE_URL` (`lib/site.ts`)
+is fixed to `https://www.shreyanshkumarsingh.com` in production and never
+derived from `VERCEL_URL` — deriving it from the vercel.app host once made
+every canonical point at the wrong domain.
+
+## 2026-10 SEO / AEO / agent overhaul — where things live
+
+- **One header, one footer** on every page: `components/site/SiteHeader.tsx`
+  (nav from `lib/nav.ts`; the home page adds the ⌘K trigger) and
+  `components/site/SiteFooter.tsx` (the video footer). Inner pages wrap in
+  `components/site/PageShell.tsx`; their styles are in `app/pages.css`.
+- **Brand**: `public/brand/` holds web-sized SKS monogram/wordmark files made
+  from the originals in `public/logo/` (not committed); favicons are
+  `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`.
+- **Loader**: 1.4s on the first visit, 0.5s on repeat visits in the same tab
+  (sessionStorage), reveals the white wordmark.
+- **Agent layer**: `proxy.ts` (markdown negotiation), `app/md/`,
+  `app/api/mcp/`, `app/api/well-known/`, `lib/markdown.ts`, `lib/mcp.ts`.
+- **Security headers / CSP**: `next.config.ts`. `/sims/*` is exempt from the
+  CSP (vendored single-file apps) and may be framed same-origin.
+- **Content rules**: never name the bank behind Sarthi; never publish the
+  phone number in machine-readable form; every fact traces to a repo, the
+  client's brief or his résumé.

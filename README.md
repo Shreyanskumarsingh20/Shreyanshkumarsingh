@@ -1,89 +1,61 @@
-# THE RANGE
+# Shreyansh Kumar Singh — portfolio (THE RANGE)
 
 The portfolio of Shreyansh Kumar Singh, AI & full-stack engineer in Pune —
-Next.js App Router, TypeScript, Tailwind CSS. Live at
-https://www.shreyanshkumarsingh.com.
+Next.js 16 App Router, React 19, TypeScript, Tailwind + hand-written CSS.
+Live at **https://www.shreyanshkumarsingh.com** (deployed from `main` on Vercel).
 
 ## Run it
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
+npm run build      # production build (also type-checks)
+npm run lint
 ```
 
-Then open `http://localhost:3000`. Three routes: `/` (the main portfolio),
-`/experience` (four years at RamanByte), `/lets-talk` (a direct contact
-page). `npm run build && npm run start` for a production build.
+## What's here
 
-This used to be three self-contained, zero-build-step static HTML files
-(`index.html`, `experience.html`, `lets-talk.html` — double-click and open,
-no server required). That version is preserved under `legacy/` for
-reference; it is no longer the maintained version of the site. See
-`PROJECT_BIBLE.md` for the full story of the migration and why the
-sticky-stack/particle-field/command-palette mechanics look the way they do.
+| Route | What it is |
+|---|---|
+| `/` | THE RANGE — hero, The Build, nine sticky-stacking project cards, research board, method, philosophy, FAQ teaser, telemetry |
+| `/about` | Entity home: who he is, key facts, timeline (ProfilePage → Person JSON-LD) |
+| `/projects`, `/projects/[slug]` | Nine case studies: problem → build → hardest decision → result |
+| `/notes`, `/notes/[slug]`, `/notes/rss.xml` | Short technical notes, each answering one question first-hand |
+| `/experience` | RamanByte, since January 2023 — six production case studies |
+| `/skills`, `/faq`, `/resume`, `/contact`, `/privacy` | Supporting pages (`/lets-talk` 308s to `/contact`) |
 
-## The concept
+Content is data-driven: `lib/projects.ts`, `lib/case-studies.ts`,
+`lib/notes.ts`, `lib/faqs.ts`, `lib/skills.ts`, `lib/experience.ts`,
+`lib/about.ts`. Identity (name, URLs, profiles, employer, education) lives
+once in `lib/site.ts`.
 
-Nine repositories, presented as a stack: scroll and each project card pins
-to the top as the next one rises to cover it, like flipping through a stack
-of case files. The stacking itself is native `position: sticky` — one small
-top-offset/z-index step per card, no scroll-jacking, no parallax library.
-The only scroll-driven code left dims a card once the next one has covered
-it.
+## SEO, answer engines and agents
 
-Every screenshot on the page is real, not mocked up: for the projects that
-don't have an existing screenshot on disk, their local dev servers were
-actually booted and captured live with Playwright (full page, not just the
-hero), then compressed to keep the page light. Nothing here is a stand-in.
+- **Canonical host** is `https://www.shreyanshkumarsingh.com` (`lib/site.ts`);
+  the `*.vercel.app` alias 308-redirects to it (`next.config.ts`).
+- **Structured data** (`lib/jsonld.ts`): one Person graph by `@id` on every
+  page, plus page-specific nodes (ProfilePage, TechArticle, FAQPage on `/faq`
+  only, BreadcrumbList…).
+- **Sitemap** with real content dates (`app/sitemap.ts`), **robots.txt** naming
+  AI search/answer crawlers (`app/robots.txt/route.ts`), **llms.txt** and
+  **llms-full.txt** (`lib/llms.ts`).
+- **Markdown for agents** (`proxy.ts` + `app/md/`): every page as markdown via
+  `Accept: text/markdown` or a `.md` URL; markdown 404s; `Link` headers.
+- **MCP server** at `/api/mcp` (read-only, `mcp-handler`), WebMCP bridge,
+  `/.well-known/ai-catalog.json`, `ard.json`, `mcp/server-card.json`,
+  `security.txt` (`app/api/well-known`, `lib/mcp.ts`).
+- **IndexNow**: `scripts/indexnow.mjs`, run by `.github/workflows/indexnow.yml`
+  after each successful production deploy.
+- The phone number is never in HTML, JSON-LD, llms.txt or markdown — it's
+  assembled client-side on click (`lib/contact.ts`, `components/site/ContactLinks.tsx`).
 
-- **Hero** — the working thesis and headline stats, with a looping
-  background video and a live cursor-reactive particle field (also the
-  SURVIVE minigame's play area).
-- **The Build** — an illustrated six-chapter origin story between Hero and
-  Range.
-- **The Range** — the stacking-cards piece. Nine cards, each with its real
-  reference code, figures, stack, and a live screenshot (or, for THE
-  EVOLUTION and Revuelto, a click-to-run live simulator / scroll teardown).
-  Card backgrounds and buttons use that project's own real accent color.
-  Six of the nine cross-link to a matching case file in Research.
-- **Research** — an evidence wall: findings grouped into case files by
-  source project, filterable by domain.
-- **Method** — two illustrated acts: "The discipline" (before the code
-  exists) and "The scrutiny" (after it ships).
-- **Philosophy + FAQ** — six operational beliefs and direct answers to the
-  questions they raise, in a deliberately different (soft, light) visual
-  register from the rest of the page.
-- **Telemetry** — the instrument rack. Every technology gets its own
-  brand-colored, glossy 3D icon tile.
-- **Contact** — email, GitHub, and a command palette (⌘K) / hidden terminal
-  (backtick) for anyone who goes looking.
+## Performance notes
 
-`RESEARCH.md` documents an earlier exploration — a CSS 3D-perspective
-"corridor" effect (cards as plinths receding in fog) — that shipped first
-and was later replaced by the sticky-stacking approach described above. It's
-kept as a record of that technique and the reasoning behind it, not as
-documentation of current behavior. `CHANGELOG.md` documents the corridor →
-sticky-stack rewrite itself, including the `overflow-x: hidden` vs
-`position: sticky` bug that caused it to need a second pass.
+Background videos are self-hosted, colour-graded re-encodes that load only
+near the viewport (`components/BgVideo.tsx`); above-the-fold text animates in
+with CSS from first paint (`.rise.now`); scroll handlers read layout before
+writing; the FAQ tilt uses CSS scroll-driven animations. See
+`PROJECT_BIBLE.md` for the traps (sticky + `overflow-x`, `calc(var())` in
+transition delays) that still apply.
 
-## Project structure
-
-```
-app/            routes (/, /experience, /lets-talk) + layout + global CSS
-components/     sections, UI overlays, and the per-page interaction logic
-lib/            typed, data-driven content (projects, research, telemetry, …)
-public/shots/   project + case-study screenshots
-public/sims/    the vendored zero-dependency physics simulators
-legacy/         the original static HTML files, kept for reference
-```
-
-See `PROJECT_BIBLE.md` for the full architecture writeup (design tokens,
-each section's mechanic, known CSS traps) and `IDEAS.md` for a
-planning-only feature roadmap.
-
-## Design tokens
-
-Colors, spacing ladder, the 12° cut (`atan(18/84) = 12.1°`), and the
-Inter/JetBrains Mono/Beau Rivage type system live once in
-`app/globals.css`'s `:root` block and are mirrored into
-`tailwind.config.ts`.
+`legacy/` keeps the original three static HTML files for reference.

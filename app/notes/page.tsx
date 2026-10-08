@@ -9,7 +9,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Notes — Shreyansh Kumar Singh on RAG, AI Agents & Security";
 const DESCRIPTION =
-  "Short technical notes by Shreyansh Kumar Singh, each answering one question from his own projects: RAG pipeline structure, pentest false positives, AI bug-fix verification, R3F jitter, k6 at scale.";
+  "Technical notes by Shreyansh Kumar Singh, answered from his own projects: RAG structure, pentest false positives, AI bug-fix checks, distributed k6.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Notes", path: "/notes" },
@@ -18,6 +18,7 @@ const CRUMBS = [
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  keywords: ["RAG pipeline architecture", "AI pentest false positives", "AI bug fix verification", "React Three Fiber performance", "k6 load testing"],
   alternates: {
     canonical: "/notes",
     types: { "text/markdown": "/notes.md", "application/rss+xml": "/notes/rss.xml" },

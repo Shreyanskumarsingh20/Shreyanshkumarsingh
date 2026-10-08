@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   publisher: PERSON.name,
   keywords: KEYWORDS,
   category: "technology",
-  alternates: { canonical: "/" },
+  // canonicals are set per page — a root default would leak onto the 404
   robots: {
     index: true,
     follow: true,
@@ -76,9 +76,8 @@ export const metadata: Metadata = {
     // tells is-agentic.com which report view fits this site
     "is-agentic-site-type": "content",
   },
-  icons: {
-    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%23000'/%3E%3Cg fill='%23FFC000'%3E%3Crect x='4' y='11' width='3' height='9'/%3E%3Crect x='10.5' y='6' width='3' height='14'/%3E%3Crect x='17' y='9' width='3' height='11'/%3E%3C/g%3E%3C/svg%3E",
-  },
+  // favicon.ico, icon.png and apple-icon.png in app/ are picked up by Next's
+  // file conventions — the SKS monogram on black
 };
 
 export const viewport: Viewport = {

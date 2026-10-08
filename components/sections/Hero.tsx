@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BgVideo from "@/components/BgVideo";
+import { getLastShipped, relativeDays } from "@/lib/github";
 
 /**
  * HERO — the working thesis, headline stats, and the live particle field
@@ -7,7 +8,8 @@ import BgVideo from "@/components/BgVideo";
  * particle physics + game loop are wired up by HomeInteractions.tsx after
  * mount (canvas ids are stable across the port).
  */
-export default function Hero() {
+export default async function Hero() {
+  const shipped = await getLastShipped();
   return (
     <>
       <section className="hero" id="top">
@@ -74,9 +76,11 @@ export default function Hero() {
             </a>
           </div>
           <div className="hero-tickers">
-            <div className="gh-ticker mono" id="ghTicker">
-              <i></i>Syncing GitHub…
-            </div>
+            {shipped && (
+              <div className="gh-ticker mono on" id="ghTicker">
+                <i></i>Last shipped — <b>{relativeDays(shipped.pushedAt)}</b> · {shipped.repo}
+              </div>
+            )}
             <Link
               className="gh-ticker building-ticker mono on"
               id="buildingTicker"
