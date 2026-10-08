@@ -128,9 +128,9 @@ npm is not recommended (needs his npm account, no value for a portfolio).
     1–2 weeks.
 
 ### Analytics (in progress)
-- GA4 + Clarity with a consent banner are **built and deployed but dormant**
-  until `NEXT_PUBLIC_GA_ID` and `NEXT_PUBLIC_CLARITY_ID` are added in Vercel
-  (Production) and the site is redeployed. Then: in GA mark
+- GA4 (`G-NQJCRJ7B2Z`) + Clarity (`yui86woola`) with a consent banner are
+  **live** (IDs default in `lib/consent.ts`; env vars can override). To do in
+  GA: mark
   `generate_lead`, `resume_download`, `profile_click` as key events; link
   GA ↔ Search Console; optionally connect Clarity ↔ GA.
 

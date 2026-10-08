@@ -77,10 +77,10 @@ variables (Production), each a no-op when unset:
 
 ## Analytics (opt-in)
 
-Google Analytics 4 and Microsoft Clarity, behind a cookie banner
-(`components/analytics/`, `lib/consent.ts`). Set `NEXT_PUBLIC_GA_ID` and/or
-`NEXT_PUBLIC_CLARITY_ID` in Vercel and redeploy; until then there is no
-banner and nothing loads. Nothing from Google or Microsoft is requested
+Google Analytics 4 (`G-NQJCRJ7B2Z`) and Microsoft Clarity (`yui86woola`),
+behind a cookie banner (`components/analytics/`, `lib/consent.ts`). The IDs
+default in code; `NEXT_PUBLIC_GA_ID` / `NEXT_PUBLIC_CLARITY_ID` override them
+(empty = off). Nothing from Google or Microsoft is requested
 until a visitor clicks Accept; declining later removes their cookies. Hot
 actions are sent to GA as `generate_lead`, `resume_download` and
 `profile_click` events.

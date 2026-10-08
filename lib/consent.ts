@@ -14,8 +14,11 @@ export const CONSENT_KEY = "sks_consent";
 export const CONSENT_EVENT = "sks-consent";
 export const CONSENT_OPEN_EVENT = "sks-consent-open";
 
-export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
-export const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID ?? "";
+// Public IDs (they appear in the page source anyway), so they live in code;
+// a Vercel env var overrides either one, and an empty value ("") switches
+// that tool off.
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-NQJCRJ7B2Z";
+export const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID ?? "yui86woola";
 /** The banner only exists once at least one tool is configured. */
 export const ANALYTICS_CONFIGURED = Boolean(GA_ID || CLARITY_ID);
 

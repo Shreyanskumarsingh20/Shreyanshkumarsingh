@@ -557,9 +557,11 @@ treated as the opt-out (Imprint's reasoning, kept).
 
 ## 11a. Opt-in analytics (Google Analytics 4 + Microsoft Clarity)
 
-- **Switch**: `NEXT_PUBLIC_GA_ID` (`G-…`) and `NEXT_PUBLIC_CLARITY_ID` in
-  Vercel (Production), then redeploy — they're inlined at build time. With
-  neither set there is no banner, no "Cookie settings" link, and the privacy
+- **IDs**: GA4 `G-NQJCRJ7B2Z`, Clarity `yui86woola` — defaults in
+  `lib/consent.ts` (public IDs). `NEXT_PUBLIC_GA_ID` /
+  `NEXT_PUBLIC_CLARITY_ID` in Vercel override them (inlined at build time —
+  redeploy); set one to an empty string to switch that tool off. With
+  neither, there is no banner, no "Cookie settings" link, and the privacy
   page says "no cookies". `NEXT_PUBLIC_ANALYTICS_DEBUG=1` runs them on
   localhost.
 - **Consent** (`lib/consent.ts`): localStorage `sks_consent` =
