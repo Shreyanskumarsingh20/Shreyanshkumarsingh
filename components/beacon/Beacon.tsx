@@ -21,6 +21,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { OPT_OUT_KEY } from "@/lib/beacon/opt-out";
+import { hotFor, type Hot } from "@/lib/hot-actions";
 
 const ENDPOINT = "/api/beacon";
 const ARRIVAL_DELAY_MS = 700; // let the page settle without making the alert late
@@ -34,17 +35,6 @@ const VISIT_KEY = "sks_visit"; // sessionStorage — this tab's visit
 const VISITOR_KEY = "sks_visitor"; // localStorage — has this browser been here
 
 type ActionType = "click" | "submit" | "input" | "key" | "copy" | "download" | "external" | "hot";
-type Hot =
-  | "call"
-  | "whatsapp"
-  | "email"
-  | "show-number"
-  | "resume-pdf"
-  | "linkedin"
-  | "github"
-  | "x"
-  | "contact-page";
-const HOT_VALUES: readonly Hot[] = ["call", "whatsapp", "email", "show-number", "resume-pdf", "linkedin", "github", "x", "contact-page"];
 
 interface Action {
   t: number;
@@ -217,24 +207,6 @@ function labelFor(el: Element): string {
   if (title) return title.trim();
   if (node instanceof HTMLAnchorElement && node.href) return node.href;
   return node.tagName.toLowerCase();
-}
-
-/** Is this click one of the actions worth an immediate alert? */
-function hotFor(el: Element): Hot | null {
-  const tagged = el.closest("[data-hot]")?.getAttribute("data-hot") as Hot | null | undefined;
-  if (tagged && HOT_VALUES.includes(tagged)) return tagged;
-  const a = el.closest("a") as HTMLAnchorElement | null;
-  if (!a?.href) return null;
-  const href = a.href;
-  if (href.startsWith("mailto:")) return "email";
-  if (href.startsWith("tel:")) return "call";
-  if (/wa\.me|whatsapp\.com/i.test(href)) return "whatsapp";
-  if (/\.pdf($|\?)/i.test(href)) return "resume-pdf";
-  if (/linkedin\.com\/in\//i.test(href)) return "linkedin";
-  if (/github\.com\//i.test(href)) return "github";
-  if (/(^|\/\/)(www\.)?(x|twitter)\.com\//i.test(href)) return "x";
-  if (a.origin === location.origin && a.pathname === "/contact" && location.pathname !== "/contact") return "contact-page";
-  return null;
 }
 
 function currentScrollPct(): number {

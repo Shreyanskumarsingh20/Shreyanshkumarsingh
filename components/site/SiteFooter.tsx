@@ -3,6 +3,7 @@ import { FOOTER_NAV } from "@/lib/nav";
 import { PERSON, GITHUB_USER } from "@/lib/site";
 import BgVideo from "@/components/BgVideo";
 import ContactLinks from "@/components/site/ContactLinks";
+import { CookieSettingsButton } from "@/components/analytics/ConsentBanner";
 
 /**
  * The one footer, on every page: the home page's video footer. The video
@@ -68,6 +69,7 @@ export default function SiteFooter({ page = false }: { page?: boolean }) {
               X — {PERSON.xHandle}
             </a>
             <a href={`mailto:${PERSON.email}`}>Email</a>
+            <CookieSettingsButton />
           </nav>
         </div>
 

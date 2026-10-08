@@ -127,9 +127,17 @@ npm is not recommended (needs his npm account, no value for a portfolio).
     is-agentic and check GSC → Performance for "Shreyansh Kumar Singh" in
     1–2 weeks.
 
+### Analytics (in progress)
+- GA4 + Clarity with a consent banner are **built and deployed but dormant**
+  until `NEXT_PUBLIC_GA_ID` and `NEXT_PUBLIC_CLARITY_ID` are added in Vercel
+  (Production) and the site is redeployed. Then: in GA mark
+  `generate_lead`, `resume_download`, `profile_click` as key events; link
+  GA ↔ Search Console; optionally connect Clarity ↔ GA.
+
 ### Optional, needs a decision
 11. Read-only JSON API + OpenAPI for is-agentic (§4).
-12. Vercel Web Analytics / Speed Insights (free on Hobby) — only if wanted.
+12. Vercel Web Analytics / Speed Insights (free on Hobby) — only if wanted
+    (GA4 + Clarity now cover analytics).
 13. A Wikidata item for him — **not yet** (needs independent sources first).
 14. Rewrite git history to purge old mentions of the bank and the retired
     short name from past commits (they're gone from the current tree but

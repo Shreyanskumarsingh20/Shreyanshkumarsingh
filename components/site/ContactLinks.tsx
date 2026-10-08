@@ -61,7 +61,7 @@ export default function ContactLinks({
       {showNumber && (
         <p className="contact-reveal">
           {revealed ? (
-            <span className="mono">{revealed}</span>
+            <span className="mono" data-clarity-mask="true">{revealed}</span>
           ) : (
             <button type="button" data-hot="show-number" onClick={() => setRevealed(formatPhone(decodePhone()))}>
               Show phone number

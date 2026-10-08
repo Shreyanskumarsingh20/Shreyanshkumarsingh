@@ -77,7 +77,7 @@ Server and Angular software at RamanByte.*
 | Agents | `mcp-handler@2` + `@modelcontextprotocol/server@2` (MCP server), `zod@4` (schemas) |
 | Lint / tests | ESLint 9 flat config (`eslint-config-next`); Node's built-in test runner (`node --test`, TypeScript stripped natively by Node 24) |
 | Hosting | **Vercel Hobby** (free plan — no paid features). `main` auto-deploys to production. |
-| Analytics | None from Vercel (deliberately). First-party visit alerts go to Telegram (§11). |
+| Analytics | **Opt-in** Google Analytics 4 + Microsoft Clarity behind a cookie banner (§11a); no Vercel Analytics. First-party visit alerts go to Telegram (§11). |
 
 No component library, no CSS-in-JS, no animation library besides Lenis.
 
@@ -552,6 +552,39 @@ reported as an "MCP client". 10-minute dedupe per agent+IP+path.
 (`components/beacon/TrackingOptOut.tsx`, `useSyncExternalStore` over
 localStorage `sks_beacon_off`). Do Not Track is shown in alerts but is not
 treated as the opt-out (Imprint's reasoning, kept).
+
+---
+
+## 11a. Opt-in analytics (Google Analytics 4 + Microsoft Clarity)
+
+- **Switch**: `NEXT_PUBLIC_GA_ID` (`G-…`) and `NEXT_PUBLIC_CLARITY_ID` in
+  Vercel (Production), then redeploy — they're inlined at build time. With
+  neither set there is no banner, no "Cookie settings" link, and the privacy
+  page says "no cookies". `NEXT_PUBLIC_ANALYTICS_DEBUG=1` runs them on
+  localhost.
+- **Consent** (`lib/consent.ts`): localStorage `sks_consent` =
+  `granted` / `denied` / unset. `components/analytics/ConsentBanner.tsx`
+  shows a fixed bottom bar (hidden while the intro loader runs) with equal
+  Accept / Decline buttons; `CookieSettingsButton` (footer "Elsewhere"
+  column and /privacy#cookies) reopens it.
+- **Loading** (`components/analytics/Analytics.tsx`): *basic* consent mode —
+  nothing is requested from Google or Microsoft before Accept. Then gtag.js
+  (`afterInteractive`, consent defaults: ads denied, analytics granted) and
+  Clarity (`lazyOnload`, `consentv2`). Declining afterwards sends consent
+  updates and deletes `_ga*`, `_clck`, `_clsk`, `MUID` etc.
+- **Events**: hot actions (`lib/hot-actions.ts`, shared with the beacon) →
+  `generate_lead` (method: call / whatsapp / email / show_number /
+  contact_page), `resume_download`, `profile_click` (linkedin / github / x).
+  Mark them as **key events** in GA (Admin → Events). Page views on client
+  navigation come from GA4 enhanced measurement.
+- **Privacy**: the revealed phone number carries `data-clarity-mask`;
+  Clarity masks typed text by default. `/privacy` gains a "Cookies and
+  analytics" section automatically when an ID is set.
+- **CSP** (`next.config.ts`): script-src adds `www.googletagmanager.com`,
+  `*.clarity.ms`; img/connect-src add `*.google-analytics.com`,
+  `*.analytics.google.com`, `www.googletagmanager.com`, `*.clarity.ms`,
+  `c.bing.com`.
+- `npm run verify` fails if a GA/Clarity tag ever appears in server HTML.
 
 ---
 

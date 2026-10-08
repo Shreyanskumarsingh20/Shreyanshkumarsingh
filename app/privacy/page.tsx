@@ -4,6 +4,8 @@ import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import { PERSON, OG_BASE } from "@/lib/site";
 import TrackingOptOut from "@/components/beacon/TrackingOptOut";
+import { CookieSettingsButton } from "@/components/analytics/ConsentBanner";
+import { ANALYTICS_CONFIGURED, GA_ID, CLARITY_ID } from "@/lib/consent";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 // Keep this page true to what the code does. If analytics or any third-party
@@ -40,9 +42,17 @@ export default function PrivacyPage() {
           Privacy policy
         </h1>
         <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
-          <b>This site sets no cookies, shows no ads and has no forms.</b> It does keep a first-party log of visits —
-          which pages were read and which contact buttons were used — sent privately to Shreyansh. You can switch it
-          off below.
+          {ANALYTICS_CONFIGURED ? (
+            <>
+              <b>This site shows no ads and has no forms, and sets analytics cookies only if you accept them.</b>{" "}
+            </>
+          ) : (
+            <>
+              <b>This site sets no cookies, shows no ads and has no forms.</b>{" "}
+            </>
+          )}
+          It keeps a first-party log of visits — which pages were read and which contact buttons were used — sent
+          privately to Shreyansh. You can switch it off below.
         </p>
         <p className="pg-meta">Last updated 8 October 2026</p>
       </section>
@@ -56,8 +66,18 @@ export default function PrivacyPage() {
               (IP address, browser, the page requested) to serve the site and protect it from abuse.
             </li>
             <li>
-              <b>No cookies, no advertising, no third-party analytics.</b> Nothing here follows you to other websites,
-              and nothing is shared with an ad network.
+              {ANALYTICS_CONFIGURED ? (
+                <>
+                  <b>No advertising, and analytics only with your consent.</b> Google Analytics and Microsoft Clarity
+                  load only after you click Accept on the cookie banner (see <a href="#cookies">Cookies</a>). Nothing
+                  is shared with an ad network.
+                </>
+              ) : (
+                <>
+                  <b>No cookies, no advertising, no third-party analytics.</b> Nothing here follows you to other
+                  websites, and nothing is shared with an ad network.
+                </>
+              )}
             </li>
             <li>
               <b>Browser storage.</b> The home page remembers, for the current tab (sessionStorage), that you&apos;ve
@@ -66,7 +86,10 @@ export default function PrivacyPage() {
             </li>
             <li>
               <b>Everything is self-hosted</b> — fonts, images, videos and the physics simulators load from this
-              domain. Your browser makes no third-party requests.
+              domain.{" "}
+              {ANALYTICS_CONFIGURED
+                ? "Until you accept analytics cookies, your browser makes no third-party requests."
+                : "Your browser makes no third-party requests."}
             </li>
           </ul>
 
@@ -107,11 +130,48 @@ export default function PrivacyPage() {
             you to any list.
           </p>
 
+          {ANALYTICS_CONFIGURED && (
+            <>
+              <h2 className="pg-h2" id="cookies">
+                Cookies and analytics (only if you accept)
+              </h2>
+              <p>
+                The first time you visit, a banner asks whether you accept analytics cookies. If you decline or ignore
+                it, nothing below loads and no cookies are set. If you accept:
+              </p>
+              <ul>
+                {GA_ID && (
+                  <li>
+                    <b>Google Analytics 4</b> (Google) measures visits: pages viewed, how you arrived, approximate
+                    location, device and browser, and which contact buttons were used. Cookies: <code>_ga</code> and{" "}
+                    <code>_ga_*</code> (up to 2 years). Advertising features are off.
+                  </li>
+                )}
+                {CLARITY_ID && (
+                  <li>
+                    <b>Microsoft Clarity</b> (Microsoft) records how pages are used — clicks, scrolling, mouse movement
+                    — as heatmaps and session replays, with typed text and the phone number masked. Cookies:{" "}
+                    <code>_clck</code> (1 year), <code>_clsk</code> (1 day), and Microsoft&apos;s <code>MUID</code>.
+                  </li>
+                )}
+              </ul>
+              <p>
+                You can change your mind at any time — reopen the choice here, or with <b>Cookie settings</b> in the
+                footer. Declining after accepting stops both tools and deletes their cookies from this site.
+              </p>
+              <p>
+                <CookieSettingsButton className="btn btn-ghost" />
+              </p>
+            </>
+          )}
+
           <h2 className="pg-h2">Services involved</h2>
           <ul>
             <li><b>Vercel</b> — hosting; supplies the approximate location of your IP address.</li>
             <li><b>ipwho.is / ipapi.co</b> — resolve an IP address to an approximate location and network provider.</li>
             <li><b>Telegram</b> — delivers the visit messages to Shreyansh.</li>
+            {GA_ID && <li><b>Google</b> — Google Analytics 4, only after you accept cookies.</li>}
+            {CLARITY_ID && <li><b>Microsoft</b> — Clarity, only after you accept cookies.</li>}
           </ul>
 
           <h2 className="pg-h2">Questions or removal requests</h2>

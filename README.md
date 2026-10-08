@@ -75,6 +75,16 @@ variables (Production), each a no-op when unset:
   the tokens). Opt out per browser with `/?notrack=1`; disclosed on `/privacy`.
 - Silent on localhost unless `NEXT_PUBLIC_BEACON_DEBUG=1`.
 
+## Analytics (opt-in)
+
+Google Analytics 4 and Microsoft Clarity, behind a cookie banner
+(`components/analytics/`, `lib/consent.ts`). Set `NEXT_PUBLIC_GA_ID` and/or
+`NEXT_PUBLIC_CLARITY_ID` in Vercel and redeploy; until then there is no
+banner and nothing loads. Nothing from Google or Microsoft is requested
+until a visitor clicks Accept; declining later removes their cookies. Hot
+actions are sent to GA as `generate_lead`, `resume_download` and
+`profile_click` events.
+
 ## Tests and checks
 
 - `npm test` — unit tests (`tests/*.test.ts`, Node's built-in runner).

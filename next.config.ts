@@ -1,18 +1,25 @@
 import type { NextConfig } from "next";
 import { PRODUCTION_URL, VERCEL_PRODUCTION_HOST } from "./lib/site";
 
+// Third-party hosts, allowed only for the opt-in analytics (components/
+// analytics/Analytics.tsx): nothing is requested from them until a visitor
+// accepts cookies. GA4 = googletagmanager + google-analytics; Clarity =
+// clarity.ms (+ c.bing.com, which Clarity syncs with).
+const GA = ["https://www.googletagmanager.com", "https://*.google-analytics.com", "https://*.analytics.google.com"];
+const CLARITY = ["https://*.clarity.ms", "https://c.bing.com"];
+
 // Content Security Policy. 'unsafe-inline' for scripts is required by Next's
 // inline bootstrap/RSC payload scripts on statically rendered pages (the
 // nonce alternative forces every page to render dynamically). Everything is
 // otherwise locked to this origin.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com ${CLARITY[0]}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `img-src 'self' data: blob: ${[...GA, ...CLARITY].join(" ")}`,
   "media-src 'self'",
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self' ${[...GA, ...CLARITY].join(" ")}`,
   "frame-src 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",

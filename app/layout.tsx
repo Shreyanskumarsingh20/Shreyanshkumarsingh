@@ -5,6 +5,8 @@ import "./pages.css";
 import Script from "next/script";
 import SmoothScroll from "@/components/SmoothScroll";
 import Beacon from "@/components/beacon/Beacon";
+import Analytics from "@/components/analytics/Analytics";
+import ConsentBanner from "@/components/analytics/ConsentBanner";
 import { SITE_URL, SITE_NAME, SUMMARY, PERSON, KEYWORDS } from "@/lib/site";
 
 // Inter as its single variable-font file (every weight 100–900) rather than
@@ -113,6 +115,9 @@ export default function RootLayout({
         <Script src="/api/mcp?webmcp-script" strategy="lazyOnload" />
         {/* first-party visit log → Telegram (see /privacy, lib/beacon) */}
         <Beacon />
+        {/* GA4 + Clarity: nothing loads until the visitor accepts (lib/consent.ts) */}
+        <ConsentBanner />
+        <Analytics />
       </body>
     </html>
   );

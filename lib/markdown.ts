@@ -14,6 +14,7 @@ import { EXPERIENCE_CASES, COMPANY_FACTS, HOW_THE_WORK_RUNS } from "@/lib/experi
 import { ABOUT_SECTIONS, ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 import { NOTES, noteBySlug, noteHref } from "@/lib/notes";
 import { plain } from "@/lib/jsonld";
+import { ANALYTICS_CONFIGURED } from "@/lib/consent";
 
 type Doc = { title: string; description: string; updated: string; body: string[] };
 
@@ -201,6 +202,14 @@ function privacy(): Doc {
       "Each visit is logged first-party and sent privately to Shreyansh as a Telegram message: IP address and its approximate city, country and network provider (from Vercel and ipwho.is / ipapi.co), browser, OS, screen size, language and time zone, pages viewed, scroll depth, referrer and the buttons clicked. Typed text is never recorded. Requests from crawlers and AI agents are logged from the request itself. There is no database; logs are not sold or shared.",
       "",
       `Opt out in your browser: ${abs("/?notrack=1")} (undo: ${abs("/?notrack=0")}), or use the switch at ${abs("/privacy")}.`,
+      ...(ANALYTICS_CONFIGURED
+        ? [
+            "",
+            "## Cookies and analytics (only if you accept)",
+            "",
+            "Google Analytics 4 and Microsoft Clarity load only after a visitor clicks Accept on the cookie banner; declining (or ignoring it) loads neither and sets no cookies. Advertising features are off; Clarity masks typed text and the phone number. The choice can be changed at any time via Cookie settings in the footer.",
+          ]
+        : []),
       "",
       `Questions or removal requests: ${PERSON.email}.`,
     ],
