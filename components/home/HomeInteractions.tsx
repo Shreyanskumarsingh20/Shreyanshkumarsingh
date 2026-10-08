@@ -652,6 +652,8 @@ export default function HomeInteractions() {
       }
       const stackEl = document.getElementById("pmStack");
       if (stackEl) stackEl.innerHTML = p.stack.map((s) => `<span>${s}</span>`).join("");
+      const pmCase = document.getElementById("pmCase") as HTMLAnchorElement | null;
+      if (pmCase) pmCase.href = `/projects/${p.slug}`;
       const pmRepo = document.getElementById("pmRepo") as HTMLAnchorElement | null;
       if (pmRepo) {
         pmRepo.style.display = p.url ? "" : "none";

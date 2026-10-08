@@ -3,6 +3,8 @@ import { RESEARCH_CASES } from "@/lib/research";
 import ProjectCardArt from "@/components/home/ProjectCardArt";
 import type { CSSVarStyle } from "@/lib/css-vars";
 import { onColor } from "@/lib/color";
+import { projectHref } from "@/lib/projects";
+import Link from "next/link";
 
 /**
  * THE RANGE — sticky-stacking cards. The stacking mechanic itself is pure
@@ -78,8 +80,12 @@ export default function Range() {
                         Research case →
                       </a>
                     )}
-                    <button type="button" className="btn btn-ghost" data-open-project={p.n}>
+                    <Link className="btn btn-ghost" href={projectHref(p.slug)}>
                       Case study →
+                    </Link>
+                    {/* the original pop-up summary, kept as a quick preview */}
+                    <button type="button" className="btn btn-ghost" data-open-project={p.n}>
+                      Quick look
                     </button>
                   </div>
                 </div>

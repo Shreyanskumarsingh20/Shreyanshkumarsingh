@@ -25,8 +25,11 @@ export default function ProjectModal() {
           <div className="pm-section-label">Stack</div>
           <div className="pm-stack" id="pmStack"></div>
           <div className="pm-actions">
-            <a className="btn btn-gold cut-sm" id="pmRepo" target="_blank" rel="noopener">
-              <span>View repository →</span>
+            <a className="btn btn-gold cut-sm" id="pmCase">
+              <span>Full case study →</span>
+            </a>
+            <a className="btn btn-ghost" id="pmRepo" target="_blank" rel="noopener">
+              View repository
             </a>
             <button type="button" className="btn btn-ghost" data-close>
               Close

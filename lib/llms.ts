@@ -3,7 +3,8 @@
 // answer engines read can't drift from what visitors see.
 
 import { SITE_URL, PERSON, SUMMARY, KNOWS_ABOUT } from "@/lib/site";
-import { PROJECTS } from "@/lib/projects";
+import { PROJECTS, projectHref } from "@/lib/projects";
+import { caseStudyBySlug } from "@/lib/case-studies";
 import { EXPERIENCE_CASES, COMPANY_FACTS, HOW_THE_WORK_RUNS } from "@/lib/experience";
 import { FAQS } from "@/lib/faqs";
 import { plain } from "@/lib/jsonld";
@@ -41,6 +42,7 @@ export function buildLlmsTxt(full: boolean): string {
     "",
     `- [About](${SITE_URL}/about): who Shreyansh Kumar Singh is — profile, key facts, timeline`,
     `- [THE RANGE — portfolio](${SITE_URL}/): nine projects, research notes and method`,
+    `- [Projects](${SITE_URL}/projects): nine case studies — problem, build, hardest decision, result`,
     `- [Experience](${SITE_URL}/experience): production .NET, SQL Server, Angular and Flutter work at RamanByte since January 2023`,
     `- [Skills](${SITE_URL}/skills): every skill, linked to where it was used`,
     `- [FAQ](${SITE_URL}/faq): direct answers about his background, work and availability`,
@@ -51,8 +53,12 @@ export function buildLlmsTxt(full: boolean): string {
 
   out.push("## Projects", "");
   for (const p of PROJECTS) {
+    const cs = caseStudyBySlug(p.slug);
     const link = p.url ? ` — [source](${p.url})` : "";
-    out.push(`- **${title(p.name)}** (${p.domain.toLowerCase()}): ${p.line} Stack: ${p.stack.join(", ")}.${link}`);
+    out.push(
+      `- **[${title(p.name)}](${SITE_URL}${projectHref(p.slug)})** (${p.domain.toLowerCase()}): ${p.line} Stack: ${p.stack.join(", ")}.${link}`,
+    );
+    if (cs) out.push(`  - Answers: "${cs.question}" — ${cs.tldr}`);
   }
   out.push("");
 

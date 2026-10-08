@@ -20,16 +20,9 @@ import SimModal from "@/components/ui/SimModal";
 import ContactModal from "@/components/ui/ContactModal";
 import Toast from "@/components/ui/Toast";
 import JsonLd from "@/components/JsonLd";
-import { PROJECTS, type Project } from "@/lib/projects";
+import { PROJECTS, projectHref, projectImage } from "@/lib/projects";
 import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
 import { graph, coreNodes } from "@/lib/jsonld";
-
-function projectImage(p: Project): string {
-  const a = p.art;
-  if ("img" in a) return a.img;
-  if ("main" in a) return a.main.img;
-  return "/opengraph-image";
-}
 
 const TITLE = "Shreyansh Kumar Singh — Applied AI & Full-Stack Engineer, Pune";
 const DESCRIPTION =
@@ -40,12 +33,10 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {
-    type: "profile",
+    type: "website",
     url: "/",
     title: TITLE,
     description: DESCRIPTION,
-    firstName: "Shreyansh",
-    lastName: "Kumar Singh",
   },
   twitter: {
     card: "summary_large_image",
@@ -75,20 +66,26 @@ const jsonLd = graph(
     "@id": `${SITE_URL}/#range`,
     name: "THE RANGE — projects by Shreyansh Kumar Singh",
     numberOfItems: PROJECTS.length,
-    itemListElement: PROJECTS.map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "SoftwareSourceCode",
-        name: p.name,
-        description: p.line,
-        applicationCategory: p.domain,
-        programmingLanguage: p.stack,
-        author: { "@id": PERSON_ID },
-        image: `${SITE_URL}${projectImage(p)}`,
-        ...(p.url ? { codeRepository: p.url, url: p.url } : {}),
-      },
-    })),
+    // each item is the SoftwareSourceCode node on its case-study page
+    itemListElement: PROJECTS.map((p, i) => {
+      const url = `${SITE_URL}${projectHref(p.slug)}`;
+      const img = projectImage(p);
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        url,
+        item: {
+          "@type": "SoftwareSourceCode",
+          "@id": `${url}#software`,
+          name: p.name,
+          description: p.line,
+          programmingLanguage: p.stack,
+          author: { "@id": PERSON_ID },
+          ...(img ? { image: `${SITE_URL}${img.src}` } : {}),
+          ...(p.url ? { codeRepository: p.url } : {}),
+        },
+      };
+    }),
   },
 );
 

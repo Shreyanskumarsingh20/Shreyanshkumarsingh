@@ -361,6 +361,14 @@ export const PROJECTS: Project[] = [
 
 export const projectBySlug = (slug: string) => PROJECTS.find((p) => p.slug === slug);
 
-/** Link target for a project — its card on the home page until the
- *  /projects/[slug] case-study pages exist. */
-export const projectHref = (slug: string) => `/#project-${projectBySlug(slug)?.n ?? ""}`;
+/** Link target for a project's case-study page. */
+export const projectHref = (slug: string) => `/projects/${slug}`;
+
+/** The project's lead image (for cards, OG fallbacks and JSON-LD), if any. */
+export function projectImage(p: Project): { src: string; alt: string; w: number; h: number } | null {
+  const a = p.art;
+  if (a.kind === "scrollable" || a.kind === "gallery") return { src: a.img, alt: a.alt, w: a.w, h: a.h };
+  if (a.kind === "sim-quad") return { src: a.main.img, alt: a.main.alt, w: a.main.w, h: a.main.h };
+  if (a.kind === "revuelto") return { src: a.main.img, alt: a.main.alt, w: a.main.w, h: a.main.h };
+  return null;
+}

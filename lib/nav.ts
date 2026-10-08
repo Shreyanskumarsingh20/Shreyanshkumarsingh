@@ -11,6 +11,7 @@ export type NavLink = { label: string; href: string; cta?: boolean };
 
 export const HOME_NAV: NavLink[] = [
   { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
   { label: "Range", href: "#range" },
   { label: "Experience", href: "/experience" },
   { label: "Research", href: "#research" },
@@ -21,7 +22,7 @@ export const HOME_NAV: NavLink[] = [
 ];
 
 export const SITE_NAV: NavLink[] = [
-  { label: "Work", href: "/#range" },
+  { label: "Projects", href: "/projects" },
   { label: "About", href: "/about" },
   { label: "Experience", href: "/experience" },
   { label: "Skills", href: "/skills" },
@@ -42,7 +43,8 @@ export const FOOTER_NAV: { heading: string; links: NavLink[] }[] = [
   {
     heading: "Work",
     links: [
-      { label: "The Range — nine projects", href: "/#range" },
+      { label: "Projects — nine case studies", href: "/projects" },
+      { label: "The Range", href: "/#range" },
       { label: "Research notes", href: "/#research" },
       { label: "Method", href: "/#method" },
     ],

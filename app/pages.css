@@ -31,6 +31,13 @@
 }
 .site-menu-list a:hover,.site-menu-list a[aria-current="page"]{ color:var(--white); background:rgba(255,255,255,.04); }
 
+/* home top bar: nine links + the ⌘K trigger need ~1240px; below that the
+   hamburger (same links, MobileNav overlay) takes over */
+@media(min-width:980px) and (max-width:1239.98px){
+  .topbar--wide .topbar-nav{ display:none; }
+  .topbar--wide .nav-toggle{ display:flex; }
+}
+
 /* ---------- breadcrumbs ---------- */
 .crumbs ol{ list-style:none; display:flex; flex-wrap:wrap; gap:8px; margin:0 0 8px; padding:0; font-size:12px; color:var(--ash); }
 .crumbs li+li::before{ content:"/"; margin-right:8px; color:var(--graphite); }
@@ -143,6 +150,34 @@
 .skill-list b{ display:block; font-size:14px; font-weight:600; color:var(--white); }
 .skill-list span{ display:block; margin-top:3px; font-size:12.5px; line-height:1.55; color:#adadad; }
 .skill-list a{ color:var(--gold); }
+
+/* ---------- projects hub ---------- */
+.proj-grid{ display:grid; grid-template-columns:1fr; gap:20px; }
+@media(min-width:760px){ .proj-grid{ grid-template-columns:repeat(2,1fr); } }
+.proj-card{ border:1px solid var(--line); border-radius:8px; overflow:hidden; background:rgba(255,255,255,.02); transition:border-color .3s var(--ease); }
+.proj-card:hover{ border-color:rgba(255,192,0,.5); }
+.proj-card-link{ display:flex; flex-direction:column; height:100%; color:inherit; text-decoration:none; }
+.proj-card-img{ aspect-ratio:16/10; overflow:hidden; background:var(--iron); border-bottom:1px solid var(--line); }
+.proj-card-img img{ width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+.proj-card-ph{ height:100%; display:grid; place-items:center; font-size:1.4rem; letter-spacing:.1em; }
+.proj-card-body{ padding:20px 22px 24px; display:flex; flex-direction:column; gap:10px; flex:1; }
+.proj-card-domain{ font-size:11px; letter-spacing:.14em; color:var(--gold); }
+.proj-card-body h2{ margin:0; font-size:1.15rem; font-weight:600; line-height:1.35; text-transform:none; }
+.proj-card-body p{ margin:0; font-size:14px; line-height:1.65; color:#bdbdbd; }
+.proj-card-more{ margin-top:auto; padding-top:6px; font-size:12.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); }
+
+/* ---------- case study ---------- */
+.cs-tldr{ max-width:70ch; padding:20px 24px; border-left:3px solid var(--gold); background:rgba(255,192,0,.05); border-radius:0 8px 8px 0; }
+.cs-tldr p{ margin:0; font-size:16.5px; line-height:1.75; color:#e2e2e2; }
+.cs-tldr .cs-tldr-q{ margin-bottom:10px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:600; line-height:1.5; }
+.cs-shot .pg-photo{ max-height:640px; }
+.cs-shot img{ object-fit:cover; object-position:top; }
+.cs-stack{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:10px; }
+.cs-stack li{ padding:8px 14px; border:1px solid var(--line); border-radius:100px; font-size:13px; color:#d8d8d8; }
+.cs-others{ margin-bottom:var(--md); }
+@media(min-width:720px){ .cs-others{ grid-template-columns:repeat(3,1fr); } }
+a.pg-card{ color:inherit; text-decoration:none; display:flex; flex-direction:column; gap:8px; transition:border-color .3s var(--ease); }
+a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
 
 /* ---------- sitewide footer (inner pages) ---------- */
 .site-foot{ position:relative; border-top:1px solid var(--line); background:rgba(8,8,8,.88); padding:var(--xl) 0 var(--lg); margin-top:var(--xl); }
