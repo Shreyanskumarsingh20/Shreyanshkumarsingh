@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
-import { PERSON, SITE_URL, PERSON_ID, GITHUB_USER } from "@/lib/site";
+import { PERSON, SITE_URL, PERSON_ID, GITHUB_USER, SHARE_IMAGE } from "@/lib/site";
 import { graph, coreNodes, pageNode, employmentRole, PERSON_IMAGE } from "@/lib/jsonld";
 import { ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     firstName: "Shreyansh",
     lastName: "Kumar Singh",
-    images: [{ url: "/images/shreyansh-kumar-singh-desk.jpg", width: 1672, height: 941, alt: "Shreyansh Kumar Singh at his desk" }],
+    images: [SHARE_IMAGE],
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/images/shreyansh-kumar-singh-desk.jpg"] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [SHARE_IMAGE.url] },
 };
 
 const jsonLd = graph(

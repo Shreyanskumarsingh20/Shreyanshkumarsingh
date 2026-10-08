@@ -427,8 +427,8 @@ name). Title template: `%s — Shreyansh Kumar Singh`.
 | `/privacy` | Privacy Policy — Shreyansh Kumar Singh |
 | case studies / notes | their own titles (case studies are project-specific) |
 
-Rules: descriptions ≤ 160 characters; per-page `keywords`; per-page OG
-image (`lib/og.tsx`, 1200×630); canonicals are **always**
+Rules: descriptions ≤ 160 characters; per-page `keywords`; a share image
+on every page (§15); canonicals are **always**
 `https://www.shreyanshkumarsingh.com/…` (`SITE_URL` is fixed to www in
 production — never derived from `VERCEL_URL`); the apex and the
 `shreyanshkumarsingh.vercel.app` alias 308 to www.
@@ -652,8 +652,17 @@ dev-only, caused by the CSP; production is clean.
   native resolution (PhoneGallery).
 - **Simulators** (`public/sims/`): aeon, cosmos, genesis, genlife
   (zero-dependency single HTML files) and revuelto (+ 110 WebP frames).
-- **OG images**: generated per page by `opengraph-image.tsx` files through
-  `lib/og.tsx`.
+- **Share (OG) images**: the **photo card** `app/opengraph-image.jpg`
+  (1200×630 JPG, ~127 KB, made from the client's
+  `public/headshots/Shreyansh Kumar Singh — AI Engineer Profile.png`; alt text
+  in `opengraph-image.alt.txt`) is used by `/`, `/about`, `/contact` and
+  `/resume` — those three reference it via `SHARE_IMAGE` in `lib/site.ts`,
+  because a page that sets its own `openGraph`/`twitter` block replaces the
+  inherited image. Every other page (projects, case studies, experience,
+  notes, skills, FAQ, privacy) has a generated black-and-gold card from its
+  own `opengraph-image.tsx` via `lib/og.tsx`. No separate twitter-image: X
+  reads `og:image`. Spec for replacements: 1200×630 px (1.91:1), JPG,
+  under 300 KB (WhatsApp's limit), text inside the central ~1000×520 area.
 
 ---
 

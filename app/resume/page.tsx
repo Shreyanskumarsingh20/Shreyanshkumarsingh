@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import PrintButton from "@/components/site/PrintButton";
-import { PERSON, PERSON_ID, GITHUB_USER, SITE_URL, RESUME_PDF } from "@/lib/site";
+import { PERSON, PERSON_ID, GITHUB_USER, SITE_URL, RESUME_PDF, SHARE_IMAGE } from "@/lib/site";
 import { PROJECTS, projectHref } from "@/lib/projects";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
@@ -27,7 +27,8 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh resume", "Shreyansh Kumar Singh CV", "full-stack AI engineer resume", "Pune"],
   alternates: { canonical: "/resume", types: { "text/markdown": "/resume.md" } },
-  openGraph: { type: "profile", url: "/resume", title: TITLE, description: DESCRIPTION },
+  openGraph: { type: "profile", url: "/resume", title: TITLE, description: DESCRIPTION, images: [SHARE_IMAGE] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [SHARE_IMAGE.url] },
 };
 
 const jsonLd = graph(

@@ -112,5 +112,15 @@ export const KNOWS_ABOUT = [
  *  number, so next.config.ts serves it with X-Robots-Tag: noindex. */
 export const RESUME_PDF = "/Shreyansh_Kumar_Singh_Resume.pdf";
 
+/** The photo share card (app/opengraph-image.jpg, 1200×630, supplied by the
+ *  client). Pages that set their own `openGraph` / `twitter` metadata replace
+ *  the inherited image, so they reference it explicitly. */
+export const SHARE_IMAGE = {
+  url: "/opengraph-image.jpg",
+  width: 1200,
+  height: 630,
+  alt: "Shreyansh Kumar Singh, AI & Full-Stack Engineer in Pune, India, at his desk — available for hire",
+};
+
 export const PERSON_ID = `${SITE_URL}/#person`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;

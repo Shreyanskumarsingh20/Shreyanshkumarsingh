@@ -1,6 +1,6 @@
 import { renderOg, OG_SIZE, OG_CONTENT_TYPE } from "@/lib/og";
 
-export const alt = "Questions about Shreyansh Kumar Singh. \u2014 Shreyansh Kumar Singh";
+export const alt = "FAQ about Shreyansh Kumar Singh, AI & Full-Stack Engineer";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
