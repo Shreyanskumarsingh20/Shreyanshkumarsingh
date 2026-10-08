@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import { FAQS, FAQ_GROUPS, FAQ_GROUP_LABELS } from "@/lib/faqs";
-import { SITE_URL, PERSON_ID } from "@/lib/site";
+import { SITE_URL, PERSON_ID, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 // The canonical home of every FAQ answer (the home page shows a teaser that
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer", "Shreyansh Kumar Singh FAQ", "AI engineer Pune", "hire AI engineer"],
   alternates: { canonical: "/faq", types: { "text/markdown": "/faq.md" } },
-  openGraph: { type: "website", url: "/faq", title: TITLE, description: DESCRIPTION },
+  openGraph: { ...OG_BASE, type: "website", url: "/faq", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 

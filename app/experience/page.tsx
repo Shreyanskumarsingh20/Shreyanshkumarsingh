@@ -13,7 +13,7 @@ import {
   EXP_TECH_GROUPS,
 } from "@/lib/experience";
 import JsonLd from "@/components/JsonLd";
-import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { SITE_URL, PERSON_ID, WEBSITE_ID, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, employmentRole, breadcrumbs, plain } from "@/lib/jsonld";
 
 const DESCRIPTION =
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh experience", "RamanByte", "ASP.NET Core developer", "Angular developer Pune", "Flutter developer", "SQL Server", "Classroom+"],
   alternates: { canonical: "/experience", types: { "text/markdown": "/experience.md" } },
-  openGraph: {
+  openGraph: { ...OG_BASE,
     type: "profile",
     url: "/experience",
     title: "Experience — Shreyansh Kumar Singh",

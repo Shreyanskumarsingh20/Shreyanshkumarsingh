@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
-import { PERSON, SITE_URL, PERSON_ID, GITHUB_USER, SHARE_IMAGE } from "@/lib/site";
+import { PERSON, SITE_URL, PERSON_ID, GITHUB_USER, SHARE_IMAGE, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, pageNode, employmentRole, PERSON_IMAGE } from "@/lib/jsonld";
 import { ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer", "who is Shreyansh Kumar Singh", "AI and full-stack engineer Pune", "RamanByte", "AKTU computer science"],
   alternates: { canonical: "/about", types: { "text/markdown": "/about.md" } },
-  openGraph: {
+  openGraph: { ...OG_BASE,
     type: "profile",
     url: "/about",
     title: TITLE,

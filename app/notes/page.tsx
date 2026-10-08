@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import { NOTES, noteHref } from "@/lib/notes";
-import { SITE_URL, PERSON_ID } from "@/lib/site";
+import { SITE_URL, PERSON_ID, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 const UPDATED = "2026-10-08";
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     canonical: "/notes",
     types: { "text/markdown": "/notes.md", "application/rss+xml": "/notes/rss.xml" },
   },
-  openGraph: { type: "website", url: "/notes", title: TITLE, description: DESCRIPTION },
+  openGraph: { ...OG_BASE, type: "website", url: "/notes", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 

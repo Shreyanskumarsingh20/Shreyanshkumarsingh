@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
-import { PERSON } from "@/lib/site";
+import { PERSON, OG_BASE } from "@/lib/site";
 import TrackingOptOut from "@/components/beacon/TrackingOptOut";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/privacy", types: { "text/markdown": "/privacy.md" } },
-  openGraph: { type: "website", url: "/privacy", title: TITLE, description: DESCRIPTION },
+  openGraph: { ...OG_BASE, type: "website", url: "/privacy", title: TITLE, description: DESCRIPTION },
 };
 
 const jsonLd = graph(

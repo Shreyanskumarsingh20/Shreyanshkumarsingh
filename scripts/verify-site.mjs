@@ -119,6 +119,9 @@ for (const path of pages) {
   if (hs.filter((h) => h.level === 1).length !== 1) issues.push("not exactly one h1");
   for (let i = 1; i < hs.length; i++) if (hs[i].level > hs[i - 1].level + 1) issues.push(`skips h${hs[i - 1].level}→h${hs[i].level} at "${hs[i].text.slice(0, 40)}"`);
   if (!/Shreyansh Kumar Singh/.test(title) && !/^\/(projects|notes)\/.+/.test(path)) issues.push("title lacks the name");
+  for (const tag of ["og:site_name", "og:title", "og:description", "og:image", "og:url"]) {
+    if (!body.includes(`property="${tag}"`)) issues.push(`missing ${tag}`);
+  }
   if (!/Shreyansh Kumar Singh/.test(body.replace(/<[^>]+>/g, " "))) issues.push("page never names him");
   if (PHONE.test(body.replace(/<script[\s\S]*?<\/script>/g, ""))) issues.push("phone digits in HTML");
   for (const s of body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) if (PHONE.test(s[1])) issues.push("phone in JSON-LD");

@@ -6,7 +6,7 @@ import JsonLd from "@/components/JsonLd";
 import { NOTES, noteBySlug, noteHref } from "@/lib/notes";
 import { projectBySlug, projectHref } from "@/lib/projects";
 import { caseStudyBySlug } from "@/lib/case-studies";
-import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { SITE_URL, PERSON_ID, WEBSITE_ID, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, breadcrumbs } from "@/lib/jsonld";
 
 type Params = { slug: string };
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     description: n.description,
     keywords: n.keywords,
     alternates: { canonical: path, types: { "text/markdown": `${path}.md` } },
-    openGraph: {
+    openGraph: { ...OG_BASE,
       type: "article",
       url: path,
       title: n.title,

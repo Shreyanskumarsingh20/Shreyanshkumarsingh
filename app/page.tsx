@@ -19,7 +19,7 @@ import ContactModal from "@/components/ui/ContactModal";
 import Toast from "@/components/ui/Toast";
 import JsonLd from "@/components/JsonLd";
 import { PROJECTS, projectHref, projectImage } from "@/lib/projects";
-import { SITE_URL, PERSON_ID, WEBSITE_ID } from "@/lib/site";
+import { SITE_URL, PERSON_ID, WEBSITE_ID, OG_BASE } from "@/lib/site";
 import { graph, coreNodes } from "@/lib/jsonld";
 
 const TITLE = "Shreyansh Kumar Singh — AI & Full-Stack Engineer, Pune";
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh", "AI & Full-Stack Engineer", "Shreyansh Kumar Singh AI & Full-Stack Engineer", "Shreyansh Kumar Singh portfolio", "AI and full-stack engineer Pune", "applied AI engineer", "RAG", "LLM agents"],
   alternates: { canonical: "/", types: { "text/markdown": "/index.md" } },
-  openGraph: {
+  openGraph: { ...OG_BASE,
     type: "website",
     url: "/",
     title: TITLE,

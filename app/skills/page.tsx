@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import { SKILL_GROUPS } from "@/lib/skills";
-import { SITE_URL, PERSON_ID } from "@/lib/site";
+import { SITE_URL, PERSON_ID, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 const UPDATED = "2026-10-08";
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["Shreyansh Kumar Singh skills", "AI & Full-Stack Engineer skills", "RAG", "LLM agents", "C#", "ASP.NET Core", "Angular 18 Signals", "Next.js"],
   alternates: { canonical: "/skills", types: { "text/markdown": "/skills.md" } },
-  openGraph: { type: "website", url: "/skills", title: TITLE, description: DESCRIPTION },
+  openGraph: { ...OG_BASE, type: "website", url: "/skills", title: TITLE, description: DESCRIPTION },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import PageShell from "@/components/site/PageShell";
 import ContactLinks from "@/components/site/ContactLinks";
 import JsonLd from "@/components/JsonLd";
-import { PERSON, PERSON_ID, GITHUB_USER, SHARE_IMAGE } from "@/lib/site";
+import { PERSON, PERSON_ID, GITHUB_USER, SHARE_IMAGE, OG_BASE } from "@/lib/site";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
 // The one contact page (/lets-talk 308-redirects here). Phone and WhatsApp
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   keywords: ["contact Shreyansh Kumar Singh", "hire an AI & Full-Stack Engineer", "hire AI engineer Pune", "Shreyansh Kumar Singh email"],
   alternates: { canonical: "/contact", types: { "text/markdown": "/contact.md" } },
-  openGraph: { type: "website", url: "/contact", title: TITLE, description: DESCRIPTION, images: [SHARE_IMAGE] },
+  openGraph: { ...OG_BASE, type: "website", url: "/contact", title: TITLE, description: DESCRIPTION, images: [SHARE_IMAGE] },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: [SHARE_IMAGE.url] },
 };
 

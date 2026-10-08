@@ -71,6 +71,11 @@ export const PRIMARY_KEYWORDS = ["Shreyansh Kumar Singh", "AI & Full-Stack Engin
 // developer portfolio", which is not what anyone types).
 export const SITE_NAME = "Shreyansh Kumar Singh — AI & Full-Stack Engineer";
 
+/** Spread into every page's `openGraph`. Next replaces (not merges) the
+ *  layout's openGraph when a page sets its own, which silently dropped
+ *  og:site_name and og:locale from every page. */
+export const OG_BASE = { siteName: SITE_NAME, locale: "en_IN" } as const;
+
 export const KEYWORDS = [
   "Shreyansh Kumar Singh",
   "AI & Full-Stack Engineer",
