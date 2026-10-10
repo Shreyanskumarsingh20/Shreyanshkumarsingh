@@ -908,7 +908,7 @@ beacon rate limits exist for this; don't remove them.
 | `60893dd` | 2026-10-08 | `og:site_name` + `og:locale` restored on every page (`OG_BASE`) |
 | `49719a0` | 2026-10-08 | Opt-in GA4 + Microsoft Clarity behind a cookie banner; `lib/hot-actions.ts` shared with the beacon |
 | `5f294cf` | 2026-10-08 | GA4 `G-NQJCRJ7B2Z` and Clarity `yui86woola` switched on |
-| *(10 Oct)* | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
+| `99fe3bf` | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
 
 The original static files were moved out of the repo (they used the
 retired short name and named the bank); local copies are in
