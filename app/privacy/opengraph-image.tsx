@@ -8,6 +8,6 @@ export default function Image() {
   return renderOg({
     kicker: "PRIVACY",
     headline: "Privacy policy.",
-    sub: "No cookies, no ads, no third-party analytics. First-party visit logging you can switch off.",
+    sub: "Google Analytics, Microsoft Clarity and a first-party visit log. No ads. How to switch them off.",
   });
 }

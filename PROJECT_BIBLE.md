@@ -77,7 +77,7 @@ Server and Angular software at RamanByte.*
 | Agents | `mcp-handler@2` + `@modelcontextprotocol/server@2` (MCP server), `zod@4` (schemas) |
 | Lint / tests | ESLint 9 flat config (`eslint-config-next`); Node's built-in test runner (`node --test`, TypeScript stripped natively by Node 24) |
 | Hosting | **Vercel Hobby** (free plan — no paid features). `main` auto-deploys to production. |
-| Analytics | **Opt-in** Google Analytics 4 + Microsoft Clarity behind a cookie banner (§11a); no Vercel Analytics. First-party visit alerts go to Telegram (§11). |
+| Analytics | Google Analytics 4 + Microsoft Clarity, **on by default**, disclosed on /privacy with an opt-out (§11a); no Vercel Analytics. First-party visit alerts go to Telegram (§11). |
 
 No component library, no CSS-in-JS, no animation library besides Lenis.
 
@@ -89,7 +89,7 @@ No component library, no CSS-in-JS, no animation library besides Lenis.
 proxy.ts                    Next 16 proxy: markdown negotiation, 406, Link headers, crawler alerts
 next.config.ts              security headers + CSP, cache headers, redirects, rewrites
 app/
-  layout.tsx                <html>, fonts, root metadata, SmoothScroll, WebMCP script, <Beacon/>, <ConsentBanner/>, <Analytics/>
+  layout.tsx                <html>, fonts, root metadata, GA4 tag in <head>, SmoothScroll, WebMCP script, <Beacon/>, <Analytics/>
   globals.css               design tokens + every original section's CSS
   pages.css                 inner pages, the one header/footer, résumé print CSS, later fixes
   page.tsx                  home page assembly + its JSON-LD
@@ -115,7 +115,7 @@ components/
   site/                     SiteHeader, SiteFooter, PageShell, Breadcrumbs, ContactLinks, PrintButton
   ui/                       CommandPalette, Terminal, ProjectModal, SimModal, ContactModal, Toast
   beacon/                   Beacon (client collector), TrackingOptOut (privacy switch)
-  analytics/                Analytics (GA4 + Clarity loader), ConsentBanner (+ CookieSettingsButton)
+  analytics/                Analytics (Clarity loader + GA key events), AnalyticsOptOut (privacy switch)
   BgVideo, ConstellationBackground, JsonLd, RevealObserver, SmoothScroll
 lib/
   site.ts                   ★ single source of truth: URL, PERSON, SUMMARY, SITE_NAME, KEYWORDS, RESUME_PDF, GITHUB_USER
@@ -134,7 +134,7 @@ lib/
   mcp.ts                    MCP server name/version, WebMCP tool list
   sitemap.ts                sitemap entries with real content dates
   negotiate.ts              Accept-header content negotiation (pure, tested)
-  consent.ts                cookie consent store + GA/Clarity IDs (opt-in analytics)
+  consent.ts                analytics IDs, opt-out store, GA <head> bootstrap
   hot-actions.ts            what counts as a hot action (shared by beacon + GA events)
   nav.ts                    header NAV + FOOTER_NAV
   contact.ts                encoded phone + WhatsApp greeting
@@ -561,60 +561,63 @@ treated as the opt-out (Imprint's reasoning, kept).
 
 ---
 
-## 11a. Opt-in analytics (Google Analytics 4 + Microsoft Clarity)
+## 11a. Analytics (Google Analytics 4 + Microsoft Clarity) — on by default
+
+Since 10 Oct 2026 both run for every visitor by default and are disclosed on
+`/privacy` (the earlier cookie banner was removed at the owner's request).
 
 - **IDs**: GA4 `G-NQJCRJ7B2Z`, Clarity `yui86woola` — defaults in
   `lib/consent.ts` (public IDs). `NEXT_PUBLIC_GA_ID` /
   `NEXT_PUBLIC_CLARITY_ID` in Vercel override them (inlined at build time —
-  redeploy); set one to an empty string to switch that tool off. With
-  neither, there is no banner, no "Cookie settings" link, and the privacy
-  page says "no cookies". `NEXT_PUBLIC_ANALYTICS_DEBUG=1` runs them on
-  localhost.
-- **Consent** (`lib/consent.ts`): localStorage `sks_consent` =
-  `granted` / `denied` / unset. `components/analytics/ConsentBanner.tsx`
-  shows a fixed bottom bar (hidden while the intro loader runs) with equal
-  Accept / Decline buttons; `CookieSettingsButton` (footer "Elsewhere"
-  column and /privacy#cookies) reopens it.
-- **Loading** (`components/analytics/Analytics.tsx`): *basic* consent mode —
-  nothing is requested from Google or Microsoft before Accept. Then gtag.js
-  (`afterInteractive`, consent defaults: ads denied, analytics granted) and
-  Clarity (`lazyOnload`, `consentv2`). Declining afterwards sends consent
-  updates and deletes `_ga*`, `_clck`, `_clsk`, `MUID` etc.
+  redeploy); set one to an empty string to switch that tool off (the privacy
+  page then drops its wording automatically).
+- **GA4 loading** (`app/layout.tsx` `<head>`): a plain
+  `<script async src="https://www.googletagmanager.com/gtag/js?id=G-NQJCRJ7B2Z">`
+  plus an inline bootstrap from `gaBootstrap()` in `lib/consent.ts`. The tag
+  is in the **server HTML** so Google's "Test installation" checker finds it
+  (it never ran JavaScript-injected or consent-gated tags). The bootstrap
+  sets consent defaults (ads denied; analytics granted unless off) and sends
+  `config` (the page view) only when the visitor is **not** opted out, has
+  no Global Privacy Control signal, and isn't on localhost
+  (`NEXT_PUBLIC_ANALYTICS_DEBUG=1` allows localhost).
+- **Clarity loading** (`components/analytics/Analytics.tsx`):
+  `next/script` `lazyOnload`, `consentv2` analytics granted, unless off.
+- **Opt-out** (`components/analytics/AnalyticsOptOut.tsx`, on
+  `/privacy#cookies`): localStorage `sks_consent` = `denied` (key kept from
+  the old banner, so earlier "Decline" choices still hold) → GA sends no
+  hits, Clarity never loads, and their cookies (`_ga*`, `_clck`, `_clsk`,
+  `MUID`…) are deleted. Turning it back on resumes GA on the same page.
+  `navigator.globalPrivacyControl === true` = off, automatically.
 - **Events**: hot actions (`lib/hot-actions.ts`, shared with the beacon) →
   `generate_lead` (method: call / whatsapp / email / show_number /
   contact_page), `resume_download`, `profile_click` (linkedin / github / x).
   Mark them as **key events** in GA (Admin → Events). Page views on client
   navigation come from GA4 enhanced measurement.
 - **Privacy**: the revealed phone number carries `data-clarity-mask`;
-  Clarity masks typed text by default. `/privacy` gains a "Cookies and
-  analytics" section automatically when an ID is set.
+  Clarity masks typed text by default. `/privacy` (and its markdown view)
+  name both services, their cookies and purposes, link Google's and
+  Microsoft's privacy terms, and host the opt-out switch.
 - **CSP** (`next.config.ts`): script-src adds `www.googletagmanager.com`,
   `*.clarity.ms`; img/connect-src add `*.google-analytics.com`,
   `*.analytics.google.com`, `www.googletagmanager.com`, `*.clarity.ms`,
   `c.bing.com`.
-- `npm run verify` fails if a GA/Clarity tag ever appears in server HTML.
+- **Tests**: `tests/consent.test.ts` (default-on / opt-out / GPC, and the
+  bootstrap sends a page view only when allowed); `npm run verify` fails if
+  the GA4 tag is missing from any page's server HTML.
 - **Accounts**: GA4 property "shreyanshkumarsingh.com" (industry Jobs &
   Education, India time zone, INR), web stream "My portfolio website",
-  stream ID `16067833946`, enhanced measurement on (page views, scrolls,
-  outbound clicks, site search, video, file downloads, form interactions),
-  email redaction active. Clarity project "SKS Portfolio".
-- **What a hit looks like** (DevTools → Network, after Accept):
-  `https://www.google-analytics.com/g/collect?v=2&tid=G-NQJCRJ7B2Z&…&gcs=G101`
-  (`G101` = analytics granted, ads denied) and
-  `https://k.clarity.ms/collect` → 204. Also loaded: `www.googletagmanager.com/gtag/js`,
-  `www.clarity.ms/tag/yui86woola`, `scripts.clarity.ms/<version>/clarity.js`,
-  `c.clarity.ms/c.gif`.
-- **Dashboard warnings that are expected**: GA's "Your Google tag wasn't
-  detected" (its checker can't click Accept — consent-gated tags are
-  invisible to it); GA's "Data collection isn't active" / "No data
-  received" and Clarity's "Almost there!" (status flags that lag real data
-  by 30 min–48 h). Confirm with GA Realtime / Tag Assistant
-  (tagassistant.google.com — click Accept inside its window) instead.
-  **Never paste the vendors' install snippets into the site**: that would
-  double-count and load them without consent.
-- **Coverage**: only visitors who accept and don't run ad/tracking blockers
-  are counted, so GA/Clarity numbers are lower than the Telegram beacon's
-  (first-party, cookie-free).
+  stream ID `16067833946`, enhanced measurement on, email redaction active.
+  Clarity project "SKS Portfolio".
+- **What a hit looks like** (DevTools → Network):
+  `https://www.google-analytics.com/g/collect?v=2&tid=G-NQJCRJ7B2Z&…` and
+  `https://*.clarity.ms/collect` → 204.
+- **Coverage**: visitors with ad/tracking blockers (and GPC browsers) aren't
+  counted, so GA/Clarity numbers stay below the Telegram beacon's.
+- **Performance cost**: gtag.js (~100 KB) loads async on every page; expect
+  PageSpeed to dip a few points versus the consent-gated version.
+- **History**: 8 Oct opt-in behind a cookie banner (basic consent mode);
+  10 Oct switched to on-by-default with disclosure + opt-out, because
+  Google's installation checker can never see a consent-gated tag.
 
 ---
 
@@ -695,10 +698,10 @@ GA + Clarity hosts = `www.googletagmanager.com`, `*.google-analytics.com`,
 `'unsafe-inline'` scripts are required by Next's inline bootstrap on static
 pages (nonces would force dynamic rendering). `/sims/*` keeps its own inline
 code and may be framed same-origin (`X-Frame-Options: SAMEORIGIN`).
-Until a visitor accepts analytics cookies, the browser makes **no
-third-party requests** (fonts, images, video all self-hosted; the beacon's
-geo lookups and Telegram calls are server-side). After Accept, only the GA
-and Clarity hosts above.
+The only third-party requests the browser makes are to Google Analytics
+and Microsoft Clarity (none at all for opted-out / GPC visitors); fonts,
+images and video are self-hosted, and the beacon's geo lookups and Telegram
+calls are server-side.
 In `next dev` the console shows React "eval() is not supported" warnings —
 dev-only, caused by the CSP; production is clean.
 
@@ -905,6 +908,7 @@ beacon rate limits exist for this; don't remove them.
 | `60893dd` | 2026-10-08 | `og:site_name` + `og:locale` restored on every page (`OG_BASE`) |
 | `49719a0` | 2026-10-08 | Opt-in GA4 + Microsoft Clarity behind a cookie banner; `lib/hot-actions.ts` shared with the beacon |
 | `5f294cf` | 2026-10-08 | GA4 `G-NQJCRJ7B2Z` and Clarity `yui86woola` switched on |
+| *(10 Oct)* | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
 
 The original static files were moved out of the repo (they used the
 retired short name and named the bank); local copies are in

@@ -6,7 +6,7 @@ import Script from "next/script";
 import SmoothScroll from "@/components/SmoothScroll";
 import Beacon from "@/components/beacon/Beacon";
 import Analytics from "@/components/analytics/Analytics";
-import ConsentBanner from "@/components/analytics/ConsentBanner";
+import { GA_ID, gaBootstrap } from "@/lib/consent";
 import { SITE_URL, SITE_NAME, SUMMARY, PERSON, KEYWORDS } from "@/lib/site";
 
 // Inter as its single variable-font file (every weight 100–900) rather than
@@ -104,6 +104,20 @@ export default function RootLayout({
             __html: `if ("scrollRestoration" in history) history.scrollRestoration = "manual";`,
           }}
         />
+        {/* Google Analytics 4, on by default (disclosed on /privacy). A plain
+            tag in the HTML so Google's installation checker can see it; the
+            bootstrap sends nothing for visitors who opted out on /privacy,
+            send Global Privacy Control, or are on localhost. */}
+        {GA_ID && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_ID)}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: gaBootstrap(GA_ID, process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "1"),
+              }}
+            />
+          </>
+        )}
       </head>
       <body>
         <SmoothScroll />
@@ -115,8 +129,7 @@ export default function RootLayout({
         <Script src="/api/mcp?webmcp-script" strategy="lazyOnload" />
         {/* first-party visit log → Telegram (see /privacy, lib/beacon) */}
         <Beacon />
-        {/* GA4 + Clarity: nothing loads until the visitor accepts (lib/consent.ts) */}
-        <ConsentBanner />
+        {/* Clarity + GA key events; opt-out on /privacy (lib/consent.ts) */}
         <Analytics />
       </body>
     </html>

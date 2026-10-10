@@ -126,8 +126,8 @@ for (const path of pages) {
   if (PHONE.test(body.replace(/<script[\s\S]*?<\/script>/g, ""))) issues.push("phone digits in HTML");
   for (const s of body.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) if (PHONE.test(s[1])) issues.push("phone in JSON-LD");
   if (BANK.test(body)) issues.push("bank name");
-  // analytics must never load before consent: no third-party tags in server HTML
-  if (/googletagmanager\.com\/gtag|clarity\.ms\/tag/.test(body)) issues.push("analytics script before consent");
+  // GA4 is on by default and must be in the server HTML (Google's checker reads it)
+  if (!/googletagmanager\.com\/gtag\/js\?id=G-NQJCRJ7B2Z/.test(body)) issues.push("GA4 tag missing from HTML");
   if (/\b[A]NSH\b/.test(body.replace(/<[^>]+>/g, " "))) issues.push("retired short name");
   for (const old of OLD_HEADINGS) if (hs.some((h) => h.text.includes(old))) issues.push(`old heading "${old}"`);
   check(`page ${path}`, issues.length === 0, issues.join("; "));

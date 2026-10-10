@@ -8,7 +8,7 @@ phone number, the bank behind Sarthi, résumé decisions, account details)
 is in **`reports/HANDOFF_PRIVATE.md`** — gitignored, on the working machine
 only. **This repository is public: never commit anything from that file.**
 
-*Last updated: 8 October 2026, after commit `5f294cf`.*
+*Last updated: 10 October 2026 (analytics on by default).*
 
 ---
 
@@ -37,7 +37,7 @@ only. **This repository is public: never commit anything from that file.**
 | Hosting | Vercel, Hobby plan, project in the account that owns the domain (not the developer's CLI account — see private file) |
 | Search | Google Search Console (Domain property, sitemap submitted) · Bing Webmaster Tools (imported from GSC, sitemap: Success, 27 URLs) |
 | Alerts | Two Telegram bots (all alerts / humans + hot actions) |
-| Analytics | **Google Analytics 4** — property "shreyanshkumarsingh.com", web stream "My portfolio website", stream ID `16067833946`, Measurement ID `G-NQJCRJ7B2Z` · **Microsoft Clarity** — project "SKS Portfolio", ID `yui86woola`. Both opt-in behind the cookie banner. |
+| Analytics | **Google Analytics 4** — property "shreyanshkumarsingh.com", web stream "My portfolio website", stream ID `16067833946`, Measurement ID `G-NQJCRJ7B2Z` · **Microsoft Clarity** — project "SKS Portfolio", ID `yui86woola`. Both on by default; opt-out on /privacy. |
 | Client profiles | LinkedIn `/in/shreyansh-kumar-singh-080326205` · GitHub `Shreyanskumarsingh20` (profile README live) · X `@ShreyanshK98` |
 | Brief + strategy | `reports/Portfolio SEO AEO GEO strategy.md` and `research_notes/` (gitignored) |
 
@@ -128,12 +128,14 @@ npm is not recommended (needs his npm account, no value for a portfolio).
     is-agentic and check GSC → Performance for "Shreyansh Kumar Singh" in
     1–2 weeks.
 
-### Analytics — live since 8 Oct; dashboard to-dos
-GA4 (`G-NQJCRJ7B2Z`) and Clarity (`yui86woola`) are **live and receiving
-data** behind the cookie banner (verified on production: after Accept, GA
-sends `g/collect` with `tid=G-NQJCRJ7B2Z`, `gcs=G101`; Clarity's
-`k.clarity.ms/collect` returns 204; Clarity showed live recordings). Still to
-do in the dashboards (owner):
+### Analytics — on by default since 10 Oct; dashboard to-dos
+GA4 (`G-NQJCRJ7B2Z`) and Clarity (`yui86woola`) run for every visitor by
+default (no banner), disclosed on `/privacy`, with an opt-out switch there;
+browsers sending Global Privacy Control are opted out automatically. The GA
+tag is in the server HTML, so GA's "Test installation" check can now pass.
+Still to do in the dashboards (owner):
+- **GA → Admin → Data streams → web stream → View tag instructions →
+  Test installation**: re-run it — it should now detect the tag.
 - **GA → Admin → Events**: mark `generate_lead`, `resume_download`,
   `profile_click` as **key events** (they appear after the first click of
   each).
@@ -142,15 +144,13 @@ do in the dashboards (owner):
 - **GA → Admin → Data collection and modification → Data retention**: set
   event data to **14 months**.
 - **GA → Web stream → Configure tag settings → Define internal traffic**:
-  add the owner's and the client's IPs, then activate the "Internal traffic"
-  data filter.
+  add the owner's and the client's IPs; keep the "Internal traffic" filter
+  in **Testing** until reports are confirmed, then **Active**.
 - **Clarity → Settings → Setup → Google Analytics integration**: connect
   `G-NQJCRJ7B2Z` (optional).
-- Expected, not errors: GA's "Your Google tag wasn't detected" (its checker
-  never clicks Accept), GA's "Data collection isn't active" / "No data
-  received" and Clarity's "Almost there!" screen (status flags that lag real
-  data by 30 min–48 h). Don't paste the vendors' snippets into the site — it
-  would double-count and bypass consent.
+- Clarity's "Almost there!" screen clears once the first sessions are
+  processed. Don't paste the vendors' install snippets into the site — it
+  would double-count.
 
 ### Optional, needs a decision
 11. Read-only JSON API + OpenAPI for is-agentic (§4).
@@ -181,8 +181,9 @@ do in the dashboards (owner):
 - **Bing Webmaster Tools**: Sitemaps, URL inspection, IndexNow log.
 - **Google Analytics 4**: Reports → Realtime (live check), Reports →
   Engagement → Events (`generate_lead`, `resume_download`,
-  `profile_click`), Acquisition (how people arrive). Counts only visitors
-  who accepted cookies and don't block GA — expect fewer than Telegram.
+  `profile_click`), Acquisition (how people arrive). Visitors with ad
+  blockers or Global Privacy Control aren't counted — expect fewer than
+  Telegram.
 - **Microsoft Clarity**: Recordings (session replays, available ~30 min–2 h
   after a visit), Heatmaps (useful after a few dozen sessions), Dashboard
   (rage clicks, dead clicks, scroll depth).
@@ -207,16 +208,17 @@ never sent a request (its tool failed). Don't test by spoofing a bot user
 agent from your own machine — Vercel challenges impersonators (PROJECT_BIBLE
 §19).
 
-**GA4 shows no data** → open the site in an incognito window, click
-**Accept**, browse two pages, and watch GA → Realtime (≈30 s). Nothing →
-disable ad blockers / privacy extensions (they block GA and Clarity) or try
-a phone on mobile data. In DevTools → Network, a request to
-`google-analytics.com/g/collect?…tid=G-NQJCRJ7B2Z` means the site is doing
-its part. Ignore the setup page's "tag wasn't detected".
+**GA4 shows no data** → open the site in an incognito window, browse two
+pages, and watch GA → Realtime (≈30 s). Nothing → disable ad blockers /
+privacy extensions (they block GA and Clarity), make sure the analytics
+switch on /privacy is on in that browser, check the "Internal traffic"
+filter isn't Active for your IP, or try a phone on mobile data. In DevTools →
+Network, a request to `google-analytics.com/g/collect?…tid=G-NQJCRJ7B2Z`
+means the site is doing its part.
 
 **Turn analytics off** → set `NEXT_PUBLIC_GA_ID` and/or
 `NEXT_PUBLIC_CLARITY_ID` to an empty value in Vercel and redeploy (no ID =
-no banner, no script, privacy page reverts to "no cookies").
+no script, and the privacy page drops that service).
 
 **Search Console says the sitemap can't be read** → `npm run verify` (it
 checks the sitemap's element order); if green, it's Google's delay.
@@ -243,10 +245,12 @@ Console → URL Inspection → Request indexing.
 - Desktop particle animation starts on first input / after 7 s idle.
 - The PDF résumé is linked from `/resume` and served `noindex`.
 - Two Telegram bots: everything vs. humans + hot actions.
-- Analytics = GA4 + Clarity, **opt-in** behind a cookie banner with equal
-  Accept / Decline (basic consent mode — nothing loads before Accept). Not
-  "advanced" consent mode (it would send cookieless pings before consent).
-  GA4 property settings: industry Jobs & Education, India time zone, INR.
+- Analytics = GA4 + Clarity, **on by default** with disclosure on
+  /privacy, an opt-out switch there, and Global Privacy Control honoured
+  (owner's decision, 10 Oct — replaced the 8 Oct opt-in cookie banner, whose
+  consent-gated tag Google's installation checker could never detect). No
+  banner. GA4 property settings: industry Jobs & Education, India time zone,
+  INR.
 - The share card for `/`, `/about`, `/contact`, `/resume` is the client's
   photo card (`app/opengraph-image.jpg`); other pages keep generated cards.
 - The original static HTML files were removed from the repo (local copies in
@@ -288,3 +292,14 @@ Console → URL Inspection → Request indexing.
 - Opt-in GA4 + Microsoft Clarity behind a cookie banner (`49719a0`), IDs
   switched on (`5f294cf`); verified live (consent gating, GA hits, Clarity
   uploads, cookie removal on withdrawal, no CSP errors).
+
+### 10 Oct 2026
+
+- Cookie banner removed at the owner's request: GA4 and Clarity now run by
+  default. GA4 tag moved into the server HTML (`app/layout.tsx` `<head>`) so
+  Google's installation checker can detect it; `/privacy` rewritten to
+  disclose both services (cookies, purposes, vendor privacy links) with an
+  opt-out switch (`components/analytics/AnalyticsOptOut.tsx`); Global
+  Privacy Control honoured; verified locally (default on, opt-out removes
+  cookies and stops hits, back on resumes, no console errors); tests and
+  `npm run verify` updated.

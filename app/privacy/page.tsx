@@ -4,7 +4,7 @@ import PageShell from "@/components/site/PageShell";
 import JsonLd from "@/components/JsonLd";
 import { PERSON, OG_BASE } from "@/lib/site";
 import TrackingOptOut from "@/components/beacon/TrackingOptOut";
-import { CookieSettingsButton } from "@/components/analytics/ConsentBanner";
+import AnalyticsOptOut from "@/components/analytics/AnalyticsOptOut";
 import { ANALYTICS_CONFIGURED, GA_ID, CLARITY_ID } from "@/lib/consent";
 import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 
@@ -14,7 +14,7 @@ import { graph, coreNodes, pageNode } from "@/lib/jsonld";
 const UPDATED = "2026-10-08";
 const TITLE = "Privacy Policy — Shreyansh Kumar Singh";
 const DESCRIPTION =
-  "How Shreyansh Kumar Singh's site handles visitor data: no cookies or ads, first-party visit logging you can switch off, and what happens when you write.";
+  "How Shreyansh Kumar Singh's site handles visitor data: Google Analytics, Microsoft Clarity and a visit log, no ads, and how to switch them off.";
 const CRUMBS = [
   { name: "Home", path: "/" },
   { name: "Privacy", path: "/privacy" },
@@ -44,17 +44,18 @@ export default function PrivacyPage() {
         <p className="pg-lede rise now" style={{ animationDelay: "120ms" }}>
           {ANALYTICS_CONFIGURED ? (
             <>
-              <b>This site shows no ads and has no forms, and sets analytics cookies only if you accept them.</b>{" "}
+              <b>This site uses Google Analytics and Microsoft Clarity to understand how it is used.</b> It shows
+              no ads and has no forms.{" "}
             </>
           ) : (
             <>
               <b>This site sets no cookies, shows no ads and has no forms.</b>{" "}
             </>
           )}
-          It keeps a first-party log of visits — which pages were read and which contact buttons were used — sent
-          privately to Shreyansh. You can switch it off below.
+          It also keeps a first-party log of visits — which pages were read and which contact buttons were used —
+          sent privately to Shreyansh. You can switch both off below.
         </p>
-        <p className="pg-meta">Last updated 8 October 2026</p>
+        <p className="pg-meta">Last updated 10 October 2026</p>
       </section>
 
       <section className="pg-section shell shell--page">
@@ -68,9 +69,9 @@ export default function PrivacyPage() {
             <li>
               {ANALYTICS_CONFIGURED ? (
                 <>
-                  <b>No advertising, and analytics only with your consent.</b> Google Analytics and Microsoft Clarity
-                  load only after you click Accept on the cookie banner (see <a href="#cookies">Cookies</a>). Nothing
-                  is shared with an ad network.
+                  <b>Analytics cookies, no advertising.</b> Google Analytics and Microsoft Clarity run on every
+                  page and set cookies to measure visits (see <a href="#cookies">Cookies and analytics</a>). Their
+                  advertising features are off, and nothing is shared with an ad network.
                 </>
               ) : (
                 <>
@@ -88,7 +89,7 @@ export default function PrivacyPage() {
               <b>Everything is self-hosted</b> — fonts, images, videos and the physics simulators load from this
               domain.{" "}
               {ANALYTICS_CONFIGURED
-                ? "Until you accept analytics cookies, your browser makes no third-party requests."
+                ? "The only third-party requests your browser makes are to Google Analytics and Microsoft Clarity."
                 : "Your browser makes no third-party requests."}
             </li>
           </ul>
@@ -133,11 +134,11 @@ export default function PrivacyPage() {
           {ANALYTICS_CONFIGURED && (
             <>
               <h2 className="pg-h2" id="cookies">
-                Cookies and analytics (only if you accept)
+                Cookies and analytics
               </h2>
               <p>
-                The first time you visit, a banner asks whether you accept analytics cookies. If you decline or ignore
-                it, nothing below loads and no cookies are set. If you accept:
+                This site uses two analytics services to understand which pages are read, how visitors arrive and what
+                they click, so the site can be improved:
               </p>
               <ul>
                 {GA_ID && (
@@ -156,12 +157,17 @@ export default function PrivacyPage() {
                 )}
               </ul>
               <p>
-                You can change your mind at any time — reopen the choice here, or with <b>Cookie settings</b> in the
-                footer. Declining after accepting stops both tools and deletes their cookies from this site.
+                Google and Microsoft process this data under their own privacy terms (
+                <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">Google</a>,{" "}
+                <a href="https://privacy.microsoft.com/privacystatement" rel="noopener" target="_blank">Microsoft</a>
+                ). Neither is used for advertising.
               </p>
               <p>
-                <CookieSettingsButton className="btn btn-ghost" />
+                <b>Turning analytics off.</b> Use the switch below to stop both services in this browser; it also
+                deletes their cookies. If your browser sends the Global Privacy Control signal, analytics is off
+                automatically. Browser extensions that block trackers have the same effect.
               </p>
+              <AnalyticsOptOut />
             </>
           )}
 
@@ -170,8 +176,8 @@ export default function PrivacyPage() {
             <li><b>Vercel</b> — hosting; supplies the approximate location of your IP address.</li>
             <li><b>ipwho.is / ipapi.co</b> — resolve an IP address to an approximate location and network provider.</li>
             <li><b>Telegram</b> — delivers the visit messages to Shreyansh.</li>
-            {GA_ID && <li><b>Google</b> — Google Analytics 4, only after you accept cookies.</li>}
-            {CLARITY_ID && <li><b>Microsoft</b> — Clarity, only after you accept cookies.</li>}
+            {GA_ID && <li><b>Google</b> — Google Analytics 4 (visit measurement).</li>}
+            {CLARITY_ID && <li><b>Microsoft</b> — Clarity (heatmaps and session recordings).</li>}
           </ul>
 
           <h2 className="pg-h2">Questions or removal requests</h2>

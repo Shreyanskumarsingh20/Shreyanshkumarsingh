@@ -331,20 +331,3 @@ a.pg-card:hover{ border-color:rgba(255,192,0,.5); }
 .optout-k{ margin:0 0 10px !important; font-size:11px !important; letter-spacing:.2em; text-transform:uppercase; color:var(--gold) !important; }
 .optout-state{ margin:0 0 16px !important; color:#e2e2e2 !important; }
 .optout-note{ margin:16px 0 0 !important; font-size:13.5px !important; color:var(--steel) !important; }
-
-/* cookie consent (GA4 + Clarity) — fixed, so it never shifts layout */
-.consent{
-  position:fixed; z-index:400; left:16px; right:16px; bottom:16px; margin-inline:auto; max-width:760px;
-  display:flex; flex-wrap:wrap; align-items:center; gap:14px 20px; padding:16px 18px;
-  background:rgba(10,10,10,.97); border:1px solid rgba(255,192,0,.35); border-radius:12px;
-  box-shadow:0 24px 60px -20px rgba(0,0,0,.9);
-}
-.consent-text{ flex:1 1 320px; margin:0; font-size:13.5px; line-height:1.6; color:#d6d6d6; }
-.consent-text b{ color:var(--white); }
-.consent-text a{ color:var(--gold); }
-.consent-actions{ display:flex; gap:10px; flex:none; }
-.consent-actions .btn{ min-height:42px; }
-.consent-link{ background:none; border:0; padding:5px 0; text-align:left; font:inherit; font-size:14px; color:#e4e4e4; cursor:pointer; }
-.consent-link:hover{ color:var(--gold); }
-body.loading .consent{ display:none; } /* after the intro loader, not over it */
-@media print{ .consent{ display:none !important; } }

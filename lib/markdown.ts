@@ -190,7 +190,7 @@ function contact(): Doc {
 function privacy(): Doc {
   return {
     title: `Privacy Policy — ${PERSON.name}`,
-    description: "No cookies or ads; first-party visit logging you can switch off.",
+    description: "Google Analytics and Microsoft Clarity, first-party visit logging, no ads — and how to switch them off.",
     updated: "2026-10-08",
     body: [
       "# Privacy policy",
@@ -205,9 +205,9 @@ function privacy(): Doc {
       ...(ANALYTICS_CONFIGURED
         ? [
             "",
-            "## Cookies and analytics (only if you accept)",
+            "## Cookies and analytics",
             "",
-            "Google Analytics 4 and Microsoft Clarity load only after a visitor clicks Accept on the cookie banner; declining (or ignoring it) loads neither and sets no cookies. Advertising features are off; Clarity masks typed text and the phone number. The choice can be changed at any time via Cookie settings in the footer.",
+            "The site uses Google Analytics 4 (visit measurement; cookies _ga, _ga_*) and Microsoft Clarity (heatmaps and session recordings with typed text and the phone number masked; cookies _clck, _clsk, MUID) on every page. Advertising features are off. Visitors can turn both off for their browser with the switch on /privacy (which also deletes their cookies); browsers sending Global Privacy Control are opted out automatically.",
           ]
         : []),
       "",

@@ -75,15 +75,15 @@ variables (Production), each a no-op when unset:
   the tokens). Opt out per browser with `/?notrack=1`; disclosed on `/privacy`.
 - Silent on localhost unless `NEXT_PUBLIC_BEACON_DEBUG=1`.
 
-## Analytics (opt-in)
+## Analytics
 
 Google Analytics 4 (`G-NQJCRJ7B2Z`) and Microsoft Clarity (`yui86woola`),
-behind a cookie banner (`components/analytics/`, `lib/consent.ts`). The IDs
-default in code; `NEXT_PUBLIC_GA_ID` / `NEXT_PUBLIC_CLARITY_ID` override them
-(empty = off). Nothing from Google or Microsoft is requested
-until a visitor clicks Accept; declining later removes their cookies. Hot
-actions are sent to GA as `generate_lead`, `resume_download` and
-`profile_click` events.
+on by default and disclosed on `/privacy`, which also has an opt-out switch
+(Global Privacy Control is honoured). The GA tag is in the `<head>` of every
+page (`app/layout.tsx`, `lib/consent.ts`); Clarity loads lazily
+(`components/analytics/`). The IDs default in code; `NEXT_PUBLIC_GA_ID` /
+`NEXT_PUBLIC_CLARITY_ID` override them (empty = off). Hot actions are sent to
+GA as `generate_lead`, `resume_download` and `profile_click` events.
 
 ## Tests and checks
 
