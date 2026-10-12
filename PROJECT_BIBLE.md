@@ -807,6 +807,15 @@ dev-only, caused by the CSP; production is clean.
 Do **not** run Lighthouse locally (the client's machine is low on disk
 space and results were unreliable) — use pagespeed.web.dev.
 
+External checks (structured data, security headers, TLS, accessibility,
+HTML validity, link previews, broken links, OpenAPI lint, MCP Inspector,
+WebPageTest, AI-answer and brand-search spot checks) are listed with tools
+and pass criteria in **HANDOFF.md §10**.
+
+Latest external scores (12 Oct 2026): PageSpeed 92 mobile / 95 desktop
+(measured 8 Oct, before GA loaded on every page — re-measure),
+Accessibility / Best Practices / SEO 100, is-agentic **100/100**.
+
 ---
 
 ## 17. Deploy and operations
@@ -966,7 +975,8 @@ beacon rate limits exist for this; don't remove them.
 | `60893dd` | 2026-10-08 | `og:site_name` + `og:locale` restored on every page (`OG_BASE`) |
 | `49719a0` | 2026-10-08 | Opt-in GA4 + Microsoft Clarity behind a cookie banner; `lib/hot-actions.ts` shared with the beacon |
 | `5f294cf` | 2026-10-08 | GA4 `G-NQJCRJ7B2Z` and Clarity `yui86woola` switched on |
-| `3548221` | 2026-10-12 | Read-only JSON API `/api/v1`, OpenAPI 3.1 spec, JSON errors, /developers portal; MCP tools share the API builders |
+| `3548221` | 2026-10-12 | Read-only JSON API `/api/v1`, OpenAPI 3.1 spec, JSON errors, /developers portal; MCP tools share the API builders (no CSS / component / visual changes; one footer link added) |
+| `7b6ae5b` | 2026-10-12 | Docs: is-agentic rescan **100/100** recorded |
 | `99fe3bf` | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
 
 The original static files were moved out of the repo (they used the

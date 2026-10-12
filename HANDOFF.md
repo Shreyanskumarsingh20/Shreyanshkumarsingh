@@ -8,7 +8,7 @@ phone number, the bank behind Sarthi, résumé decisions, account details)
 is in **`reports/HANDOFF_PRIVATE.md`** — gitignored, on the working machine
 only. **This repository is public: never commit anything from that file.**
 
-*Last updated: 10 October 2026 (analytics on by default).*
+*Last updated: 12 October 2026 (after the JSON API and the is-agentic 100/100 rescan).*
 
 ---
 
@@ -317,3 +317,40 @@ Console → URL Inspection → Request indexing.
   (linked from the footer on every page, llms.txt, the AI catalog and the
   sitemap). The MCP tools now call the same builders. `npm run verify`
   grew to 66 checks (calls every documented operation).
+- Scope check: the API work changed **no CSS, components, existing pages,
+  animations or visuals**. The only visible change on existing pages is a
+  "Developer API" link in the footer's Site column. MCP tool responses gained
+  a few fields (résumé links, counts, result types) because they now share
+  the API builders.
+- **is-agentic.com rescan: 100/100** (66 on 7 Oct → 79 on 8 Oct → 100).
+- Docs: score recorded in HANDOFF §4 and PROJECT_BIBLE §10a; scores table
+  updated (verify 66/66, unit tests 14/14).
+- Recommended next external checks are listed in §10 below.
+
+---
+
+## 10. External checks worth running (beyond PageSpeed and is-agentic)
+
+Run these occasionally — after big changes, or monthly. All free.
+
+| Check | Tool | What "good" looks like |
+|---|---|---|
+| Structured data | search.google.com/test/rich-results (enter `/`, `/about`, `/faq`, a case study) · validator.schema.org | Person, ProfilePage, FAQPage, Breadcrumb detected, **0 errors** |
+| Real-user speed | Search Console → **Core Web Vitals** (needs ~28 days of Chrome traffic) | All URLs "Good" on mobile and desktop |
+| Indexing | Search Console → **Pages**, **URL Inspection** | All 28 sitemap URLs indexed; no "Crawled – not indexed" |
+| Bing health | Bing Webmaster → **Site scan** + **URL inspection** | No errors; pages indexed |
+| Security headers | securityheaders.com · developer.mozilla.org/en-US/observatory | Grade A / A+ (HSTS, CSP, nosniff, Referrer, Permissions, COOP present) |
+| TLS | ssllabs.com/ssltest | Grade A or A+ |
+| Accessibility (real pages, not just Lighthouse) | wave.webaim.org · axe DevTools extension | No errors; contrast passes |
+| HTML validity | validator.w3.org/nu | No errors (warnings fine) |
+| Link previews | opengraph.xyz · LinkedIn Post Inspector · Facebook Sharing Debugger | Photo card + title + site name on every platform |
+| Broken links | validator.w3.org/checklink · Ahrefs Webmaster Tools (free, verify the site) site audit | 0 broken links; Ahrefs also shows backlinks |
+| OpenAPI spec | editor.swagger.io (File → Import URL `/openapi.json`) · `npx @redocly/cli lint https://www.shreyanshkumarsingh.com/openapi.json` | Valid, no errors |
+| MCP server | `npx @modelcontextprotocol/inspector` → connect to `https://www.shreyanshkumarsingh.com/api/mcp` (Streamable HTTP) | 7 tools list and run |
+| Detailed speed (filmstrip, real devices) | webpagetest.org (mobile, Mumbai location) | LCP < 2.5 s, no long tasks after load |
+| AI answers (manual, monthly) | ChatGPT, Claude, Perplexity, Gemini, Copilot: "Who is Shreyansh Kumar Singh?" / "AI & Full-Stack Engineer in Pune" | Answers name him correctly, cite shreyanshkumarsingh.com |
+| Brand search (manual, monthly) | Google + Bing: "Shreyansh Kumar Singh", "Shreyansh Kumar Singh AI engineer" | Site #1; LinkedIn/GitHub/X next |
+
+Always keep running `npm run verify` after each deploy — it covers the
+site-specific rules none of these tools know about (no phone, no bank name,
+heading order, keywords, markdown negotiation, API contract).
