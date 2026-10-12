@@ -15,6 +15,7 @@ import { ABOUT_SECTIONS, ABOUT_TIMELINE, ABOUT_UPDATED } from "@/lib/about";
 import { NOTES, noteBySlug, noteHref } from "@/lib/notes";
 import { plain } from "@/lib/jsonld";
 import { ANALYTICS_CONFIGURED } from "@/lib/consent";
+import { API_BASE, ENDPOINTS } from "@/lib/api";
 
 type Doc = { title: string; description: string; updated: string; body: string[] };
 
@@ -337,6 +338,35 @@ function resume(): Doc {
   };
 }
 
+function developers(): Doc {
+  const base = abs(API_BASE);
+  return {
+    title: `Developer API — ${PERSON.name}, ${PERSON.jobTitle}`,
+    description: "Read-only JSON API, OpenAPI 3.1 spec and MCP server for the portfolio. No key needed.",
+    updated: "2026-10-10",
+    body: [
+      `# Developer API for ${PERSON.name}'s portfolio`,
+      "",
+      `Structured, first-party facts about ${PERSON.name}, ${PERSON.jobTitle}: read-only JSON, no authentication, CORS open, 120 requests per minute per IP.`,
+      "",
+      `- Base URL: ${base}`,
+      `- OpenAPI 3.1: ${abs("/openapi.json")}`,
+      `- MCP server: ${abs("/api/mcp")}`,
+      `- Human docs: ${abs("/developers")}`,
+      "",
+      "## Endpoints",
+      "",
+      ...ENDPOINTS.map((e) => `- \`GET ${API_BASE}${e.path}\` — ${e.summary}. ${e.description}`),
+      "",
+      "## Errors",
+      "",
+      'Always JSON: `{ "error": { "code", "message", "hint", "docs" } }` for 400, 404, 405, 429 and 500.',
+      "",
+      "The phone number is not available to automated clients; use the email or the contact page.",
+    ],
+  };
+}
+
 /** Markdown for a site path, or null if there's no such page. */
 export function markdownFor(path: string): string | null {
   const clean = path.replace(/\/+$/, "") || "/";
@@ -353,6 +383,7 @@ export function markdownFor(path: string): string | null {
   else if (clean === "/notes") doc = notes();
   else if (clean.startsWith("/notes/")) doc = note(clean.slice("/notes/".length));
   else if (clean === "/resume") doc = resume();
+  else if (clean === "/developers") doc = developers();
   if (!doc) return null;
   return [...frontmatter(clean === "/index" ? "/" : clean, doc), ...doc.body, ...footer, ""].join("\n");
 }
@@ -373,7 +404,7 @@ export function notFoundMarkdown(path: string): string {
 
 /** Every path that has a markdown view (for the sitemap of .md files, tests). */
 export const MARKDOWN_PATHS = [
-  "/", "/about", "/experience", "/skills", "/faq", "/contact", "/privacy", "/resume", "/projects", "/notes",
+  "/", "/about", "/experience", "/skills", "/faq", "/contact", "/privacy", "/resume", "/projects", "/notes", "/developers",
   ...CASE_STUDIES.map((c) => projectHref(c.slug)),
   ...NOTES.map((n) => noteHref(n.slug)),
 ];

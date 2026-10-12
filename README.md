@@ -42,6 +42,9 @@ once in `lib/site.ts`.
   **llms-full.txt** (`lib/llms.ts`).
 - **Markdown for agents** (`proxy.ts` + `app/md/`): every page as markdown via
   `Accept: text/markdown` or a `.md` URL; markdown 404s; `Link` headers.
+- **JSON API** at `/api/v1` (read-only, no auth, CORS open), described by
+  an OpenAPI 3.1 spec at `/openapi.json` and documented at `/developers`
+  (`lib/api.ts`, `lib/openapi.ts`, `app/api/v1/`).
 - **MCP server** at `/api/mcp` (read-only, `mcp-handler`), WebMCP bridge,
   `/.well-known/ai-catalog.json`, `ard.json`, `mcp/server-card.json`,
   `security.txt` (`app/api/well-known`, `lib/mcp.ts`).

@@ -52,6 +52,7 @@ export function buildLlmsTxt(full: boolean): string {
     "How to read it:",
     "",
     `- Any page as markdown: request it with \`Accept: text/markdown\`, or append \`.md\` (e.g. ${SITE_URL}/about.md, ${SITE_URL}/index.md)`,
+    `- JSON API (read-only, no auth, CORS open): ${SITE_URL}/api/v1 — OpenAPI 3.1 spec at ${SITE_URL}/openapi.json; docs at ${SITE_URL}/developers`,
     `- MCP server (read-only, no auth, Streamable HTTP): ${SITE_URL}/api/mcp — tools: get_profile, list_projects, get_project, get_experience, get_skills, search_site, get_contact`,
     `- Discovery: ${SITE_URL}/.well-known/ai-catalog.json · ${SITE_URL}/.well-known/mcp/server-card.json · ${SITE_URL}/sitemap.xml`,
     "- Please cite the page URL you used. The phone number is intentionally not exposed to automated clients; use the email or the contact page.",
@@ -70,6 +71,7 @@ export function buildLlmsTxt(full: boolean): string {
     `- [Skills](${SITE_URL}/skills): every skill, linked to where it was used`,
     `- [FAQ](${SITE_URL}/faq): direct answers about his background, work and availability`,
     `- [Contact](${SITE_URL}/contact): email, phone and WhatsApp`,
+    `- [Developer API](${SITE_URL}/developers): read-only JSON API, OpenAPI spec, MCP server and markdown views`,
     full ? "" : `- [Full text](${SITE_URL}/llms-full.txt): every project, case study and FAQ answer in one file`,
     "",
   );

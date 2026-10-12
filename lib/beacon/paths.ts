@@ -30,6 +30,8 @@ const AGENT_FILES = new Set([
   // a search engine reading the sitemap — rare, and the only proof that
   // Search Console's "Couldn't fetch" has actually turned into a fetch
   "/sitemap.xml",
+  "/openapi.json",
+  "/api/openapi.json",
 ]);
 
 /**
@@ -45,6 +47,7 @@ const AGENT_FILES = new Set([
 export function isReportablePath(pathname: string): boolean {
   if (AGENT_FILES.has(pathname)) return true;
   if (pathname === "/api/mcp") return true; // an MCP client connecting
+  if (pathname === "/api/v1" || pathname.startsWith("/api/v1/")) return true; // the JSON API
   if (pathname.startsWith("/_next/") || pathname.startsWith("/api/")) return false;
   if (pathname === "/robots.txt") return false;
   // the markdown twin of a page — an agent reading on purpose
@@ -66,19 +69,22 @@ const STATIC_ROUTES = new Set([
   "/projects",
   "/resume",
   "/skills",
+  "/developers",
+  "/api/v1",
   "/index.md",
   "/api/mcp",
   ...AGENT_FILES,
 ]);
 
 const SLUG = "[a-z0-9]+(?:-[a-z0-9]+)*";
-const PAGES = "about|contact|experience|faq|notes|privacy|projects|resume|skills";
+const PAGES = "about|contact|developers|experience|faq|notes|privacy|projects|resume|skills";
 
 /** The dynamic families, as shapes rather than lookups. */
 const ROUTE_SHAPES = [
   new RegExp(`^/projects/${SLUG}(?:\\.md)?$`),
   new RegExp(`^/notes/${SLUG}(?:\\.md)?$`),
   new RegExp(`^/(?:${PAGES})\\.md$`),
+  /^\/api\/v1\/(?:profile|projects|experience|skills|notes|faq|search|contact)(?:\/[a-z0-9-]+)?$/,
 ];
 
 /**

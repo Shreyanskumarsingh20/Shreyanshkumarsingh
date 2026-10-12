@@ -39,6 +39,7 @@ export const FOOTER_NAV: { heading: string; links: NavLink[] }[] = [
     links: [
       { label: "Contact", href: "/contact" },
       { label: "Privacy", href: "/privacy" },
+      { label: "Developer API", href: "/developers" },
       { label: "llms.txt", href: "/llms.txt" },
       { label: "RSS", href: "/notes/rss.xml" },
       { label: "Sitemap", href: "/sitemap.xml" },

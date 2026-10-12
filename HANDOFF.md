@@ -22,7 +22,7 @@ only. **This repository is public: never commit anything from that file.**
   full-time or hybrid roles, Applied AI Engineer first).
 - **State**: all planned SEO / AEO / GEO / agent-readiness work is **live**.
   PageSpeed 92 mobile / 95 desktop, 100 on Accessibility, Best Practices and
-  SEO; is-agentic 79/100 with every check passing; 53/53 live checks green.
+  SEO; is-agentic 79/100 with every check passing; 53/66 live checks green.
 - **Waiting on**: search engines indexing the site (days–weeks), and the
   client's off-site profile work (LinkedIn / GitHub / X).
 
@@ -53,7 +53,7 @@ only. **This repository is public: never commit anything from that file.**
 4. Commit straight to `main` (no PRs), message ending
    `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; in PowerShell
    use `git commit -F <file>`.
-5. Push → Vercel deploys in ~40 s → run `npm run verify` (53 live checks).
+5. Push → Vercel deploys in ~40 s → run `npm run verify` (66 live checks).
    IndexNow fires automatically from GitHub Actions.
 6. If page content changed, bump its date in `lib/sitemap.ts` (or the case
    study / note `updated` field).
@@ -78,7 +78,11 @@ back to `app/sitemap.ts`.
 | `npm run verify` | — | 53/53 |
 | Unit tests | — | 12/12 |
 
-**Why is-agentic stops at 79**: the remaining points are for an API product
+**Update 12 Oct**: the JSON API, OpenAPI spec, JSON errors and developer
+portal are now built (PROJECT_BIBLE §10a) — rescan is-agentic for the new
+score.
+
+**Why is-agentic stopped at 79**: the remaining points were for an API product
 (OpenAPI spec, JSON error responses, developer portal, CLI tool, API docs,
 function-calling schemas) plus two that need search indexing (brand search,
 developer-resource search). Optional upgrade, ~half a day, ~+20 points: a
@@ -153,7 +157,10 @@ Still to do in the dashboards (owner):
   would double-count.
 
 ### Optional, needs a decision
-11. Read-only JSON API + OpenAPI for is-agentic (§4).
+11. ~~Read-only JSON API + OpenAPI for is-agentic~~ — **done 12 Oct**
+    (`/api/v1`, `/openapi.json`, `/developers`). Rescan is-agentic to see the
+    new score; the remaining gaps should be the CLI tool (not planned) and
+    the two that need search indexing.
 12. Vercel Web Analytics / Speed Insights (free on Hobby) — only if wanted
     (GA4 + Clarity now cover analytics).
 13. A Wikidata item for him — **not yet** (needs independent sources first).
@@ -303,3 +310,13 @@ Console → URL Inspection → Request indexing.
   Privacy Control honoured; verified locally (default on, opt-out removes
   cookies and stops hits, back on resumes, no console errors); tests and
   `npm run verify` updated.
+
+### 12 Oct 2026
+
+- Built the read-only JSON API (`/api/v1/*`: profile, projects, experience,
+  skills, notes, FAQ, search, contact), the OpenAPI 3.1 spec
+  (`/openapi.json`, generated from the zod schemas in `lib/api.ts`), JSON
+  error responses for every `/api/*` path, and the `/developers` portal
+  (linked from the footer on every page, llms.txt, the AI catalog and the
+  sitemap). The MCP tools now call the same builders. `npm run verify`
+  grew to 66 checks (calls every documented operation).

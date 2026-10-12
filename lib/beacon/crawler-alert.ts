@@ -53,6 +53,8 @@ const MEANING: Partial<Record<CrawlerKind, string>> = {
 function verb(kind: CrawlerKind, pathname: string): string {
   if (pathname === "/api/mcp") return "connected to the MCP server";
   if (pathname === "/sitemap.xml") return "read the sitemap";
+  if (pathname.endsWith("openapi.json")) return "read the OpenAPI spec";
+  if (pathname.startsWith("/api/v1")) return "called the JSON API";
   if (pathname.startsWith("/llms") || pathname.endsWith(".md")) return "read the AI-readable view";
   return kind === "live" ? "fetched a page" : kind === "social" ? "built a link preview" : "crawled a page";
 }
@@ -128,7 +130,7 @@ export function crawlerAlert(req: NextRequest): Promise<void> | null {
   if (!localAlertsEnabled() && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(hostname)) return null;
 
   const ua = req.headers.get("user-agent");
-  const crawler = pathname === "/api/mcp" ? mcpClient(ua) : identifyCrawler(ua);
+  const crawler = pathname === "/api/mcp" || pathname.startsWith("/api/v1") ? mcpClient(ua) : identifyCrawler(ua);
   if (!crawler) return null;
   if (!ALERT_ON.includes(crawler.kind)) return null;
 

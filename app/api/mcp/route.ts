@@ -1,22 +1,21 @@
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
-import { SITE_URL, PERSON, SUMMARY, KNOWS_ABOUT } from "@/lib/site";
-import { PROJECTS, projectHref } from "@/lib/projects";
-import { CASE_STUDIES, caseStudyBySlug } from "@/lib/case-studies";
-import { FAQS } from "@/lib/faqs";
-import { SKILL_GROUPS } from "@/lib/skills";
-import { NOTES, noteHref } from "@/lib/notes";
+import { SITE_URL } from "@/lib/site";
+import { projectHref } from "@/lib/projects";
+import { CASE_STUDIES } from "@/lib/case-studies";
 import { markdownFor, MARKDOWN_PATHS } from "@/lib/markdown";
+import { contact, profile, projects, search, skills } from "@/lib/api";
 import { MCP_SERVER_NAME, MCP_SERVER_VERSION, WEBMCP_TOOLS } from "@/lib/mcp";
 
 // A small, read-only, unauthenticated MCP server (Streamable HTTP) over the
 // portfolio's public content — nothing here isn't already on the website.
+// The structured tools return the same objects as the JSON API (lib/api.ts),
+// so MCP, /api/v1 and /openapi.json can't disagree.
 // Tools never return the phone number; contact goes through email and
 // /contact. Rate-limited per IP (per instance) to keep it a public courtesy,
 // not a load target.
 
 const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } as const;
-const abs = (p: string) => `${SITE_URL}${p}`;
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
 const json = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
@@ -34,18 +33,7 @@ const handler = createMcpHandler(
         inputSchema: z.object({}),
         annotations: READ_ONLY,
       },
-      async () =>
-        json({
-          name: PERSON.name,
-          summary: SUMMARY,
-          role: PERSON.jobTitle,
-          location: `${PERSON.locality}, ${PERSON.region}, ${PERSON.countryName}`,
-          currentWork: { employer: PERSON.employer.name, role: PERSON.employer.role, since: PERSON.employer.startDate },
-          education: { degree: PERSON.education.degree, school: PERSON.education.school, years: `${PERSON.education.start}–${PERSON.education.end}` },
-          openTo: PERSON.openTo,
-          knowsAbout: KNOWS_ABOUT,
-          links: { website: SITE_URL, about: abs("/about"), linkedin: PERSON.linkedin, github: PERSON.github, x: PERSON.x },
-        }),
+      async () => json(profile()),
     );
 
     server.registerTool(
@@ -57,19 +45,7 @@ const handler = createMcpHandler(
         inputSchema: z.object({}),
         annotations: READ_ONLY,
       },
-      async () =>
-        json({
-          projects: PROJECTS.map((p) => ({
-            slug: p.slug,
-            name: p.name,
-            domain: p.domain,
-            description: p.line,
-            stack: p.stack,
-            caseStudy: abs(projectHref(p.slug)),
-            source: p.url,
-            answers: caseStudyBySlug(p.slug)?.question,
-          })),
-        }),
+      async () => json(projects()),
     );
 
     server.registerTool(
@@ -106,15 +82,7 @@ const handler = createMcpHandler(
         inputSchema: z.object({}),
         annotations: READ_ONLY,
       },
-      async () =>
-        json({
-          groups: SKILL_GROUPS.map((g) => ({
-            area: g.title,
-            summary: g.summary,
-            skills: g.skills.map((s) => ({ name: s.name, detail: s.detail, evidence: s.evidence?.map((e) => ({ label: e.label, url: abs(e.href) })) })),
-          })),
-          page: abs("/skills"),
-        }),
+      async () => json(skills()),
     );
 
     server.registerTool(
@@ -129,32 +97,7 @@ const handler = createMcpHandler(
         }),
         annotations: READ_ONLY,
       },
-      async ({ query, limit }) => {
-        const terms = query.toLowerCase().split(/\W+/).filter((t) => t.length > 1);
-        const docs = [
-          ...FAQS.map((f) => ({ title: f.q, text: f.a, url: abs(`/faq#${f.id}`) })),
-          ...CASE_STUDIES.map((c) => ({
-            title: c.h1,
-            text: [c.tldr, ...c.problem, ...c.built.map((b) => `${b.title}. ${b.body}`), ...c.decision.body, ...c.result].join(" "),
-            url: abs(projectHref(c.slug)),
-          })),
-          ...NOTES.map((n) => ({
-            title: n.title,
-            text: [n.answer, ...n.sections.flatMap((s) => [s.h, ...(s.p ?? []), ...(s.list ?? [])])].join(" "),
-            url: abs(noteHref(n.slug)),
-          })),
-        ];
-        const scored = docs
-          .map((d) => {
-            const hay = `${d.title} ${d.text}`.toLowerCase();
-            return { ...d, score: terms.reduce((s, t) => s + (hay.split(t).length - 1), 0) };
-          })
-          .filter((d) => d.score > 0)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, limit ?? 5)
-          .map(({ title, text: body, url }) => ({ title, excerpt: body.length > 600 ? `${body.slice(0, 600)}…` : body, url }));
-        return json({ query, results: scored });
-      },
+      async ({ query, limit }) => json(search(query, limit ?? 5)),
     );
 
     server.registerTool(
@@ -166,15 +109,7 @@ const handler = createMcpHandler(
         inputSchema: z.object({}),
         annotations: READ_ONLY,
       },
-      async () =>
-        json({
-          email: PERSON.email,
-          contactPage: abs("/contact"),
-          phoneAndWhatsApp: `Available on ${abs("/contact")} for human visitors.`,
-          location: `${PERSON.locality}, ${PERSON.countryName} (IST, UTC+5:30)`,
-          availability: PERSON.openTo,
-          linkedin: PERSON.linkedin,
-        }),
+      async () => json(contact()),
     );
 
     // every page's markdown view as a readable resource

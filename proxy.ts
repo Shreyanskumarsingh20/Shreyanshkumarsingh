@@ -84,7 +84,10 @@ export const config = {
     // metadata files. /.well-known/* and llms*.txt are included for the
     // agent alerts (and passed straight through above).
     "/((?!_next/|api/|md/|media/|images/|shots/|sims/|logo/|brand/|favicon|apple-icon|opengraph-image|manifest|robots\\.txt).*)",
-    // MCP clients connecting — observed for the alert, then passed through
+    // MCP clients and JSON-API callers — observed for the alert, then passed through
     "/api/mcp",
+    "/api/v1",
+    "/api/v1/:path*",
+    "/api/openapi.json",
   ],
 };

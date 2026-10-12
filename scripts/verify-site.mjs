@@ -107,6 +107,63 @@ for (const f of ["/.well-known/ai-catalog.json", "/.well-known/mcp/server-card.j
   check("MCP output has no phone number", !PHONE.test(body));
 }
 
+// ---- JSON API + OpenAPI --------------------------------------------------------
+{
+  const { res, body } = await get("/openapi.json");
+  let spec = null;
+  try {
+    spec = JSON.parse(body);
+  } catch {}
+  const ops = spec ? Object.entries(spec.paths).flatMap(([p, item]) => Object.values(item).map((op) => ({ p, op }))) : [];
+  check("openapi.json is OpenAPI 3.1 JSON", res.status === 200 && spec?.openapi?.startsWith("3.1"), res.headers.get("content-type"));
+  check(
+    "every operation has an operationId, description and response schema",
+    ops.length >= 10 && ops.every(({ op }) => op.operationId && op.description && op.responses?.["200"]?.content?.["application/json"]?.schema),
+    `${ops.length} operations`,
+  );
+  check("operationIds are unique", new Set(ops.map(({ op }) => op.operationId)).size === ops.length);
+  const alias = await get("/api/openapi.json");
+  check("/api/openapi.json serves the same spec", alias.res.status === 200 && alias.body === body);
+
+  // call every documented GET with example parameters
+  const projects = JSON.parse((await get("/api/v1/projects")).body);
+  const notesList = JSON.parse((await get("/api/v1/notes")).body);
+  const fill = (p) =>
+    p.replace("{slug}", p.startsWith("/projects") ? projects.projects[0].slug : notesList.notes[0].slug) + (p === "/search" ? "?q=RAG" : "");
+  const bad = [];
+  for (const { p } of ops) {
+    const r = await get(`/api/v1${fill(p === "/" ? "" : p)}`);
+    let ok = r.res.status === 200 && (r.res.headers.get("content-type") || "").startsWith("application/json");
+    try {
+      JSON.parse(r.body);
+    } catch {
+      ok = false;
+    }
+    if (!ok) bad.push(`${p} → ${r.res.status}`);
+    if (PHONE.test(r.body) || BANK.test(r.body)) bad.push(`${p} leaks contact/bank data`);
+    if (r.res.headers.get("access-control-allow-origin") !== "*") bad.push(`${p} lacks CORS`);
+  }
+  check("every documented endpoint returns 200 JSON with CORS, no phone/bank", bad.length === 0, bad.join("; "));
+
+  const isErr = (r, status, code) => {
+    try {
+      const j = JSON.parse(r.body);
+      return r.res.status === status && j.error?.code === code && typeof j.error?.message === "string" && j.error?.docs;
+    } catch {
+      return false;
+    }
+  };
+  check("unknown slug → 404 JSON error", isErr(await get("/api/v1/projects/no-such-project"), 404, "not_found"));
+  check("unknown endpoint → 404 JSON error", isErr(await get("/api/v1/nope"), 404, "not_found"));
+  check("unknown /api path → 404 JSON error", isErr(await get("/api/does-not-exist"), 404, "not_found"));
+  check("bad search query → 400 JSON error", isErr(await get("/api/v1/search?q=x"), 400, "bad_request"));
+  check("POST → 405 JSON error", isErr(await get("/api/v1/profile", {}, { method: "POST" }), 405, "method_not_allowed"));
+  const dev = await get("/developers");
+  check("/developers documents the API and links the spec", dev.res.status === 200 && dev.body.includes('href="/openapi.json"'));
+  const home = await get("/");
+  check("home page links the developer docs", home.body.includes('href="/developers"'));
+}
+
 // ---- every sitemap page: headings, keywords, content rules -----------------
 const OLD_HEADINGS = ["Nine repositories", "The Range", "Telemetry", "I build what comes next", "Build. Break. Rebuild.", "An actual conversation"];
 for (const path of pages) {

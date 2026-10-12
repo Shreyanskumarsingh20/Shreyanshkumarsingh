@@ -108,6 +108,10 @@ app/
   api/mcp/server-card/      MCP server card JSON
   api/well-known/[...file]/ /.well-known/* (rewritten here by next.config.ts)
   api/beacon/route.ts       visitor beacon → Telegram
+  api/v1/[[...path]]/       the read-only JSON API (one router: profile, projects, experience, skills, notes, faq, search, contact)
+  api/[...path]/            JSON 404 for any other /api/* path
+  openapi.json/, api/openapi.json/   the OpenAPI 3.1 document (lib/openapi.ts)
+  developers/               the developer portal page (+ OG image)
 components/
   sections/                 Hero, Build, Range, Research, Method, Philosophy, Faq, Telemetry (home)
   home/                     Loader, HomeInteractions (all home client behaviour), ProjectCardArt
@@ -134,6 +138,9 @@ lib/
   mcp.ts                    MCP server name/version, WebMCP tool list
   sitemap.ts                sitemap entries with real content dates
   negotiate.ts              Accept-header content negotiation (pure, tested)
+  api.ts                    JSON API data builders + zod response schemas (shared with MCP and OpenAPI)
+  api-http.ts               JSON responses, CORS, the error shape, rate limit
+  openapi.ts                OpenAPI 3.1 document generated from lib/api.ts schemas
   consent.ts                analytics IDs, opt-out store, GA <head> bootstrap
   hot-actions.ts            what counts as a hot action (shared by beacon + GA events)
   nav.ts                    header NAV + FOOTER_NAV
@@ -153,7 +160,7 @@ public/
   c0d1ea2c1edd5467fecf11474d3d1e60.txt IndexNow key file (public by design)
 scripts/
   indexnow.mjs              submit sitemap URLs to every IndexNow engine
-  verify-site.mjs           53 end-to-end checks of every public endpoint + content rule
+  verify-site.mjs           66 end-to-end checks of every public endpoint + content rule
 tests/                      unit tests (negotiate, beacon)
 .github/workflows/indexnow.yml   runs indexnow.mjs after each successful production deploy
 .env.example                every environment variable, documented
@@ -180,7 +187,8 @@ and `public/logo/` (original uploads), `.env*.local`, `.claude/`.
 | `/faq` | `app/faq/page.tsx` | 15 FAQs in native `<details>` (the **only** FAQPage on the site) | FAQPage |
 | `/resume` | `app/resume/page.tsx` | HTML résumé (print stylesheet) + **PDF download** | WebPage |
 | `/contact` | `app/contact/page.tsx` | Call / WhatsApp / Email buttons, what to include, contact details | ContactPage |
-| `/privacy` | `app/privacy/page.tsx` | Privacy policy incl. visit logging + opt-out switch | WebPage |
+| `/privacy` | `app/privacy/page.tsx` | Privacy policy incl. analytics, visit logging + opt-out switches | WebPage |
+| `/developers` | `app/developers/page.tsx` | Developer portal: JSON API, OpenAPI, MCP, markdown views | TechArticle + WebAPI |
 | 404 | `app/not-found.tsx` | Custom 404 (HTML) — markdown 404 for agents | — |
 | `/lets-talk` | redirect | 308 → `/contact` (`next.config.ts`) | — |
 
@@ -193,6 +201,8 @@ Machine-readable routes:
 | `/llms.txt`, `/llms-full.txt` | llmstxt.org summary / full text, with "When to use this site" |
 | `/<page>.md`, `/index.md`, `Accept: text/markdown` | markdown view of every page (§10) |
 | `/api/mcp` | read-only MCP server, no auth |
+| `/api/v1/*` | read-only JSON API (§10a) |
+| `/openapi.json`, `/api/openapi.json` | OpenAPI 3.1 description of the JSON API |
 | `/.well-known/ai-catalog.json`, `ard.json`, `mcp/server-card.json`, `security.txt` | agent discovery files |
 | `/notes/rss.xml` | RSS feed |
 | `/api/beacon` | POST: visitor beacon. GET: health check (which bots are configured, caller's geo) |
@@ -504,6 +514,52 @@ Amazon and Internet Archive after every deploy.
 
 ---
 
+## 10a. JSON API and OpenAPI
+
+A public, read-only REST API over the same data the pages render — added
+10 Oct 2026 for is-agentic's API checks (OpenAPI spec, JSON errors,
+developer portal, API docs linked from the home page, function-calling
+schemas) and because it's genuinely useful to agents.
+
+- **Base**: `https://www.shreyanshkumarsingh.com/api/v1`. No auth, CORS
+  `*`, `GET`/`HEAD`/`OPTIONS` only (others → 405), 120 req/min/IP (→ 429 +
+  `Retry-After`), `Cache-Control: public, max-age=300, s-maxage=3600`,
+  `X-Robots-Tag: noindex`, `Link` headers (RFC 8631 `service-desc` →
+  `/openapi.json`, `service-doc` → `/developers`).
+- **Endpoints** (`ENDPOINTS` in `lib/api.ts`): `/` (index), `/profile`,
+  `/projects`, `/projects/{slug}`, `/experience`, `/skills`, `/notes`,
+  `/notes/{slug}`, `/faq`, `/search?q=&limit=`, `/contact`. Every response
+  carries absolute URLs to the matching page.
+- **One source**: `lib/api.ts` holds the builders and zod schemas (`.meta({id})`).
+  The router (`app/api/v1/[[...path]]/route.ts`), the MCP tools
+  (`app/api/mcp/route.ts` — get_profile, list_projects, get_skills,
+  search_site, get_contact call the same builders) and the spec
+  (`lib/openapi.ts`, `z.toJSONSchema(z.globalRegistry)` → components) can't
+  disagree. Add an endpoint = add a builder + schema + `ENDPOINTS` entry + a
+  case in the router.
+- **Errors**: always `{ "error": { code, message, hint?, docs } }` —
+  `bad_request` 400, `not_found` 404 (also for any unknown `/api/*` path via
+  `app/api/[...path]/route.ts`), `method_not_allowed` 405, `rate_limited`
+  429, `internal_error` 500.
+- **OpenAPI 3.1** at `/openapi.json` (and `/api/openapi.json`):
+  `operationId`, summary, description, tags, typed parameters (slug enums,
+  `q`/`limit` bounds), 200 response schemas and error responses on every
+  operation; info.contact, externalDocs → /developers, servers, `security: []`.
+- **Discovery**: footer "Developer API" link (on every page incl. home),
+  llms.txt, the AI catalog (second entry, `application/openapi+json`),
+  `/developers.md`, sitemap. Crawler alerts report "called the JSON API" /
+  "read the OpenAPI spec" (proxy matcher includes `/api/v1/*`,
+  `/api/openapi.json`).
+- **Content rules**: no phone number (contact = email + /contact), Sarthi
+  without the bank — `npm run verify` calls every documented operation and
+  fails on either.
+- **Tests**: `npm run verify` — spec is 3.1, every operation has
+  operationId/description/schema, operationIds unique, alias identical,
+  every operation returns 200 JSON with CORS, 404/400/405 JSON error shapes,
+  /developers links the spec, home links /developers.
+
+---
+
 ## 11. Telegram visit beacon
 
 Ported from the Imprint project (`D:\project\Imprint`, read-only — never
@@ -744,7 +800,7 @@ dev-only, caused by the CSP; production is clean.
 | `npm run lint` | ESLint, must be clean before every push |
 | `npm run build` | production build + type-check, must pass before every push |
 | `npm test` | unit tests: `tests/negotiate.test.ts` (markdown negotiation) and `tests/beacon.test.ts` (crawler naming, path classification, human/bot scoring, two-bot routing) — 12 tests |
-| `npm run verify` | **53 live checks** against production (or `npm run verify -- http://localhost:3000` against `next start`): markdown negotiation + `Vary`, markdown 404, 406, `.md` URLs, llms files, robots, sitemap + its element order, well-known JSON, MCP initialize, every sitemap page (status, H1 first and unique, no skipped levels, name in title/body, no phone, no bank name, no retired short name, no old ambiguous headings), home H1, PDF noindex, résumé link, asset caching, beacon health check and bad-payload handling |
+| `npm run verify` | **66 live checks** against production (or `npm run verify -- http://localhost:3000` against `next start`): markdown negotiation + `Vary`, markdown 404, 406, `.md` URLs, llms files, robots, sitemap + its element order, well-known JSON, MCP initialize, every sitemap page (status, H1 first and unique, no skipped levels, name in title/body, no phone, no bank name, no retired short name, no old ambiguous headings), home H1, PDF noindex, résumé link, asset caching, beacon health check and bad-payload handling |
 
 Do **not** run Lighthouse locally (the client's machine is low on disk
 space and results were unreliable) — use pagespeed.web.dev.
@@ -908,6 +964,7 @@ beacon rate limits exist for this; don't remove them.
 | `60893dd` | 2026-10-08 | `og:site_name` + `og:locale` restored on every page (`OG_BASE`) |
 | `49719a0` | 2026-10-08 | Opt-in GA4 + Microsoft Clarity behind a cookie banner; `lib/hot-actions.ts` shared with the beacon |
 | `5f294cf` | 2026-10-08 | GA4 `G-NQJCRJ7B2Z` and Clarity `yui86woola` switched on |
+| *(api)* | 2026-10-12 | Read-only JSON API `/api/v1`, OpenAPI 3.1 spec, JSON errors, /developers portal; MCP tools share the API builders |
 | `99fe3bf` | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
 
 The original static files were moved out of the repo (they used the

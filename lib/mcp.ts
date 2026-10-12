@@ -39,6 +39,14 @@ export function aiCatalog() {
         type: "application/mcp-server-card+json",
         url: `${PRODUCTION_URL}/.well-known/mcp/server-card.json`,
       },
+      {
+        identifier: "urn:air:shreyanshkumarsingh.com:api:portfolio",
+        displayName: "Shreyansh Kumar Singh — portfolio JSON API",
+        description:
+          "Read-only JSON API (no auth, CORS open) over the same portfolio data: profile, projects, experience, skills, notes, FAQ, search and contact.",
+        type: "application/openapi+json",
+        url: `${PRODUCTION_URL}/openapi.json`,
+      },
     ],
   };
 }

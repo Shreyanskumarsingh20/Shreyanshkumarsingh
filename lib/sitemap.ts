@@ -18,10 +18,11 @@ const UPDATED = {
   skills: "2026-10-08",
   faq: "2026-10-08",
   contact: "2026-10-08",
-  privacy: "2026-10-08",
+  privacy: "2026-10-10",
   projects: "2026-10-08",
   notes: "2026-10-08",
   resume: "2026-10-08",
+  developers: "2026-10-10",
 } as const;
 
 function projectImages(): string[] {
@@ -63,6 +64,7 @@ export function sitemapEntries(): SitemapEntry[] {
     },
     { url: `${SITE_URL}/privacy`, lastModified: UPDATED.privacy },
     { url: `${SITE_URL}/resume`, lastModified: UPDATED.resume },
+    { url: `${SITE_URL}/developers`, lastModified: UPDATED.developers },
     { url: `${SITE_URL}/notes`, lastModified: UPDATED.notes },
     ...NOTES.map((n) => ({ url: `${SITE_URL}${noteHref(n.slug)}`, lastModified: n.updated })),
     { url: `${SITE_URL}/projects`, lastModified: UPDATED.projects, images: projectImages() },
