@@ -22,7 +22,7 @@ only. **This repository is public: never commit anything from that file.**
   full-time or hybrid roles, Applied AI Engineer first).
 - **State**: all planned SEO / AEO / GEO / agent-readiness work is **live**.
   PageSpeed 92 mobile / 95 desktop, 100 on Accessibility, Best Practices and
-  SEO; is-agentic **100/100**; 53/66 live checks green.
+  SEO; is-agentic **100/100**; 66/66 live checks green.
 - **Waiting on**: search engines indexing the site (days–weeks), and the
   client's off-site profile work (LinkedIn / GitHub / X).
 
