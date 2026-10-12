@@ -22,7 +22,7 @@ only. **This repository is public: never commit anything from that file.**
   full-time or hybrid roles, Applied AI Engineer first).
 - **State**: all planned SEO / AEO / GEO / agent-readiness work is **live**.
   PageSpeed 92 mobile / 95 desktop, 100 on Accessibility, Best Practices and
-  SEO; is-agentic 79/100 with every check passing; 53/66 live checks green.
+  SEO; is-agentic **100/100**; 53/66 live checks green.
 - **Waiting on**: search engines indexing the site (days–weeks), and the
   client's off-site profile work (LinkedIn / GitHub / X).
 
@@ -73,14 +73,13 @@ back to `app/sitemap.ts`.
 | PageSpeed mobile | 48 (LCP 4.2 s, TBT 3.0 s) | **92** (FCP 1.1 s, LCP 3.1 s, TBT 70 ms, CLS 0.001 — before the last fixes) |
 | PageSpeed desktop | 94 → 63 (TBT 1,080 ms) | **95** |
 | Accessibility / Best Practices / SEO | — | **100 / 100 / 100**, Agentic Browsing 4/4 |
-| is-agentic.com | 66 | **79** — essential 62.2/80, recommended 12/20, bonus +5 |
+| is-agentic.com | 66 | **100/100** (12 Oct, after the JSON API; 79 on 8 Oct) |
 | Home page weight | 36 MB | ≈ 0.6 MB |
 | `npm run verify` | — | 53/53 |
 | Unit tests | — | 12/12 |
 
-**Update 12 Oct**: the JSON API, OpenAPI spec, JSON errors and developer
-portal are now built (PROJECT_BIBLE §10a) — rescan is-agentic for the new
-score.
+**Update 12 Oct**: with the JSON API, OpenAPI spec, JSON errors and developer
+portal built (PROJECT_BIBLE §10a), the is-agentic rescan scored **100/100**.
 
 **Why is-agentic stopped at 79**: the remaining points were for an API product
 (OpenAPI spec, JSON error responses, developer portal, CLI tool, API docs,
@@ -158,9 +157,7 @@ Still to do in the dashboards (owner):
 
 ### Optional, needs a decision
 11. ~~Read-only JSON API + OpenAPI for is-agentic~~ — **done 12 Oct**
-    (`/api/v1`, `/openapi.json`, `/developers`). Rescan is-agentic to see the
-    new score; the remaining gaps should be the CLI tool (not planned) and
-    the two that need search indexing.
+    (`/api/v1`, `/openapi.json`, `/developers`). is-agentic rescan: **100/100**.
 12. Vercel Web Analytics / Speed Insights (free on Hobby) — only if wanted
     (GA4 + Clarity now cover analytics).
 13. A Wikidata item for him — **not yet** (needs independent sources first).

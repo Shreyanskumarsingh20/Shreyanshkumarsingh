@@ -553,6 +553,8 @@ schemas) and because it's genuinely useful to agents.
 - **Content rules**: no phone number (contact = email + /contact), Sarthi
   without the bank — `npm run verify` calls every documented operation and
   fails on either.
+- **Result**: is-agentic.com rescan on 12 Oct 2026 scored **100/100**
+  (was 66 on 7 Oct, 79 on 8 Oct).
 - **Tests**: `npm run verify` — spec is 3.1, every operation has
   operationId/description/schema, operationIds unique, alias identical,
   every operation returns 200 JSON with CORS, 404/400/405 JSON error shapes,
