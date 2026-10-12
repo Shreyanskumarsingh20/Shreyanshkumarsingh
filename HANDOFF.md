@@ -75,8 +75,8 @@ back to `app/sitemap.ts`.
 | Accessibility / Best Practices / SEO | — | **100 / 100 / 100**, Agentic Browsing 4/4 |
 | is-agentic.com | 66 | **100/100** (12 Oct, after the JSON API; 79 on 8 Oct) |
 | Home page weight | 36 MB | ≈ 0.6 MB |
-| `npm run verify` | — | 53/53 |
-| Unit tests | — | 12/12 |
+| `npm run verify` | — | 66/66 |
+| Unit tests | — | 14/14 |
 
 **Update 12 Oct**: with the JSON API, OpenAPI spec, JSON errors and developer
 portal built (PROJECT_BIBLE §10a), the is-agentic rescan scored **100/100**.
