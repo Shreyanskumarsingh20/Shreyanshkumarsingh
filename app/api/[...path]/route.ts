@@ -6,11 +6,12 @@ import { SITE_URL } from "@/lib/site";
 // parse an HTML error page. Real routes (/api/v1, /api/mcp, /api/beacon,
 // /api/well-known, /api/openapi.json) are more specific and win.
 
-function notFound(req: Request) {
+function notFound(_req: Request) {
+  void _req; // the path is not echoed back (see app/api/v1 route)
   return apiError(
     404,
     "not_found",
-    `No API endpoint at ${new URL(req.url).pathname}.`,
+    "No API endpoint at this address.",
     `The JSON API lives under ${SITE_URL}${API_BASE} — see ${SITE_URL}/openapi.json.`,
   );
 }

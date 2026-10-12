@@ -3,6 +3,7 @@ import RevealObserver from "@/components/RevealObserver";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import Breadcrumbs, { type Crumb } from "@/components/site/Breadcrumbs";
+import RelatedPages from "@/components/site/RelatedPages";
 
 /**
  * Chrome shared by the inner pages (about, contact, faq, skills, privacy,
@@ -26,6 +27,8 @@ export default function PageShell({
       <main id="main" className="pg">
         {crumbs && <Breadcrumbs items={crumbs} />}
         {children}
+        {/* onward links for this page (lib/nav.ts RELATED), keyed by its path */}
+        {crumbs?.length ? <RelatedPages path={crumbs[crumbs.length - 1].path} /> : null}
       </main>
       <SiteFooter page />
       <RevealObserver />

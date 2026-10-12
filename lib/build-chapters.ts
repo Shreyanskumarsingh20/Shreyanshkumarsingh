@@ -19,28 +19,28 @@ export const BUILD_ICONS: Record<string, string> = {
     <path class="build-icon-path" pathLength="1" d="M50,102 L74,102 M52,110 L72,110"/>
     <path class="build-icon-path build-icon-accent" pathLength="1" d="M48,50 L56,64 L62,44 L68,64 L76,50"/>`,
   // 02 — a focus ring finding a person: not designing for screens, for people.
-  "02": `<circle class="build-icon-path build-icon-accent" pathLength="1" cx="60" cy="60" r="42"/>
+  "02": `<path class="build-icon-path build-icon-accent" pathLength="1" d="M102,60 A42,42 0 1,1 18,60 A42,42 0 1,1 102,60 Z"/>
     <path class="build-icon-path" pathLength="1" d="M60,8 L60,22 M60,98 L60,112 M8,60 L22,60 M98,60 L112,60"/>
-    <circle class="build-icon-path" pathLength="1" cx="60" cy="50" r="11"/>
+    <path class="build-icon-path" pathLength="1" d="M71,50 A11,11 0 1,1 49,50 A11,11 0 1,1 71,50 Z"/>
     <path class="build-icon-path" pathLength="1" d="M40,88 C40,72 48,64 60,64 C72,64 80,72 80,88"/>`,
   // 03 — a scribble resolving into three plain, connected points: chaos, then a system.
   "03": `<path class="build-icon-path build-icon-accent" pathLength="1" d="M8,60 C16,42 24,78 18,54 C22,40 32,66 28,50 C32,40 40,60 36,48"/>
     <path class="build-icon-path" pathLength="1" d="M56,60 L112,60"/>
-    <circle class="build-icon-path build-icon-fill" pathLength="1" cx="56" cy="60" r="4"/>
-    <circle class="build-icon-path build-icon-fill" pathLength="1" cx="84" cy="60" r="4"/>
-    <circle class="build-icon-path build-icon-fill" pathLength="1" cx="112" cy="60" r="4"/>`,
+    <path class="build-icon-path build-icon-fill" pathLength="1" d="M60,60 A4,4 0 1,1 52,60 A4,4 0 1,1 60,60 Z"/>
+    <path class="build-icon-path build-icon-fill" pathLength="1" d="M88,60 A4,4 0 1,1 80,60 A4,4 0 1,1 88,60 Z"/>
+    <path class="build-icon-path build-icon-fill" pathLength="1" d="M116,60 A4,4 0 1,1 108,60 A4,4 0 1,1 116,60 Z"/>`,
   // 04 — a stress spike: what happens when 100,000 people arrive tomorrow.
   "04": `<path class="build-icon-path" pathLength="1" d="M8,90 L26,86 L40,92 L52,38 L64,102 L78,62 L92,80 L112,18"/>
     <path class="build-icon-path build-icon-accent" pathLength="1" d="M8,104 L112,104"/>`,
   // 05 — a small neural net: software that understands, not just waits.
   "05": `<path class="build-icon-path" pathLength="1" d="M30,26 L90,26 M30,26 L60,66 M90,26 L60,66 M60,66 L60,104"/>
-    <circle class="build-icon-path build-icon-fill build-icon-accent" pathLength="1" cx="30" cy="26" r="5"/>
-    <circle class="build-icon-path build-icon-fill build-icon-accent" pathLength="1" cx="90" cy="26" r="5"/>
-    <circle class="build-icon-path build-icon-fill" pathLength="1" cx="60" cy="66" r="5"/>
-    <circle class="build-icon-path build-icon-fill" pathLength="1" cx="60" cy="104" r="5"/>`,
+    <path class="build-icon-path build-icon-fill build-icon-accent" pathLength="1" d="M35,26 A5,5 0 1,1 25,26 A5,5 0 1,1 35,26 Z"/>
+    <path class="build-icon-path build-icon-fill build-icon-accent" pathLength="1" d="M95,26 A5,5 0 1,1 85,26 A5,5 0 1,1 95,26 Z"/>
+    <path class="build-icon-path build-icon-fill" pathLength="1" d="M65,66 A5,5 0 1,1 55,66 A5,5 0 1,1 65,66 Z"/>
+    <path class="build-icon-path build-icon-fill" pathLength="1" d="M65,104 A5,5 0 1,1 55,104 A5,5 0 1,1 65,104 Z"/>`,
   // 06 — a loop that keeps turning: the next version is always waiting.
   "06": `<g class="build-icon-spin">
-      <circle class="build-icon-path" pathLength="1" cx="60" cy="60" r="38"/>
+      <path class="build-icon-path" pathLength="1" d="M98,60 A38,38 0 1,1 22,60 A38,38 0 1,1 98,60 Z"/>
       <path class="build-icon-fill build-icon-accent" d="M60,16 L52,30 L68,30 Z"/>
     </g>`,
 };

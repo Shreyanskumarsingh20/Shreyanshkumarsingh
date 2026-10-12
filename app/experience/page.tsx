@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
+import Breadcrumbs from "@/components/site/Breadcrumbs";
+import RelatedPages from "@/components/site/RelatedPages";
 import ConstellationBackground from "@/components/ConstellationBackground";
 import RevealObserver from "@/components/RevealObserver";
 import CaseStudy from "@/components/experience/CaseStudy";
@@ -76,6 +78,14 @@ export default function ExperiencePage() {
       <ConstellationBackground />
       <SiteHeader current="/experience" />
       <main id="main">
+      <div className="exp-crumbs">
+        <Breadcrumbs
+          items={[
+            { name: "Home", path: "/" },
+            { name: "Experience", path: "/experience" },
+          ]}
+        />
+      </div>
 
       {/* ============================================================ HERO */}
       <section className="exp-hero">
@@ -238,6 +248,7 @@ export default function ExperiencePage() {
         </div>
       </section>
 
+        <RelatedPages path="/experience" />
       </main>
       <SiteFooter page />
 

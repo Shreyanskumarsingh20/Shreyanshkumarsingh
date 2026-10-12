@@ -11,6 +11,10 @@ on:
         type: boolean
         default: false
 
+# least privilege: the job only reads the repo and calls IndexNow
+permissions:
+  contents: read
+
 jobs:
   ping:
     if: >-

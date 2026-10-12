@@ -388,11 +388,14 @@ export function markdownFor(path: string): string | null {
   return [...frontmatter(clean === "/index" ? "/" : clean, doc), ...doc.body, ...footer, ""].join("\n");
 }
 
-export function notFoundMarkdown(path: string): string {
+export function notFoundMarkdown(_path: string): string {
+  // The requested path is deliberately NOT echoed: a crafted URL would
+  // otherwise put arbitrary text into what agents read as this site's words.
+  void _path;
   return [
     "# 404 — page not found",
     "",
-    `There is no page at \`${path}\` on ${SITE_URL}.`,
+    `There is no page at that address on ${SITE_URL}.`,
     "",
     `- Site summary for language models: ${abs("/llms.txt")}`,
     `- Full text: ${abs("/llms-full.txt")}`,

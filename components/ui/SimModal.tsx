@@ -27,7 +27,7 @@ export default function SimModal() {
           <span className="micro" style={{ color: "var(--graphite)" }}>
             Zero dependencies · runs entirely in this iframe, nothing sent anywhere
           </span>
-          <a className="btn btn-ghost" id="simRepo" target="_blank" rel="noopener">
+          <a className="btn btn-ghost" id="simRepo" href="/projects/the-evolution-physics-simulators" target="_blank" rel="noopener">
             Open full-screen ↗
           </a>
         </div>

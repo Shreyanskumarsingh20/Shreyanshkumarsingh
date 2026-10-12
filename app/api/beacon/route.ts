@@ -27,6 +27,7 @@ const PER_IP_WINDOW_MS = 10 * 60_000;
 const GLOBAL_LIMIT = 150;
 const GLOBAL_WINDOW_MS = 10 * 60_000;
 const MAX_BODY_BYTES = 24_000;
+const ALLOWED_ORIGINS = /^https:\/\/(www\.)?shreyanshkumarsingh\.com$|^http:\/\/localhost(:\d+)?$/;
 
 const empty = () => new NextResponse(null, { status: 204 });
 
@@ -56,6 +57,11 @@ export async function POST(req: NextRequest) {
   // the visitor.
   try {
     if (!telegramConfigured()) return empty();
+    // Browsers send Origin on POST; anything other than this site is a
+    // third-party page trying to spam the alerts. (Absent Origin = non-browser
+    // client, still rate-limited below.)
+    const origin = req.headers.get("origin");
+    if (origin && !ALLOWED_ORIGINS.test(origin)) return empty();
 
     const raw = await req.text();
     if (!raw || raw.length > MAX_BODY_BYTES) return empty();

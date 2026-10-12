@@ -305,7 +305,7 @@ export default function HomeInteractions() {
       { label: "Engineering principles", href: "#philosophy" },
       { label: "FAQ", href: "#faq" },
       { label: "Tech stack", href: "#telemetry" },
-      { label: "Contact", href: "#contact" },
+      { label: "Contact", href: "#get-in-touch" },
     ];
     function scrollToHash(hash: string) {
       const el = document.querySelector<HTMLElement>(hash);

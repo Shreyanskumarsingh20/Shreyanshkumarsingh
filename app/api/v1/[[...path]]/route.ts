@@ -26,8 +26,11 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ path?: string[] }> };
 
+// Errors never echo client input: a crafted URL must not put words in the
+// site's mouth for an agent reading the response.
 function notFound(url: URL) {
-  return apiError(404, "not_found", `No endpoint at ${url.pathname}.`, `See ${SITE_URL}${API_BASE} for the endpoints, or ${SITE_URL}/openapi.json.`);
+  void url;
+  return apiError(404, "not_found", "No such endpoint.", `See ${SITE_URL}${API_BASE} for the endpoints, or ${SITE_URL}/openapi.json.`);
 }
 
 function route(segments: string[], url: URL): Response {
@@ -80,11 +83,11 @@ function route(segments: string[], url: URL): Response {
 
   if (a === "projects") {
     const p = project(b);
-    return p ? json(p) : apiError(404, "not_found", `No project with slug "${b}".`, `Valid slugs: ${PROJECT_SLUGS.join(", ")}.`);
+    return p ? json(p) : apiError(404, "not_found", "No project with that slug.", `Valid slugs: ${PROJECT_SLUGS.join(", ")}.`);
   }
   if (a === "notes") {
     const n = note(b);
-    return n ? json(n) : apiError(404, "not_found", `No note with slug "${b}".`, `Valid slugs: ${NOTE_SLUGS.join(", ")}.`);
+    return n ? json(n) : apiError(404, "not_found", "No note with that slug.", `Valid slugs: ${NOTE_SLUGS.join(", ")}.`);
   }
   return notFound(url);
 }

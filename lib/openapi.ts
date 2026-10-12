@@ -108,6 +108,7 @@ export function openApiDocument(): Json {
       description:
         "Structured, first-party facts about Shreyansh Kumar Singh: profile, nine project case studies, professional experience at RamanByte, skills, technical notes, FAQ answers and contact details. No authentication, CORS open, read-only. Every response carries absolute URLs to the matching page — please cite those. The phone number is intentionally not exposed; use the email or the contact page. The same data is available over MCP at /api/mcp and as markdown (Accept: text/markdown).",
       contact: { name: PERSON.name, email: PERSON.email, url: `${PRODUCTION_URL}/contact` },
+      license: { name: "All rights reserved — free to read and cite with a link to the source page", url: `${PRODUCTION_URL}/developers` },
       termsOfService: `${PRODUCTION_URL}/privacy`,
     },
     externalDocs: { description: "Developer documentation", url: `${PRODUCTION_URL}/developers` },

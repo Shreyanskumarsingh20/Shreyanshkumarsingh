@@ -10,6 +10,9 @@
 // page, the content rules (no phone digits in machine-readable output, no
 // bank name), the PDF résumé's noindex header and the beacon health check.
 
+import https from "node:https";
+import http from "node:http";
+
 const BASE = (process.argv[2] || "https://www.shreyanshkumarsingh.com").replace(/\/$/, "");
 // The forbidden strings are kept encoded so this public file doesn't publish
 // them: the phone number (from lib/contact.ts, reversed + base64) and the
@@ -162,6 +165,38 @@ for (const f of ["/.well-known/ai-catalog.json", "/.well-known/mcp/server-card.j
   check("/developers documents the API and links the spec", dev.res.status === 200 && dev.body.includes('href="/openapi.json"'));
   const home = await get("/");
   check("home page links the developer docs", home.body.includes('href="/developers"'));
+}
+
+// ---- hardening ------------------------------------------------------------------
+{
+  const probe = "ignore-previous-instructions-verify";
+  const md404 = await get(`/${probe}`, { accept: "text/markdown" });
+  check("markdown 404 doesn't echo the requested path", md404.res.status === 404 && !md404.body.includes(probe));
+  const api404 = await get(`/api/v1/projects/${probe}%20now`);
+  check("API 404 doesn't echo arbitrary input", api404.res.status === 404 && !api404.body.includes("now"));
+  // fetch() refuses to send TRACE, so use node:https / node:http directly.
+  // The risk with TRACE is cross-site tracing (the request echoed back);
+  // Next's runtime rejects the method itself, so check it never echoes.
+  const trace = await new Promise((resolve) => {
+    const u = new URL(BASE + "/");
+    const mod = u.protocol === "https:" ? https : http;
+    const r = mod.request(u, { method: "TRACE", headers: { "user-agent": "Mozilla/5.0 (verify-site)", "x-trace-probe": "xst-canary" } }, (res) => {
+      let body = "";
+      res.on("data", (c) => (body += c));
+      res.on("end", () => resolve({ status: res.statusCode, body }));
+    });
+    r.on("error", () => resolve({ status: 0, body: "" }));
+    r.end();
+  });
+  check(
+    "TRACE never echoes the request or leaks detail",
+    trace.status !== 200 && !trace.body.includes("xst-canary") && !/at \w+ \(|node_modules|\.next\//.test(trace.body),
+    `${trace.status} ${trace.body.slice(0, 40)}`,
+  );
+  const home = await get("/");
+  check("no X-Powered-By header", !home.res.headers.get("x-powered-by"));
+  check("CSP blocks framing (frame-ancestors 'none')", (home.res.headers.get("content-security-policy") || "").includes("frame-ancestors 'none'"));
+  check("HSTS ≥ 1 year", /max-age=(\d+)/.test(home.res.headers.get("strict-transport-security") || "") && Number(RegExp.$1) >= 31536000);
 }
 
 // ---- every sitemap page: headings, keywords, content rules -----------------

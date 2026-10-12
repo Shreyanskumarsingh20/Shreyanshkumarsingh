@@ -15,7 +15,7 @@ import ContactLinks from "@/components/site/ContactLinks";
  */
 export default function SiteFooter({ page = false }: { page?: boolean }) {
   return (
-    <footer className="site-footer" id="contact">
+    <footer className="site-footer" id="get-in-touch">
       <BgVideo name="footer" className="footer-video" />
       <div className="footer-video-overlay" aria-hidden="true"></div>
       <div className={page ? "shell shell--page" : "shell"}>

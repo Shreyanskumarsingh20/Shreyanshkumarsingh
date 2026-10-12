@@ -25,8 +25,17 @@ function mdTarget(pathname: string) {
   return `/md${p}`;
 }
 
+/** Paths safe to repeat back in a response header. */
+const SAFE_PATH = /^\/[a-z0-9/_-]*$/i;
+
 export function proxy(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl;
+
+  // diagnostic / tunnelling methods have no use here (TRACE once made the
+  // app throw a 500)
+  if (request.method === "TRACE" || request.method === "TRACK" || request.method === "CONNECT") {
+    return new NextResponse("Method Not Allowed\n", { status: 405, headers: { Allow: "GET, HEAD, POST, OPTIONS" } });
+  }
 
   // Telemetry first, and never allowed to break a request: a synchronous throw
   // here (a malformed URL, an odd header) loses one alert, not the page.
@@ -66,6 +75,9 @@ export function proxy(request: NextRequest, event: NextFetchEvent) {
 
   const res = NextResponse.next();
   res.headers.set("Vary", "Accept");
+  // only advertise a markdown twin for real-looking paths — never reflect
+  // arbitrary request text into a header
+  if (!SAFE_PATH.test(pathname)) return res;
   const mdHref = pathname === "/" ? "/index.md" : `${pathname.replace(/\/+$/, "")}.md`;
   res.headers.set(
     "Link",
