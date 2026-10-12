@@ -22,7 +22,9 @@ only. **This repository is public: never commit anything from that file.**
   full-time or hybrid roles, Applied AI Engineer first).
 - **State**: all planned SEO / AEO / GEO / agent-readiness work is **live**.
   PageSpeed 92 mobile / 95 desktop, 100 on Accessibility, Best Practices and
-  SEO; is-agentic **100/100**; 66/66 live checks green.
+  SEO; is-agentic **100/100**; SSL Labs A+/A; Mozilla Observatory B (accepted
+  trade-offs); HTML valid on all 28 pages; 0 broken links; production
+  dependencies 0 known vulnerabilities (Next.js 16.3.8); 72/72 live checks green.
 - **Waiting on**: search engines indexing the site (days–weeks), and the
   client's off-site profile work (LinkedIn / GitHub / X).
 
@@ -53,7 +55,9 @@ only. **This repository is public: never commit anything from that file.**
 4. Commit straight to `main` (no PRs), message ending
    `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; in PowerShell
    use `git commit -F <file>`.
-5. Push → Vercel deploys in ~40 s → run `npm run verify` (66 live checks).
+5. Push → Vercel deploys in ~40 s → run `npm run verify` (72 live checks).
+   If you probe the site with attack-style requests, Vercel's firewall will
+   challenge your IP for a few minutes — wait it out before re-verifying.
    IndexNow fires automatically from GitHub Actions.
 6. If page content changed, bump its date in `lib/sitemap.ts` (or the case
    study / note `updated` field).
@@ -75,8 +79,13 @@ back to `app/sitemap.ts`.
 | Accessibility / Best Practices / SEO | — | **100 / 100 / 100**, Agentic Browsing 4/4 |
 | is-agentic.com | 66 | **100/100** (12 Oct, after the JSON API; 79 on 8 Oct) |
 | Home page weight | 36 MB | ≈ 0.6 MB |
-| `npm run verify` | — | 66/66 |
+| `npm run verify` | — | 72/72 |
 | Unit tests | — | 14/14 |
+| HTML validity (Nu validator, 28 pages) | — | 0 errors |
+| Broken links (28 pages, 169 URLs) | — | 0 |
+| SSL Labs | — | A+ / A |
+| Mozilla Observatory | — | B (75) — CSP `'unsafe-inline'` + no SRI on GA/Clarity, accepted |
+| `npm audit --omit=dev` | — | 0 vulnerabilities |
 
 **Update 12 Oct**: with the JSON API, OpenAPI spec, JSON errors and developer
 portal built (PROJECT_BIBLE §10a), the is-agentic rescan scored **100/100**.

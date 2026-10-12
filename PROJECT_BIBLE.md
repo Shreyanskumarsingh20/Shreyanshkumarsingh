@@ -70,7 +70,7 @@ Server and Angular software at RamanByte.*
 
 | Layer | Choice |
 |---|---|
-| Framework | **Next.js 16.3** App Router, Turbopack. `middleware` is called **`proxy.ts`** in Next 16 and runs on the Node.js runtime. Read `node_modules/next/dist/docs/` before using a Next API (see `AGENTS.md`). |
+| Framework | **Next.js 16.3.8** (patched for the Oct 2026 advisories — keep it current) App Router, Turbopack. `middleware` is called **`proxy.ts`** in Next 16 and runs on the Node.js runtime. Read `node_modules/next/dist/docs/` before using a Next API (see `AGENTS.md`). |
 | UI | **React 19.3**, **TypeScript 5.9** strict |
 | Styling | Hand-written CSS: `app/globals.css` (original site, ~1,500 lines) + `app/pages.css` (inner pages, shared header/footer, later fixes). **Tailwind v3.4** is installed and its theme mirrors the CSS variables, but almost nothing uses utilities. |
 | Motion | `lenis` (smooth wheel scrolling, desktop), CSS transitions, CSS scroll-driven animations, Canvas 2D |
@@ -160,7 +160,7 @@ public/
   c0d1ea2c1edd5467fecf11474d3d1e60.txt IndexNow key file (public by design)
 scripts/
   indexnow.mjs              submit sitemap URLs to every IndexNow engine
-  verify-site.mjs           66 end-to-end checks of every public endpoint + content rule
+  verify-site.mjs           72 end-to-end checks of every public endpoint, content rule and hardening rule
 tests/                      unit tests (negotiate, beacon)
 .github/workflows/indexnow.yml   runs indexnow.mjs after each successful production deploy
 .env.example                every environment variable, documented
@@ -852,7 +852,7 @@ Next.js patched (re-run `npm audit --omit=dev` monthly). Optional: HSTS
 | `npm run lint` | ESLint, must be clean before every push |
 | `npm run build` | production build + type-check, must pass before every push |
 | `npm test` | unit tests: `tests/negotiate.test.ts` (markdown negotiation) and `tests/beacon.test.ts` (crawler naming, path classification, human/bot scoring, two-bot routing) — 12 tests |
-| `npm run verify` | **66 live checks** against production (or `npm run verify -- http://localhost:3000` against `next start`): markdown negotiation + `Vary`, markdown 404, 406, `.md` URLs, llms files, robots, sitemap + its element order, well-known JSON, MCP initialize, every sitemap page (status, H1 first and unique, no skipped levels, name in title/body, no phone, no bank name, no retired short name, no old ambiguous headings), home H1, PDF noindex, résumé link, asset caching, beacon health check and bad-payload handling |
+| `npm run verify` | **72 live checks** against production (or `npm run verify -- http://localhost:3000` against `next start`): markdown negotiation + `Vary`, markdown 404, 406, `.md` URLs, llms files, robots, sitemap + its element order, well-known JSON, MCP initialize, every sitemap page (status, H1 first and unique, no skipped levels, name in title/body, no phone, no bank name, no retired short name, no old ambiguous headings), the JSON API contract (spec valid, every operation returns 200 JSON with CORS, JSON error shapes), the hardening rules (no request echo in 404s, TRACE never reflects, no X-Powered-By, frame-ancestors, HSTS), home H1, PDF noindex, résumé link, asset caching, beacon health check and bad-payload handling |
 
 Do **not** run Lighthouse locally (the client's machine is low on disk
 space and results were unreliable) — use pagespeed.web.dev.
@@ -1028,6 +1028,7 @@ beacon rate limits exist for this; don't remove them.
 | `3548221` | 2026-10-12 | Read-only JSON API `/api/v1`, OpenAPI 3.1 spec, JSON errors, /developers portal; MCP tools share the API builders (no CSS / component / visual changes; one footer link added) |
 | `7b6ae5b` | 2026-10-12 | Docs: is-agentic rescan **100/100** recorded |
 | `12067e0` | 2026-10-12 | Security audit fixes (Next 16.3.8, no request echo, TRACE/X-Powered-By, beacon Origin check, CI permissions), "Related pages" on every inner page, /experience breadcrumbs, HTML-validity fixes (SVG paths, modal hrefs, duplicate id), OpenAPI license |
+| `1ac608d`, `cc0d95d` | 2026-10-12 | Docs: security audit (§14a), related pages, external-check results (HTML 0 errors, 0 broken links, SSL A+/A, Observatory B) |
 | `99fe3bf` | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
 
 The original static files were moved out of the repo (they used the
