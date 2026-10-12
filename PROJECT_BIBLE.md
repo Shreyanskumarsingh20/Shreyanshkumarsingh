@@ -794,6 +794,7 @@ uploads, no cookies set by the site itself.
 | Methods | API is GET/HEAD/OPTIONS only (405 JSON otherwise); TRACE/TRACK/CONNECT → **405** in production (the proxy answers before Next); under a local `next start`, Next's runtime rejects TRACE itself with a generic 500 that echoes nothing. No cross-site tracing either way. |
 | Scanner targets | `/.env`, `/.git/*`, `package.json`, `next.config.ts`, `/.vercel/*`, WordPress/phpMyAdmin paths → 404 with no content. |
 | Source maps / disclosure | No public `.js.map`; no framework banner; no stack traces in error responses. |
+| HTML validity | Nu validator (the W3C engine): **0 errors on all 28 pages**. |
 | Clickjacking | `frame-ancestors 'none'` + `X-Frame-Options: DENY` (sims: same-origin only). |
 | TLS | SSL Labs **A+** / **A** (Vercel's two edge IPs). HSTS 2 years + includeSubDomains. |
 | Headers | Mozilla Observatory **B (75)**: the deductions are CSP `'unsafe-inline'` (required by Next's inline bootstrap on static pages — a nonce CSP would force every page to render dynamically) and no Subresource Integrity on GA/Clarity (vendors change those files, so SRI would break them). Accepted trade-offs. |

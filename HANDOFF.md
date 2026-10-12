@@ -337,7 +337,7 @@ Console → URL Inspection → Request indexing.
 - Docs: score recorded in HANDOFF §4 and PROJECT_BIBLE §10a; scores table
   updated (verify 66/66, unit tests 14/14).
 - Recommended next external checks are listed in §10 below.
-- **External checks run** (12 Oct): HTML validator (fixed: SVG `pathLength`
+- **External checks run** (12 Oct): HTML validator — **0 errors on all 28 pages** after the fixes (Nu validator; fixed: SVG `pathLength`
   on circles → equivalent paths, modal links without `href`, duplicate
   `id="contact"` on /faq); OpenAPI lint (Redocly: valid; added
   `info.license`); MCP Inspector (7 read-only tools, 28 resources, calls
