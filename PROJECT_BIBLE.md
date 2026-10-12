@@ -116,7 +116,7 @@ components/
   sections/                 Hero, Build, Range, Research, Method, Philosophy, Faq, Telemetry (home)
   home/                     Loader, HomeInteractions (all home client behaviour), ProjectCardArt
   experience/               CaseStudy, ShotGallery, PhoneGallery, Lightbox
-  site/                     SiteHeader, SiteFooter, PageShell, Breadcrumbs, ContactLinks, PrintButton
+  site/                     SiteHeader, SiteFooter, PageShell, Breadcrumbs, RelatedPages, ContactLinks, PrintButton
   ui/                       CommandPalette, Terminal, ProjectModal, SimModal, ContactModal, Toast
   beacon/                   Beacon (client collector), TrackingOptOut (privacy switch)
   analytics/                Analytics (Clarity loader + GA key events), AnalyticsOptOut (privacy switch)
@@ -143,7 +143,7 @@ lib/
   openapi.ts                OpenAPI 3.1 document generated from lib/api.ts schemas
   consent.ts                analytics IDs, opt-out store, GA <head> bootstrap
   hot-actions.ts            what counts as a hot action (shared by beacon + GA events)
-  nav.ts                    header NAV + FOOTER_NAV
+  nav.ts                    header NAV + FOOTER_NAV + RELATED (each inner page's onward links)
   contact.ts                encoded phone + WhatsApp greeting
   github.ts                 "Last shipped" ticker (server fetch, 6 h ISR)
   og.tsx                    OG image renderer (1200×630)
@@ -282,7 +282,16 @@ static, author-written content — never user input.
   pages' 1180px column (done by `PageShell` and `/experience`).
 - **Inner pages** wrap in `components/site/PageShell.tsx`: constellation
   background, header, `<main id="main" className="pg">`, visible
-  breadcrumbs, footer, reveal observer.
+  breadcrumbs, the page, a **"Related pages"** block
+  (`components/site/RelatedPages.tsx`, 3–4 cards from `RELATED` in
+  `lib/nav.ts`, keyed by the page's last breadcrumb path), footer, reveal
+  observer. `/experience` (its own layout) renders `Breadcrumbs` and
+  `RelatedPages` itself. Case studies and notes keep their own onward blocks
+  ("More projects", "Questions this project answers").
+- **Breadcrumbs**: visible trail + `BreadcrumbList` JSON-LD on every page
+  except the home page (the root has nothing above it). Footer element id
+  is `get-in-touch` (the ⌘K "Contact" jump) — `/faq#contact` is an FAQ
+  question's anchor.
 - **Heading rules**: exactly one H1 per page and it comes first in the HTML;
   levels never skip (H2 → H3 → …). Every H1 names him and/or "AI &
   Full-Stack Engineer". Headings are plain, human, descriptive — no
@@ -763,6 +772,46 @@ calls are server-side.
 In `next dev` the console shows React "eval() is not supported" warnings —
 dev-only, caused by the CSP; production is clean.
 
+`poweredByHeader: false` — no `X-Powered-By: Next.js`.
+
+### 14a. Security audit (12 Oct 2026) — what was checked, found and fixed
+
+**Attack surface** (everything that takes outside input): `/api/beacon`
+(POST JSON), `/api/v1/*` and `/api/[...path]` (GET), `/api/mcp` (JSON-RPC),
+`/md/*` and `proxy.ts` (paths, `Accept`), `/api/well-known/*`, and the
+vendored `/sims/*.html`. No forms, no accounts, no database, no file
+uploads, no cookies set by the site itself.
+
+| Area | Result |
+|---|---|
+| Dependencies | `npm audit --omit=dev`: **0** after upgrading **Next 16.3.5 → 16.3.8** (critical RCE in `next/og` ImageResponse — used by the share cards; SSRF in image optimisation; SSG/ISR cache poisoning; info disclosure) and `npm audit fix` (sharp 0.35.5 / librsvg, source-map-js 1.2.2). Remaining `npm audit` items are dev-only build tools (eslint-config-next → fast-glob, tailwind → braces/chokidar ReDoS) — never shipped; their fixes are major-version jumps. |
+| Secrets | No tokens/keys in the tree or anywhere in git history (Telegram, GitHub, OpenAI, AWS, private keys, JWTs); no `.env` ever committed; tokens live only in Vercel env vars. |
+| XSS | All `dangerouslySetInnerHTML` sources are static, author-written content in `lib/*`; JSON-LD escapes `<` (`components/JsonLd.tsx`); no user input is ever rendered into HTML; query strings aren't reflected; responses carry `nosniff`. Simulators' `innerHTML` writes only their own computed numbers (no text inputs). |
+| Injection into agents | Markdown 404 and every API error **no longer echo request text** (a crafted URL could have put words in the site's mouth for an AI agent); `Link` headers only for paths matching `^/[a-z0-9/_-]*$`. |
+| Telegram HTML injection | Every visitor-supplied string is escaped (`esc()`) before Telegram's HTML mode; payloads are zod-bounded (24 KB body cap). |
+| Abuse / spam | Beacon: cross-site `Origin` dropped, per-IP + global rate limits in separate human/suspect buckets, always 204. API: 120 req/min/IP. MCP: 60 req/min/IP. Vercel's platform firewall challenged the audit's own attack-like traffic within seconds. |
+| Traversal / redirects / CRLF | `/md/..`, `/.well-known/..`, `/api/v1/..` encoded traversal → nothing outside the app; every redirect stays on-site (`//evil.com` → `/evil.com`); CRLF in paths can't create headers. |
+| Methods | API is GET/HEAD/OPTIONS only (405 JSON otherwise); TRACE/TRACK/CONNECT → **405** in production (the proxy answers before Next); under a local `next start`, Next's runtime rejects TRACE itself with a generic 500 that echoes nothing. No cross-site tracing either way. |
+| Scanner targets | `/.env`, `/.git/*`, `package.json`, `next.config.ts`, `/.vercel/*`, WordPress/phpMyAdmin paths → 404 with no content. |
+| Source maps / disclosure | No public `.js.map`; no framework banner; no stack traces in error responses. |
+| Clickjacking | `frame-ancestors 'none'` + `X-Frame-Options: DENY` (sims: same-origin only). |
+| TLS | SSL Labs **A+** / **A** (Vercel's two edge IPs). HSTS 2 years + includeSubDomains. |
+| Headers | Mozilla Observatory **B (75)**: the deductions are CSP `'unsafe-inline'` (required by Next's inline bootstrap on static pages — a nonce CSP would force every page to render dynamically) and no Subresource Integrity on GA/Clarity (vendors change those files, so SRI would break them). Accepted trade-offs. |
+| CI | `.github/workflows/indexnow.yml` runs with `permissions: contents: read`; its only input is a boolean. |
+| MCP | Read-only tools (`readOnlyHint`), unknown tools rejected, no auth needed because nothing is writable. |
+
+**Regression tests**: `npm run verify` (72 checks) now asserts the hardening
+(no echo in markdown/API 404s, TRACE doesn't reflect, no X-Powered-By,
+frame-ancestors, HSTS ≥ 1 year) on every run.
+
+**Owner-level recommendations (not code)**: 2-factor authentication on the
+GitHub, Vercel, Google, Microsoft, Telegram and domain-registrar accounts;
+GitHub → Settings → Code security → enable **Dependabot alerts**, **secret
+scanning** and **push protection** (needs repo admin = the client); rotate
+the two Telegram bot tokens if they are ever pasted anywhere public; keep
+Next.js patched (re-run `npm audit --omit=dev` monthly). Optional: HSTS
+`preload` (adds the domain to browsers' built-in HTTPS list — hard to undo).
+
 ---
 
 ## 15. Images, video and brand assets
@@ -977,6 +1026,7 @@ beacon rate limits exist for this; don't remove them.
 | `5f294cf` | 2026-10-08 | GA4 `G-NQJCRJ7B2Z` and Clarity `yui86woola` switched on |
 | `3548221` | 2026-10-12 | Read-only JSON API `/api/v1`, OpenAPI 3.1 spec, JSON errors, /developers portal; MCP tools share the API builders (no CSS / component / visual changes; one footer link added) |
 | `7b6ae5b` | 2026-10-12 | Docs: is-agentic rescan **100/100** recorded |
+| `12067e0` | 2026-10-12 | Security audit fixes (Next 16.3.8, no request echo, TRACE/X-Powered-By, beacon Origin check, CI permissions), "Related pages" on every inner page, /experience breadcrumbs, HTML-validity fixes (SVG paths, modal hrefs, duplicate id), OpenAPI license |
 | `99fe3bf` | 2026-10-10 | Cookie banner removed: GA4 + Clarity on by default, GA tag in server HTML, disclosed on /privacy with an opt-out switch; GPC honoured |
 
 The original static files were moved out of the repo (they used the

@@ -8,7 +8,7 @@ phone number, the bank behind Sarthi, résumé decisions, account details)
 is in **`reports/HANDOFF_PRIVATE.md`** — gitignored, on the working machine
 only. **This repository is public: never commit anything from that file.**
 
-*Last updated: 12 October 2026 (after the JSON API and the is-agentic 100/100 rescan).*
+*Last updated: 12 October 2026 (security audit, related pages, external checks).*
 
 ---
 
@@ -154,6 +154,17 @@ Still to do in the dashboards (owner):
 - Clarity's "Almost there!" screen clears once the first sessions are
   processed. Don't paste the vendors' install snippets into the site — it
   would double-count.
+
+### Security — owner actions (no code)
+- Turn on **2-factor authentication** everywhere: GitHub (both accounts),
+  Vercel, Google (Analytics/Search Console), Microsoft (Clarity/Bing),
+  Telegram, and the domain registrar.
+- GitHub (repo admin = the client): Settings → **Code security** → enable
+  Dependabot alerts, Dependabot security updates, secret scanning and push
+  protection.
+- Monthly: `npm audit --omit=dev`; patch Next.js promptly when advisories
+  appear.
+- Optional: HSTS preload (hstspreload.org) — strong, but hard to undo.
 
 ### Optional, needs a decision
 11. ~~Read-only JSON API + OpenAPI for is-agentic~~ — **done 12 Oct**
@@ -326,6 +337,24 @@ Console → URL Inspection → Request indexing.
 - Docs: score recorded in HANDOFF §4 and PROJECT_BIBLE §10a; scores table
   updated (verify 66/66, unit tests 14/14).
 - Recommended next external checks are listed in §10 below.
+- **External checks run** (12 Oct): HTML validator (fixed: SVG `pathLength`
+  on circles → equivalent paths, modal links without `href`, duplicate
+  `id="contact"` on /faq); OpenAPI lint (Redocly: valid; added
+  `info.license`); MCP Inspector (7 read-only tools, 28 resources, calls
+  work); broken-link crawl (28 pages, 156 internal + 13 external URLs, **0
+  broken**, all `#anchors` resolve); SSL Labs **A+/A**; Mozilla Observatory
+  **B (75)** — accepted trade-offs (see PROJECT_BIBLE §14a).
+- **"Related pages"** block on every inner page + visible breadcrumbs on
+  /experience (internal linking was thin on About, FAQ, Experience,
+  Contact, Privacy).
+- **Security audit** (PROJECT_BIBLE §14a): Next.js 16.3.5 → **16.3.8**
+  (critical `next/og` RCE + SSRF + cache poisoning advisories), prod
+  dependencies 0 vulnerabilities, no secrets anywhere in history; fixed
+  request-text echo in markdown/API 404s, Link-header reflection, TRACE,
+  X-Powered-By, cross-site beacon posts, CI permissions. 49 live probes
+  (scanner paths, traversal, open redirect, XSS, CRLF, method tampering,
+  payload abuse, source maps, MCP); Vercel's firewall auto-blocked the
+  audit's own attack traffic. `npm run verify` → 72 checks.
 
 ---
 
